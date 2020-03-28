@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityGenerator;
-import com.jaamsim.ProcessFlow.SimEntity;
 import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.Keyword;
 
