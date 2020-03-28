@@ -1,0 +1,3 @@
+[submodule "jaamsim"]
+	path = jaamsim
+	url = https://github.com/jaamsim/jaamsim.git
