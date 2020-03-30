@@ -3,6 +3,7 @@ package hccm.activities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.Queue;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.ErrorException;
@@ -184,4 +185,11 @@ public class WaitActivity extends Queue implements Activity {
 		return finishEvent;
 	}
 
+	@Override
+	public List<ActiveEntity> getEntities() {
+		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
+		for (DisplayEntity de : getQueueList(getSimTime()))
+			ents.add((ActiveEntity)de);
+		return ents;
+	}
 }

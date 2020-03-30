@@ -23,6 +23,7 @@ public class FIFOQTrigger extends Trigger {
 			// Loop over the requests until one customer request and one server request are found
 			Request creq = null, sreq = null;
 	        for (Request r: requests) {
+	        	System.out.println(r);
 	        	if ( (creq == null) && (r.getRequester().getName().startsWith("Customer")) )
 	        		creq = r;
 	        	if ( (sreq == null) && (r.getRequester().getName().startsWith("Server")) )

@@ -14,4 +14,6 @@ public interface Activity extends ActivityOrEvent {
 	
 	void start(List<ActiveEntity> participants);
 	void finish(List<ActiveEntity> participants);
+	
+	List<ActiveEntity> getEntities();
 }

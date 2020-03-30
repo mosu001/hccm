@@ -60,4 +60,10 @@ public class ControlUnit extends DisplayEntity {
 	public void triggerLogic(Trigger trg, ActiveEntity ent, double simTime) {
 		trg.executeLogic(ent, simTime);
 	}
+	
+	@Override
+	public void earlyInit() {
+		super.earlyInit();
+		requestList.clear();
+	}
 }
