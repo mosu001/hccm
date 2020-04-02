@@ -66,12 +66,11 @@ public class ControlActivity extends EntityDelay implements Activity {
 		public void happens(List<ActiveEntity> ents) {
 			JaamSimModel model = getJaamSimModel();
 			EntityDelay ed = (EntityDelay)owner;
-			EntityContainer participantEntity = model.createInstance(EntityContainer.class);
 			int numCons = 0;
 			for (EntityContainer ent : model.getClonesOfIterator(EntityContainer.class))
 				numCons++;
-			participantEntity.setName(ed.getName() + "_" + numCons);
-			participantEntity.setFlag(Entity.FLAG_GENERATED); // Say containers were generated so they get cleared on reset
+			EntityContainer participantEntity = model.createInstance(EntityContainer.class,
+					ed.getName() + "_" + (numCons + 1), null, false, true, false, false);
 			participantEntity.setShow(false);
 			for (ActiveEntity ent : ents) {
 				participantEntity.addEntity(ent);

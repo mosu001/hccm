@@ -4,19 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityDelay;
 import com.jaamsim.ProcessFlow.Queue;
-import com.jaamsim.ProcessFlow.SimEntity;
 import com.jaamsim.Samples.SampleConstant;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.JaamSimModel;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpResult;
-import com.jaamsim.input.Input;
 import com.jaamsim.input.Keyword;
 import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
-import com.jaamsim.units.TimeUnit;
 
 import hccm.activities.ControlActivity;
 import hccm.activities.WaitActivity;
@@ -129,12 +126,22 @@ public class ABMTrigger extends Trigger {
 	            if (i1 == 1.0) {
 	            	infector = ent1.getName();
 	            	infectee = ent2.getName();
-					ent2.setAttribute("Infected", null, r);
+	            	try {
+	            		ent2.setAttribute("Infected", null, r);
+	            	} catch (ExpError e) {
+	            		throw new RuntimeException("Cannot set Infected attribute to " + r.toString() +
+	            				                   "on " + ent2.getName());
+	            	}
 	            } else {
 	            	assert(i2 == 1.0);
 	            	infector = ent2.getName();
 	            	infectee = ent1.getName();
-					ent1.setAttribute("Infected", null, r);
+	            	try {
+	            		ent1.setAttribute("Infected", null, r);
+	            	} catch (ExpError e) {
+	            		throw new RuntimeException("Cannot set Infected attribute to " + r.toString() +
+	            				                   "on " + ent1.getName());	            	  	
+	            	}
 	            }
 	            if ( infector.startsWith("Customer") && infectee.startsWith("Customer") )
 	            	numCustToCust++;
