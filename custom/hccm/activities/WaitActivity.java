@@ -21,8 +21,19 @@ import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
 import hccm.events.ActivityEvent;
 
+
+/**
+ * 
+ * @author Michael O'Sullivan
+ * @version 0.0.1
+ * @since 0.0.1
+ * 
+ *
+ */
 public class WaitActivity extends Queue implements Activity {
-	
+	/**
+	 * 
+	 */
 	@Keyword(description = "The activities that may be requested when waiting starts.",
 	         exampleList = {"Activity1"})
 	protected final EntityListInput<ControlActivity> requestActivityList;
@@ -59,12 +70,26 @@ public class WaitActivity extends Queue implements Activity {
 	                        "{ 'this.D = 1[s] + 0.5*this.SimTime' }"})
 	private final AssignmentListInput finishAssignmentList;
 
+	/**
+	 * 
+	 * @author Michael O'Sullivan
+	 * @version 0.0.1
+	 * @since 0.0.1
+	 */
 	class WaitStart extends ActivityEvent {
-		
+		/**
+		 * 
+		 * @param act
+		 */
 		WaitStart(Activity act) {
 			super(act);
 		}
 
+		/**
+		 * Wait activity happens
+		 * @param ents, a list of ActiveEntity objects
+		 * @exception ErrorException throws errors related to evaluating the assignment expressions
+		 */
 		public void happens(List<ActiveEntity> ents) {
 			WaitActivity act = (WaitActivity)owner;
 			double simTime = getSimTime();
@@ -108,12 +133,23 @@ public class WaitActivity extends Queue implements Activity {
 		}
 	}
 	
+	/**
+	 * 
+	 * @author Michael O'Sullivan
+	 * @version 0.0.1
+	 * @since 0.0.1
+	 *
+	 */
 	class WaitFinish extends ActivityEvent {
 
 		WaitFinish(Activity act) {
 			super(act);
 		}
 
+		/**
+		 * Wait finish happens
+		 * @param ents, a list of ActiveEntity objects
+		 */
 		public void happens(List<ActiveEntity> ents) {
 			WaitActivity act = (WaitActivity)owner;
 			
@@ -132,6 +168,9 @@ public class WaitActivity extends Queue implements Activity {
 	WaitStart startEvent;
 	WaitFinish finishEvent;
 	
+	/**
+	 * ?
+	 */
 	{		
 		startAssignmentList = new AssignmentListInput("StartAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(startAssignmentList);
@@ -161,6 +200,10 @@ public class WaitActivity extends Queue implements Activity {
 		finishEvent = new WaitFinish(this);
 	}
 	
+	/**
+	 * Overrides parent function, starts the wait activity
+	 * @param ents, a list of ActiveEntity objects
+	 */
 	@Override
 	public void start(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
@@ -168,6 +211,10 @@ public class WaitActivity extends Queue implements Activity {
 		startEvent.happens(ents);
 	}
 	
+	/**
+	 * Overrides parent function, finishes the wait activity
+	 * @param ents, a list of ActiveEntity objects
+	 */
 	@Override
 	public void finish(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
@@ -175,16 +222,28 @@ public class WaitActivity extends Queue implements Activity {
 		removeEntity(ents.get(0));
 	}
 	
+	/**
+	 * Overrides parent function, getter function for the startEvent object
+	 * @return startEvent, the start event object
+	 */
 	@Override
 	public ActivityEvent getStartEvent() {
 		return startEvent;
 	}
 
+	/**
+	 * Overrides parent function, getter function for the finishEvent object
+	 * @return finishEvent, the finish event object
+	 */
 	@Override
 	public ActivityEvent getFinishEvent() {
 		return finishEvent;
 	}
 
+	/**
+	 * Overrides parent function, getter function for ents
+	 * @return ents, a list of ActiveEntity objects
+	 */
 	@Override
 	public List<ActiveEntity> getEntities() {
 		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();

@@ -11,8 +11,20 @@ import hccm.controlunits.ControlUnit.Request;
 import hccm.controlunits.ControlUnit.RequestUtils;
 import hccm.entities.ActiveEntity;
 
+/**
+ * 
+ * @author Michael O'Sullivan
+ * @version 0.0.1
+ * @since 0.0.1
+ * 
+ */
 public class FIFOQTrigger extends Trigger {
 
+	/**
+	 * Overrides parent class, executes the logic of the FIFO queue
+	 * @param ent, an ActiveEntity object
+	 * @param simTime, a double, the sim time
+	 */
 	@Override
 	public void executeLogic(ActiveEntity ent, double simTime) {
 		ControlUnit cu = getControlUnit();

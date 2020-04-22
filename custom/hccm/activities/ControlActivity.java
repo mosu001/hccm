@@ -2,13 +2,13 @@ package hccm.activities;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.StreamSupport;
+//import java.util.stream.StreamSupport;
 
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityContainer;
 import com.jaamsim.ProcessFlow.EntityDelay;
-import com.jaamsim.Samples.SampleInput;
-import com.jaamsim.basicsim.Entity;
+//import com.jaamsim.Samples.SampleInput;
+//import com.jaamsim.basicsim.Entity;
 import com.jaamsim.basicsim.JaamSimModel;
 import com.jaamsim.input.AssignmentListInput;
 import com.jaamsim.input.EntityInput;
@@ -16,15 +16,21 @@ import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.ExpParser;
 import com.jaamsim.input.InterfaceEntityListInput;
 import com.jaamsim.input.Keyword;
-import com.jaamsim.units.DimensionlessUnit;
+//import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.ActivityOrEvent;
 import hccm.Constants;
 import hccm.controlunits.ControlUnit;
-import hccm.controlunits.Trigger;
+//import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
 import hccm.events.ActivityEvent;
 
+
+/**
+ * @author Michael O'Sullivan
+ * @version 0.1
+ * @since 0.1
+ */
 public class ControlActivity extends EntityDelay implements Activity {
 	
 	@Keyword(description = "Control unit this activity belongs to.",
@@ -56,18 +62,30 @@ public class ControlActivity extends EntityDelay implements Activity {
 	         exampleList = {"{ 'this.A = 1' } { 'this.obj.B = 1' } { '[Ent1].C = 1' }",
 	                        "{ 'this.D = 1[s] + 0.5*this.SimTime' }"})
 	private final AssignmentListInput finishAssignmentList;
-
+	
+	/**
+	 * 
+	 * @author Michael O'Sullivan
+	 * @version 0.0.1
+	 * @since 0.0.1
+	 */
 	class ControlStart extends ActivityEvent {
-		
+		/**
+		 * Calls the ActivityEvent ControlStart() method ie. the parent class method
+		 * @param act, an activity
+		 */
 		ControlStart(Activity act) {
 			super(act);
 		}
 
+		/**
+		 * ?
+		 */
 		public void happens(List<ActiveEntity> ents) {
 			JaamSimModel model = getJaamSimModel();
 			EntityDelay ed = (EntityDelay)owner;
 			int numCons = 0;
-			for (EntityContainer ent : model.getClonesOfIterator(EntityContainer.class))
+			for (@SuppressWarnings("unused") EntityContainer ent : model.getClonesOfIterator(EntityContainer.class))
 				numCons++;
 			EntityContainer participantEntity = model.createInstance(EntityContainer.class,
 					ed.getName() + "_" + (numCons + 1), null, false, true, false, false);
@@ -80,12 +98,26 @@ public class ControlActivity extends EntityDelay implements Activity {
 		
 	}
 	
+	/**
+	 * 
+	 * @author Michael O'Sullivan
+	 * @version 0.0.1
+	 * @since 0.0.1
+	 *
+	 */
 	class ControlFinish extends ActivityEvent {
-
+		/**
+		 * Calls the ActivityEvent ControlFinish() method ie. the parent class method
+		 * @param act, an activity
+		 */
 		ControlFinish(Activity act) {
 			super(act);
 		}
 
+		/**
+		 * ?
+		 * @param ents, a list of active entities
+		 */
 		@Override
 		public void happens(List<ActiveEntity> ents) {
 			// Send each entity to its next activity or event
@@ -100,7 +132,10 @@ public class ControlActivity extends EntityDelay implements Activity {
 
 	ControlStart startEvent;
 	ControlFinish finishEvent;
-		
+	
+	/**
+	 * 
+	 */
 	{
 		controlUnitInput = new EntityInput<ControlUnit>(ControlUnit.class, "ControlUnit", Constants.HCCM, null);
 		controlUnitInput.setRequired(true);
@@ -126,17 +161,33 @@ public class ControlActivity extends EntityDelay implements Activity {
 		startEvent = new ControlStart(this);
 		finishEvent = new ControlFinish(this);
 	}
-
+	/**
+	 * Overrides parent ActivityEvent method, getter method for startEvent
+	 * @return startEvent
+	 */
 	@Override
 	public ActivityEvent getStartEvent() { return startEvent; }
+	
+	/**
+	 * Overrides parent ActivityEvent method, getter method for finishEvent
+	 * @return finishEvent
+	 */
 	@Override
 	public ActivityEvent getFinishEvent() { return finishEvent; }
 		
+	/**
+	 * Overrides parent ActivityEvent method, executes the startEvent
+	 * @param participants, a list of ActiveEntity objects that participate in the start event
+	 */
 	@Override
 	public void start(List<ActiveEntity> participants) {
 		startEvent.happens(participants);
 	}
 	
+	/**
+	 * Overrides parent ActivityEvent method, sends an entity to the next component in its process?
+	 * @param ent, a DisplayEntity
+	 */
 	@Override
 	public void sendToNextComponent(DisplayEntity ent) {
 		EntityContainer participantEntity = (EntityContainer)ent;
@@ -150,13 +201,25 @@ public class ControlActivity extends EntityDelay implements Activity {
 		finish(participants);
 	}
 
+	/**
+	 * Overrides parent ActivityEvent method, executes the finish event by calling .happens()
+	 * @param participants, a list of ActiveEntity objects that participate in the start event
+	 */
 	@Override
 	public void finish(List<ActiveEntity> participants) {
 		finishEvent.happens(participants);
 	}
 	
+	/**
+	 * Getter method to get the controlUnit of the control activity
+	 * @return controlUnitInput.getValue(), the value? 
+	 */
 	public ControlUnit getControlUnit() { return controlUnitInput.getValue(); }
 
+	/**
+	 * Overrides parent ActivityEvent method, gets the entities of the control activity
+	 * @return ents, a list of ActiveEntity objects
+	 */
 	@Override
 	public List<ActiveEntity> getEntities() {
 		double simTime = getSimTime();
@@ -169,6 +232,10 @@ public class ControlActivity extends EntityDelay implements Activity {
 		return ents;
 	}
 
+	/**
+	 * Gets the participants of the control activity
+	 * @return entArrs, an array of arrays of ActiveEntity objects
+	 */
 	public ArrayList<ArrayList<ActiveEntity>> getParticipants() {
 		double simTime = getSimTime();
 		ArrayList<ArrayList<ActiveEntity>> entArrs = new ArrayList<ArrayList<ActiveEntity>>();

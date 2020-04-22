@@ -22,20 +22,42 @@ import hccm.controlunits.Trigger;
 import hccm.controlunits.ControlUnit.Request;
 import hccm.entities.ActiveEntity;
 
+/**
+ * @author Michael O'Sullivan
+ * @version 0.0.1
+ * @since 0.0.1
+ */
 public class ABMTrigger extends Trigger {
-
+	/**
+	 * Variable description
+	 */
 	@Keyword(description = "The probability distribution for infected individual to uninfected individual transmission.",
 	         exampleList = { "0.5", "UniformDistribution1", "'0.5 + 0.5*[UniformDistribution2].Value'" })
 	private final SampleInput infectionDistribution;
-
+	/**
+	 * Variable description
+	 */
 	@Keyword(description = "The threshold for testing the infection distribution against.",
 	         exampleList = {"0.75", "InputValue1", "[InputValue1].Value"})
 	private final SampleInput infectionThreshold;
-
+	
+	/**
+	 * Number of infections from customer to customer
+	 */
 	private int numCustToCust;
+	/**
+	 * Number of infections from customer to server
+	 */
 	private int numCustToServ;
+	/**
+	 * Number of infections from server to customer
+	 */
 	private int numServToCust;
 	
+	/**
+	 * infectionDistribution, the probability distribution for infection?
+	 * infectionThreshold, the threshold for infection?
+	 */
 	{
 		infectionDistribution = new SampleInput("TransmissionProbability", KEY_INPUTS, new SampleConstant(DimensionlessUnit.class, 0.0));
 		infectionDistribution.setUnitType(DimensionlessUnit.class);
@@ -50,12 +72,30 @@ public class ABMTrigger extends Trigger {
 		this.addInput(infectionThreshold);
 	}
 
+	/**
+	 * Overrides Trigger Class earlyInit() function
+	 * <p>
+	 * Sets numCustToCust, numCustToServ, numServToCust = 0
+	 * <p>
+	 * @param None
+	 * @return None
+	 * 
+	 */
 	@Override
 	public void earlyInit( ) {
 		super.earlyInit();
 		numCustToCust = numCustToServ = numServToCust = 0;
 	}
 	
+	/**
+	 * Overrides Trigger Class executeLogic() function
+	 * <p>
+	 * Executes the logic for a particular entity at a particular time
+	 * <p>
+	 * @param ent, an ActiveEntity object
+	 * @param simTime, the current time in the simulation
+	 * @return void
+	 */
 	@Override
 	public void executeLogic(ActiveEntity ent, double simTime) {
 		ControlUnit cu = getControlUnit();
@@ -87,6 +127,7 @@ public class ABMTrigger extends Trigger {
 				Interact(cents);
 	    	}
 	    }
+	    // 
 	    for (WaitActivity wact : waitActs) {
 	    	System.out.println("In Timer with " + wact.getName());
 	    	for (ActiveEntity went : wact.getEntities())
@@ -98,6 +139,17 @@ public class ABMTrigger extends Trigger {
 	    req.getRequested().start(timer.asList());
 	}
 
+	/**
+	 * Does all interactions of entities in a list
+	 * 
+	 * <p>
+	 * For each combination of entities in the given list, calls the Interact()
+	 * function {@link #Interact(ActiveEntity, ActiveEntity)}
+	 * <p>
+	 * 
+	 * @param ents, a list of ActiveEntity objects
+	 * @return void
+	 */
 	private void Interact(List<ActiveEntity> ents) {
 		if (ents.size() > 1)
 			for (int i=0; i<ents.size()-1; i++)
@@ -110,6 +162,18 @@ public class ABMTrigger extends Trigger {
 		
 	}
 	
+	/**
+	 * Executes the interaction between two entities
+	 * 
+	 * <p>
+	 * Models the transmission between two entities. If one is infected and the other is not, there is a chance they will both become infected.
+	 * <p>
+	 * 
+	 * @param ent1, entity 1
+	 * @param ent2, entity 2
+	 * @exception RuntimeException Thrown if the .setAttribute() method fails on an entity. Prints the variable that was to be set, and the entity it was to be set on.
+	 * @return void
+	 */
 	private void Interact(ActiveEntity ent1, ActiveEntity ent2) {
 		double simTime = getSimTime();
 		double i1 = ent1.getOutputHandle("Infected").getValueAsDouble(simTime, -1);
@@ -123,19 +187,23 @@ public class ABMTrigger extends Trigger {
 				// Both entities are now infected
 				String infector, infectee;
 	            ExpResult r = ExpResult.makeNumResult(1.0, DimensionlessUnit.class);
+	            // if i1 is infected
 	            if (i1 == 1.0) {
 	            	infector = ent1.getName();
 	            	infectee = ent2.getName();
+	            	// Try to set i2 infected, throws RuntimeException on failure
 	            	try {
 	            		ent2.setAttribute("Infected", null, r);
 	            	} catch (ExpError e) {
 	            		throw new RuntimeException("Cannot set Infected attribute to " + r.toString() +
 	            				                   "on " + ent2.getName());
 	            	}
+	            // else i2 should be infected	
 	            } else {
 	            	assert(i2 == 1.0);
 	            	infector = ent2.getName();
 	            	infectee = ent1.getName();
+	            	// Try to set i1 infected, throws RuntimeException on failure
 	            	try {
 	            		ent1.setAttribute("Infected", null, r);
 	            	} catch (ExpError e) {
@@ -143,6 +211,7 @@ public class ABMTrigger extends Trigger {
 	            				                   "on " + ent1.getName());	            	  	
 	            	}
 	            }
+	            // Updates transmission counts
 	            if ( infector.startsWith("Customer") && infectee.startsWith("Customer") )
 	            	numCustToCust++;
 	            else if ( infector.startsWith("Customer") && infectee.startsWith("Server") )
@@ -156,6 +225,11 @@ public class ABMTrigger extends Trigger {
 
 	}
 	
+	/**
+	 * A JaamSim Output, the number of cases of transmission
+	 * @param simTime
+	 * @return 
+	 */
 	@Output(name = "NumberOfTransmissions",
 			 description = "The number of individual to individual transmissions.",
 			    unitType = DimensionlessUnit.class,
@@ -164,6 +238,11 @@ public class ABMTrigger extends Trigger {
 				return (numCustToCust + numCustToServ + numServToCust);
 			}
 
+	/**
+	 * A JaamSim Output, returns numCustToCust
+	 * @param simTime
+	 * @return 
+	 */
 	@Output(name = "NumberOfCustomerToCustomer",
 			 description = "The number of customer to customer transmissions.",
 			    unitType = DimensionlessUnit.class,
@@ -172,6 +251,11 @@ public class ABMTrigger extends Trigger {
 				return numCustToCust;
 			}
 
+	/**
+	 * A JaamSim Output, returns numCustToServ
+	 * @param simTime
+	 * @return
+	 */
 	@Output(name = "NumberOfCustomerToServer",
 			 description = "The number of customer to server transmissions.",
 			    unitType = DimensionlessUnit.class,
@@ -180,6 +264,11 @@ public class ABMTrigger extends Trigger {
 				return numCustToServ;
 			}
 
+	/**
+	 * A JaamSim Output, returns numServToCust
+	 * @param simTime
+	 * @return
+	 */
 	@Output(name = "NumberOfServerToCustomer",
 			 description = "The number of server to customer transmissions.",
 			    unitType = DimensionlessUnit.class,

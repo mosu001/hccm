@@ -14,7 +14,18 @@ import com.jaamsim.Graphics.OverlayClock;
 import com.jaamsim.input.Keyword;
 import com.jaamsim.input.StringInput;
 
+/**
+ * @author Michael O'Sullivan
+ * @version 0.0.1
+ * @since 0.0.1
+ */
 public class CustomClock extends OverlayClock {
+	/**
+	 * startMonth
+	 * startDay
+	 * startTime
+	 * 
+	 */
 	@Keyword(description = "Month the clock starts.",
 			 exampleList = {"Jun", "Jul", "Sep"})
 	private final StringInput startMonth;
@@ -44,6 +55,9 @@ public class CustomClock extends OverlayClock {
 		this.addInput(startTime);
 	}
 
+	/**
+	 * Sets up the calendar and date format based on the specific time zone
+	 */
 	public CustomClock() {
 		calendar = Calendar.getInstance();
 		calendar.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
@@ -51,6 +65,12 @@ public class CustomClock extends OverlayClock {
 		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
+	/**
+	 * Overrides the OverlayClock() function and renders the date and time text as a string with the specific date and time formats
+	 * 
+	 * @param simTime, the current time of the simulation
+	 * @return String, the rendered text (or the failed text if caught exception)
+	 */
 	@Override
 	public String getRenderText(double simTime) {
 
@@ -64,7 +84,7 @@ public class CustomClock extends OverlayClock {
 		String yStr = Integer.toString(year), mStr = startMonth.getValue(), dStr = startDay.getValue(), tStr = startTime.getValue();
 		if ( (mStr != null) && (mStr.length() == 1) ) mStr = "0" + mStr;
 		if ( (dStr != null) && (dStr.length() == 1) ) dStr = "0" + dStr;		
-		String dtStr = Integer.toString(year) + "-" + mStr + "-" + dStr + " " + tStr;
+		String dtStr = yStr + "-" + mStr + "-" + dStr + " " + tStr;
 		DateTimeFormatter iformatter = DateTimeFormatter.ofPattern("yyyy-MMM-d H:mm");
 		LocalDateTime dt;
 		try {
@@ -76,7 +96,7 @@ public class CustomClock extends OverlayClock {
 		  
 		  calendar.setTime(Date.from(zdt.toInstant()));
 		  return dateFormat.format(calendar.getTime());
-		} catch (Exception e)
+		} catch (Exception e) // catch all exceptions and return a custom error string
 		{
 			System.out.println("Error parsing CustomClock string = " + dtStr);
 			return this.failText.getValue();
