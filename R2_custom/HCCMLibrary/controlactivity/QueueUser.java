@@ -1,4 +1,4 @@
-package HCCMLibrary;
+package HCCMLibrary.controlactivity;
 
 import java.util.ArrayList;
 
@@ -10,7 +10,7 @@ public interface QueueUser {
 	 * Returns a list of the Queues used by this object.
 	 * @return the Queue list.
 	 */
-	public abstract ArrayList<HCCMQueue> getQueues();
+	public abstract ArrayList<HCCMControlActivity> getQueues();
 
 	/**
 	 * Called whenever an entity is added to one of the Queues used

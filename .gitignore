@@ -2,3 +2,8 @@
 /.classpath
 /.project
 /jaamsim/
+/R2_custom/HCCMLibrary/events/*.ini
+/R2_custom/HCCMLibrary/controllers/*.ini
+/R2_custom/HCCMLibrary/controlactivity/*.ini
+/R2_custom/HCCMLibrary/entities/*.ini
+/R2_custom/HCCMLibrary/entitydelay/*.ini

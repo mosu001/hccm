@@ -1,4 +1,4 @@
-package HCCMLibrary;
+package HCCMLibrary.controlactivity;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public abstract class LinkedService extends LinkedDevice implements QueueUser {
 
 	@Keyword(description = "The queue in which the waiting DisplayEntities will be placed.",
 	         exampleList = {"Queue1"})
-	protected final EntityInput<HCCMQueue> waitQueue;
+	protected final EntityInput<HCCMControlActivity> waitQueue;
 
 	@Keyword(description = "An expression returning a string value that determines which of the "
 	                     + "queued entities are eligible to be selected. "
@@ -50,7 +50,7 @@ public abstract class LinkedService extends LinkedDevice implements QueueUser {
 		processPosition.setUnitType(DistanceUnit.class);
 		this.addInput(processPosition);
 
-		waitQueue = new EntityInput<>(HCCMQueue.class, "WaitQueue", KEY_INPUTS, null);
+		waitQueue = new EntityInput<>(HCCMControlActivity.class, "WaitQueue", KEY_INPUTS, null);
 		waitQueue.setRequired(true);
 		this.addInput(waitQueue);
 
@@ -123,7 +123,7 @@ public abstract class LinkedService extends LinkedDevice implements QueueUser {
 	// WAIT QUEUE
 	// ********************************************************************************************
 
-	public void addQueue(HCCMQueue que) {
+	public void addQueue(HCCMControlActivity que) {
 		if (waitQueue.getHidden()) {
 			return;
 		}
@@ -135,8 +135,8 @@ public abstract class LinkedService extends LinkedDevice implements QueueUser {
 	}
 
 	@Override
-	public ArrayList<HCCMQueue> getQueues() {
-		ArrayList<HCCMQueue> ret = new ArrayList<>();
+	public ArrayList<HCCMControlActivity> getQueues() {
+		ArrayList<HCCMControlActivity> ret = new ArrayList<>();
 		if (waitQueue.getValue() != null)
 			ret.add(waitQueue.getValue());
 		return ret;

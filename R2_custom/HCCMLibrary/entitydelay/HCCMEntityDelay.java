@@ -1,4 +1,4 @@
-package HCCMLibrary;
+package HCCMLibrary.entitydelay;
 
 
 import java.util.ArrayList;
@@ -17,14 +17,16 @@ import com.jaamsim.input.BooleanInput;
 import com.jaamsim.input.ColourInput;
 import com.jaamsim.input.Input;
 import com.jaamsim.input.IntegerInput;
+import com.jaamsim.input.InterfaceEntityListInput;
 import com.jaamsim.input.Keyword;
 import com.jaamsim.input.Output;
 import com.jaamsim.math.Color4d;
 import com.jaamsim.math.Vec3d;
 import com.jaamsim.units.TimeUnit;
-import com.jaamsim.ProcessFlow.*;
 
-import HCCMLibrary.ControllerHCCM;
+import HCCMLibrary.controllers.HCCMController;
+
+import com.jaamsim.ProcessFlow.*;
 
 /**
  * Moves one or more Entities along a path with a specified travel time. Entities can have different travel times, which
@@ -32,37 +34,49 @@ import HCCMLibrary.ControllerHCCM;
  */
 public class HCCMEntityDelay extends LinkedComponent implements LineEntity {
 
+	// Added
+	@Keyword(description = "List of Controllers to which the Start Activity signal is sended.",
+			exampleList = {"ExampleController"})
+	private final InterfaceEntityListInput<HCCMController> StartActivitySignalList;
+	// Added
+
+	// Added
+	@Keyword(description = "List of Controllers to which the End Activity signal is sended.",
+			exampleList = {"ExampleController"})
+	private final InterfaceEntityListInput<HCCMController> EndActivitySignalList;
+	// Added
+
 	@Keyword(description = "The delay time for the path.",
-	         exampleList = { "3.0 h", "NormalDistribution1", "'1[s] + 0.5*[TimeSeries1].PresentValue'" })
+			exampleList = { "3.0 h", "NormalDistribution1", "'1[s] + 0.5*[TimeSeries1].PresentValue'" })
 	private final SampleInput duration;
 
 	@Keyword(description = "If TRUE, an entity can pass a second entity that started ahead of it. "
-	                     + "If FALSE, the entity's duration is increased sufficiently for it to "
-	                     + "arrive no earlier than the previous entity.",
-	         exampleList = {"TRUE"})
+			+ "If FALSE, the entity's duration is increased sufficiently for it to "
+			+ "arrive no earlier than the previous entity.",
+			exampleList = {"TRUE"})
 	private final BooleanInput allowOvertaking;
 
 	@Keyword(description = "The minimum time between the previous entity leaving the path and "
-	                     + "the present entity leaving the path. "
-	                     + "Applicable only when entities are prevented from overtaking.",
-	         exampleList = { "3.0 h", "NormalDistribution1", "'1[s] + 0.5*[TimeSeries1].PresentValue'" })
+			+ "the present entity leaving the path. "
+			+ "Applicable only when entities are prevented from overtaking.",
+			exampleList = { "3.0 h", "NormalDistribution1", "'1[s] + 0.5*[TimeSeries1].PresentValue'" })
 	private final SampleInput minSeparation;
 
 	@Keyword(description = "If TRUE, a delayed entity is moved along the specified path to "
-	                     + "indicate its progression through the delay.",
-	         exampleList = {"TRUE"})
+			+ "indicate its progression through the delay.",
+			exampleList = {"TRUE"})
 	private final BooleanInput animation;
 
 	@Keyword(description = "Determines whether to rotate the entities to match the path.",
-	         exampleList = {"TRUE"})
+			exampleList = {"TRUE"})
 	private final BooleanInput rotateEntities;
 
 	@Keyword(description = "The width of the path in pixels.",
-	         exampleList = {"1"})
+			exampleList = {"1"})
 	private final IntegerInput widthInput;
 
 	@Keyword(description = "The colour of the path.",
-	         exampleList = {"red"})
+			exampleList = {"red"})
 	private final ColourInput colorInput;
 
 	private long exitTicks;  // ticks at which the previous entity will leave the path
@@ -73,6 +87,20 @@ public class HCCMEntityDelay extends LinkedComponent implements LineEntity {
 		displayModelListInput.addValidClass(PolylineModel.class);
 
 		stateGraphics.setHidden(false);
+
+		// Added
+		StartActivitySignalList = new InterfaceEntityListInput<>(HCCMController.class, "StartActivitySignalList", "HCCM", null);
+		StartActivitySignalList.setRequired(false);
+		StartActivitySignalList.setUnique(false);
+		this.addInput(StartActivitySignalList);
+		// Added
+
+		// Added
+		EndActivitySignalList = new InterfaceEntityListInput<>(HCCMController.class, "EndActivitySignalList", "HCCM", null);
+		EndActivitySignalList.setRequired(false);
+		EndActivitySignalList.setUnique(false);
+		this.addInput(EndActivitySignalList);
+		// Added
 
 		duration = new SampleInput("Duration", KEY_INPUTS, null);
 		duration.setUnitType(TimeUnit.class);
@@ -178,9 +206,16 @@ public class HCCMEntityDelay extends LinkedComponent implements LineEntity {
 
 		// Set the present state to Working
 		this.setPresentState();
-		
-		String state = "StartActivity";
-		ControllerHCCM.Controller(ent, this, state);
+
+		// Added
+		if (StartActivitySignalList.getValue() != null) {
+			for (HCCMController controller : StartActivitySignalList.getValue()) {
+				String state = "StartActivity";
+				((HCCMController)controller).Controller(ent, this, state);
+			}
+		}
+		// Added
+
 	}
 
 	private static class RemoveDisplayEntityTarget extends EntityTarget<HCCMEntityDelay> {
@@ -204,14 +239,20 @@ public class HCCMEntityDelay extends LinkedComponent implements LineEntity {
 			entityMap.remove(ent.getEntityNumber());
 
 		// Send the entity to the next component
-		
-		String state = "EndActivity";
-		ControllerHCCM.Controller(ent, this, state);
-		
+
+		// Added
+		if (EndActivitySignalList.getValue() != null) {
+			for (HCCMController controller : EndActivitySignalList.getValue()) {
+				String state = "EndActivity";
+				((HCCMController)controller).Controller(ent, this, state);
+			}
+		}
+		// Added
+
 		this.sendToNextComponent(ent);
 		this.setPresentState();
-		
-		
+
+
 	}
 
 	public void setPresentState() {
@@ -279,8 +320,8 @@ public class HCCMEntityDelay extends LinkedComponent implements LineEntity {
 	}
 
 	@Output(name = "EntityList",
-	 description = "The entities being processed at present.",
-	    sequence = 1)
+			description = "The entities being processed at present.",
+			sequence = 1)
 	public ArrayList<DisplayEntity> getEntityList(double simTime) {
 		ArrayList<DisplayEntity> ret = new ArrayList<>(entityMap.size());
 		for (EntityDelayEntry entry : entityMap.values()) {

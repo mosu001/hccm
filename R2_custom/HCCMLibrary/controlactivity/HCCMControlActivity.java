@@ -1,4 +1,4 @@
-package HCCMLibrary;
+package HCCMLibrary.controlactivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +23,7 @@ import com.jaamsim.input.BooleanInput;
 import com.jaamsim.input.Input;
 import com.jaamsim.input.IntegerInput;
 import com.jaamsim.input.InterfaceEntityInput;
+import com.jaamsim.input.InterfaceEntityListInput;
 import com.jaamsim.input.Keyword;
 import com.jaamsim.input.Output;
 import com.jaamsim.input.ValueInput;
@@ -30,56 +31,71 @@ import com.jaamsim.math.Vec3d;
 import com.jaamsim.units.DimensionlessUnit;
 import com.jaamsim.units.DistanceUnit;
 import com.jaamsim.units.TimeUnit;
+
+import HCCMLibrary.controllers.HCCMController;
+
 import com.jaamsim.ProcessFlow.*;
 
-import HCCMLibrary.ControllerHCCM;
 
-public class HCCMQueue extends LinkedComponent {
+public class HCCMControlActivity extends LinkedComponent {
+
+	// Added
+	@Keyword(description = "List of Controllers to which the Start Activity signal is sended.",
+			exampleList = {"ExampleController"})
+	private final InterfaceEntityListInput<HCCMController> StartActivitySignalList;
+	// Added
+
+	// Added
+	@Keyword(description = "List of Controllers to which the End Activity signal is sended.",
+			exampleList = {"ExampleController"})
+	public
+	final InterfaceEntityListInput<HCCMController> EndActivitySignalList;
+	// Added
 
 	@Keyword(description = "The priority for positioning the received entity in the queue. "
-	                     + "Priority is integer valued and a lower numerical value indicates a "
-	                     + "higher priority. "
-	                     + "For example, priority 3 is higher than 4, and priorities 3, 3.2, and "
-	                     + "3.8 are equivalent.",
-	         exampleList = {"this.obj.Attrib1"})
+			+ "Priority is integer valued and a lower numerical value indicates a "
+			+ "higher priority. "
+			+ "For example, priority 3 is higher than 4, and priorities 3, 3.2, and "
+			+ "3.8 are equivalent.",
+			exampleList = {"this.obj.Attrib1"})
 	private final SampleInput priority;
 
 	@Keyword(description = "An expression returning a string value that categorizes the queued "
-	                     + "entities. The expression is evaluated and the value saved when the "
-	                     + "entity first arrives at the queue. "
-	                     + "Expressions that return a dimensionless integer or an object are also "
-	                     + "valid. The returned number or object is converted to a string "
-	                     + "automatically. A floating point number is truncated to an integer.",
-	         exampleList = {"this.obj.Attrib1"})
+			+ "entities. The expression is evaluated and the value saved when the "
+			+ "entity first arrives at the queue. "
+			+ "Expressions that return a dimensionless integer or an object are also "
+			+ "valid. The returned number or object is converted to a string "
+			+ "automatically. A floating point number is truncated to an integer.",
+			exampleList = {"this.obj.Attrib1"})
 	private final StringProvInput match;
 
 	@Keyword(description = "Determines the order in which entities are placed in the queue (FIFO "
-	                     + "or LIFO):\n"
-	                     + "TRUE = first in first out (FIFO) order (the default setting),\n"
-	                     + "FALSE = last in first out (LIFO) order.",
-	         exampleList = {"FALSE"})
+			+ "or LIFO):\n"
+			+ "TRUE = first in first out (FIFO) order (the default setting),\n"
+			+ "FALSE = last in first out (LIFO) order.",
+			exampleList = {"FALSE"})
 	private final BooleanInput fifo;
 
 	@Keyword(description = "The time an entity will wait in the queue before deciding whether or "
-	                     + "not to renege. Evaluated when the entity first enters the queue.",
-	         exampleList = {"3.0 h", "NormalDistribution1",
-	                        "'1[s] + 0.5*[TimeSeries1].PresentValue'"})
+			+ "not to renege. Evaluated when the entity first enters the queue.",
+			exampleList = {"3.0 h", "NormalDistribution1",
+	"'1[s] + 0.5*[TimeSeries1].PresentValue'"})
 	private final SampleInput renegeTime;
 
 	@Keyword(description = "A logical condition that determines whether an entity will renege "
-	                     + "after waiting for its RenegeTime value. Note that TRUE and FALSE are "
-	                     + "entered as 1 and 0, respectively.",
-	         exampleList = {"1", "'this.QueuePosition > 1'",
-	                        "'this.QueuePostion > [Queue2].QueueLength'"})
+			+ "after waiting for its RenegeTime value. Note that TRUE and FALSE are "
+			+ "entered as 1 and 0, respectively.",
+			exampleList = {"1", "'this.QueuePosition > 1'",
+	"'this.QueuePostion > [Queue2].QueueLength'"})
 	private final SampleInput renegeCondition;
 
 	@Keyword(description = "The object to which an entity will be sent if it reneges.",
-	         exampleList = {"Branch1"})
+			exampleList = {"Branch1"})
 	protected final InterfaceEntityInput<Linkable> renegeDestination;
 
 	@Keyword(description = "The amount of graphical space shown between DisplayEntity objects in "
-	                     + "the queue.",
-	         exampleList = {"1 m"})
+			+ "the queue.",
+			exampleList = {"1 m"})
 	private final ValueInput spacing;
 
 	@Keyword(description = "The number of queuing entities in each row.",
@@ -103,6 +119,20 @@ public class HCCMQueue extends LinkedComponent {
 	{
 		defaultEntity.setHidden(true);
 		nextComponent.setHidden(true);
+
+		// Added
+		StartActivitySignalList = new InterfaceEntityListInput<>(HCCMController.class, "StartActivitySignalList", "HCCM", null);
+		StartActivitySignalList.setRequired(false);
+		StartActivitySignalList.setUnique(false);
+		this.addInput(StartActivitySignalList);
+		// Added
+
+		// Added
+		EndActivitySignalList = new InterfaceEntityListInput<>(HCCMController.class, "EndActivitySignalList", "HCCM", null);
+		EndActivitySignalList.setRequired(false);
+		EndActivitySignalList.setUnique(false);
+		this.addInput(EndActivitySignalList);
+		// Added
 
 		priority = new SampleInput("Priority", KEY_INPUTS, new SampleConstant(0));
 		priority.setUnitType(DimensionlessUnit.class);
@@ -145,7 +175,7 @@ public class HCCMQueue extends LinkedComponent {
 		this.addInput(showEntities);
 	}
 
-	public HCCMQueue() {
+	public HCCMControlActivity() {
 		storage = new EntStorage();
 		userList = new ArrayList<>();
 		stats = new TimeBasedStatistics();
@@ -198,9 +228,9 @@ public class HCCMQueue extends LinkedComponent {
 	private final DoQueueChanged userUpdate = new DoQueueChanged(this);
 	private final EventHandle userUpdateHandle = new EventHandle();
 	private static class DoQueueChanged extends ProcessTarget {
-		private final HCCMQueue queue;
+		private final HCCMControlActivity queue;
 
-		public DoQueueChanged(HCCMQueue q) {
+		public DoQueueChanged(HCCMControlActivity q) {
 			queue = q;
 		}
 
@@ -256,16 +286,22 @@ public class HCCMQueue extends LinkedComponent {
 			// the queue at the same time, the one nearest the front of the queue is tested first
 			EventManager.scheduleSeconds(dur, 5, true, new RenegeActionTarget(this, entry), rh);
 		}
-		
-		String state = "Event";
-		ControllerHCCM.Controller(ent, this, state);
-		
+
+
+		// Added
+		if (StartActivitySignalList.getValue() != null) {
+			for (HCCMController controller : StartActivitySignalList.getValue()) {
+				String state = "StartActivity";
+				((HCCMController)controller).Controller(ent, this, state);
+			}
+		}
+		// Added
 	}
 
-	private static class RenegeActionTarget extends EntityTarget<HCCMQueue> {
+	private static class RenegeActionTarget extends EntityTarget<HCCMControlActivity> {
 		private final QueueEntry entry;
 
-		RenegeActionTarget(HCCMQueue q, QueueEntry e) {
+		RenegeActionTarget(HCCMControlActivity q, QueueEntry e) {
 			super(q, "renegeAction");
 			entry = e;
 		}
@@ -297,7 +333,19 @@ public class HCCMQueue extends LinkedComponent {
 	}
 
 	public DisplayEntity removeEntity(DisplayEntity ent) {
+
+//		// Added
+//		if (EndActivitySignalList.getValue() != null) {
+//			for (HCCMController controller : EndActivitySignalList.getValue()) {
+//				String state = "EndActivity";
+//				((HCCMController)controller).Controller(ent, this, state);
+//			}
+//		}
+//		// Added
+		
 		return this.remove(getQueueEntry(ent));
+		
+		
 	}
 
 	/**
@@ -314,7 +362,7 @@ public class HCCMQueue extends LinkedComponent {
 		boolean found = storage.remove(entry);
 		if (!found)
 			error("Cannot find the entry in itemSet.");
-		
+
 		// Kill the renege event
 		if (entry.renegeHandle != null)
 			EventManager.killEvent(entry.renegeHandle);
@@ -327,7 +375,7 @@ public class HCCMQueue extends LinkedComponent {
 	}
 
 	private QueueEntry getQueueEntry(DisplayEntity ent) {
-		Iterator<HCCMLibrary.EntStorage.StorageEntry> itr = storage.iterator();
+		Iterator<HCCMLibrary.controlactivity.EntStorage.StorageEntry> itr = storage.iterator();
 		while (itr.hasNext()) {
 			QueueEntry entry = (QueueEntry) itr.next();
 			if (entry.entity == ent)
@@ -344,7 +392,7 @@ public class HCCMQueue extends LinkedComponent {
 	 */
 	public int getPosition(DisplayEntity ent) {
 		int ret = 0;
-		Iterator<HCCMLibrary.EntStorage.StorageEntry> itr = storage.iterator();
+		Iterator<HCCMLibrary.controlactivity.EntStorage.StorageEntry> itr = storage.iterator();
 		while (itr.hasNext()) {
 			if (itr.next().entity == ent)
 				return ret;
@@ -420,7 +468,7 @@ public class HCCMQueue extends LinkedComponent {
 		if (m == null) {
 			return this.getFirst();
 		}
-		HCCMLibrary.EntStorage.StorageEntry entry = storage.first(m);
+		HCCMLibrary.controlactivity.EntStorage.StorageEntry entry = storage.first(m);
 		if (entry == null)
 			return null;
 		return entry.entity;
@@ -473,7 +521,7 @@ public class HCCMQueue extends LinkedComponent {
 	 * @param numberList - number of matches required for each queue.
 	 * @return match value.
 	 */
-	public static String selectMatchValue(ArrayList<HCCMQueue> queueList, IntegerVector numberList) {
+	public static String selectMatchValue(ArrayList<HCCMControlActivity> queueList, IntegerVector numberList) {
 
 		// Check whether each queue has sufficient entities for any match value
 		int number;
@@ -490,9 +538,9 @@ public class HCCMQueue extends LinkedComponent {
 		}
 
 		// Find the queue with the fewest match values
-		HCCMQueue shortest = null;
+		HCCMControlActivity shortest = null;
 		int count = -1;
-		for (HCCMQueue que : queueList) {
+		for (HCCMControlActivity que : queueList) {
 			if (que.getEntityTypes().size() > count) {
 				count = que.getEntityTypes().size();
 				shortest = que;
@@ -501,7 +549,7 @@ public class HCCMQueue extends LinkedComponent {
 
 		// Return the first match value that has sufficient entities in each queue
 		for (String m : shortest.getEntityTypes()) {
-			if (HCCMQueue.sufficientEntities(queueList, numberList, m))
+			if (HCCMControlActivity.sufficientEntities(queueList, numberList, m))
 				return m;
 		}
 		return null;
@@ -518,7 +566,7 @@ public class HCCMQueue extends LinkedComponent {
 	 * @param m - match value.
 	 * @return true if there are sufficient entities in each queue.
 	 */
-	public static boolean sufficientEntities(ArrayList<HCCMQueue> queueList, IntegerVector numberList, String m) {
+	public static boolean sufficientEntities(ArrayList<HCCMControlActivity> queueList, IntegerVector numberList, String m) {
 		int number;
 		for (int i=0; i<queueList.size(); i++) {
 			if (numberList == null) {
@@ -551,21 +599,21 @@ public class HCCMQueue extends LinkedComponent {
 		double maxHeight = 0;
 
 		// Copy the storage entries to avoid some concurrent modification exceptions
-		TreeSet<HCCMLibrary.EntStorage.StorageEntry> entries = new TreeSet<>(storage.getEntries());
+		TreeSet<HCCMLibrary.controlactivity.EntStorage.StorageEntry> entries = new TreeSet<>(storage.getEntries());
 
 		// Find the maximum width and height of the entities
 		if (entries.size() >  maxPerLine.getValue()){
-			Iterator<HCCMLibrary.EntStorage.StorageEntry> itr = entries.iterator();
+			Iterator<HCCMLibrary.controlactivity.EntStorage.StorageEntry> itr = entries.iterator();
 			while (itr.hasNext()) {
 				QueueEntry entry = (QueueEntry) itr.next();
 				maxWidth = Math.max(maxWidth, entry.entity.getGlobalSize().y);
 				maxHeight = Math.max(maxHeight, entry.entity.getGlobalSize().z);
-			 }
+			}
 		}
 
 		// update item locations
 		int i = 0;
-		Iterator<HCCMLibrary.EntStorage.StorageEntry> itr = entries.iterator();
+		Iterator<HCCMLibrary.controlactivity.EntStorage.StorageEntry> itr = entries.iterator();
 		while (itr.hasNext()) {
 			QueueEntry entry = (QueueEntry) itr.next();
 			DisplayEntity item = entry.entity;
@@ -647,76 +695,76 @@ public class HCCMQueue extends LinkedComponent {
 	// ******************************************************************************************************
 
 	@Output(name = "QueueLength",
-	 description = "The present number of entities in the queue.",
-	    unitType = DimensionlessUnit.class,
-	    sequence = 0)
+			description = "The present number of entities in the queue.",
+			unitType = DimensionlessUnit.class,
+			sequence = 0)
 	public int getQueueLength(double simTime) {
 		return storage.size();
 	}
 
 	@Output(name = "QueueList",
-	 description = "The entities in the queue.",
-	    sequence = 1)
+			description = "The entities in the queue.",
+			sequence = 1)
 	public ArrayList<DisplayEntity> getQueueList(double simTime) {
 		return storage.getEntityList();
 	}
 
 	@Output(name = "QueueTimes",
-	 description = "The waiting time for each entity in the queue.",
-	    unitType = TimeUnit.class,
-	    sequence = 2)
+			description = "The waiting time for each entity in the queue.",
+			unitType = TimeUnit.class,
+			sequence = 2)
 	public ArrayList<Double> getQueueTimes(double simTime) {
 		return storage.getStorageTimeList(simTime);
 	}
 
 	@Output(name = "PriorityValues",
-	 description = "The Priority expression value for each entity in the queue.",
-	    unitType = DimensionlessUnit.class,
-	    sequence = 3)
+			description = "The Priority expression value for each entity in the queue.",
+			unitType = DimensionlessUnit.class,
+			sequence = 3)
 	public ArrayList<Integer> getPriorityValues(double simTime) {
 		return storage.getPriorityList();
 	}
 
 	@Output(name = "MatchValues",
-	 description = "The Match expression value for each entity in the queue.",
-	    unitType = DimensionlessUnit.class,
-	    sequence = 4)
+			description = "The Match expression value for each entity in the queue.",
+			unitType = DimensionlessUnit.class,
+			sequence = 4)
 	public ArrayList<String> getMatchValues(double simTime) {
 		return storage.getTypeList();
 	}
 
 	@Output(name = "QueueLengthAverage",
-	 description = "The average number of entities in the queue.",
-	    unitType = DimensionlessUnit.class,
-	  reportable = true,
-	    sequence = 5)
+			description = "The average number of entities in the queue.",
+			unitType = DimensionlessUnit.class,
+			reportable = true,
+			sequence = 5)
 	public double getQueueLengthAverage(double simTime) {
 		return stats.getMean(simTime);
 	}
 
 	@Output(name = "QueueLengthStandardDeviation",
-	 description = "The standard deviation of the number of entities in the queue.",
-	    unitType = DimensionlessUnit.class,
-	  reportable = true,
-	    sequence = 6)
+			description = "The standard deviation of the number of entities in the queue.",
+			unitType = DimensionlessUnit.class,
+			reportable = true,
+			sequence = 6)
 	public double getQueueLengthStandardDeviation(double simTime) {
 		return stats.getStandardDeviation(simTime);
 	}
 
 	@Output(name = "QueueLengthMinimum",
-	 description = "The minimum number of entities in the queue.",
-	    unitType = DimensionlessUnit.class,
-	  reportable = true,
-	    sequence = 7)
+			description = "The minimum number of entities in the queue.",
+			unitType = DimensionlessUnit.class,
+			reportable = true,
+			sequence = 7)
 	public int getQueueLengthMinimum(double simTime) {
 		return (int) stats.getMin();
 	}
 
 	@Output(name = "QueueLengthMaximum",
-	 description = "The maximum number of entities in the queue.",
-	    unitType = DimensionlessUnit.class,
-	  reportable = true,
-	    sequence = 8)
+			description = "The maximum number of entities in the queue.",
+			unitType = DimensionlessUnit.class,
+			reportable = true,
+			sequence = 8)
 	public int getQueueLengthMaximum(double simTime) {
 		// An entity that is added to an empty queue and removed immediately
 		// does not count as a non-zero queue length
@@ -727,35 +775,35 @@ public class HCCMQueue extends LinkedComponent {
 	}
 
 	@Output(name = "QueueLengthTimes",
-	 description = "The total time that the queue has length 0, 1, 2, etc.",
-	    unitType = TimeUnit.class,
-	  reportable = true,
-	    sequence = 9)
+			description = "The total time that the queue has length 0, 1, 2, etc.",
+			unitType = TimeUnit.class,
+			reportable = true,
+			sequence = 9)
 	public double[] getQueueLengthDistribution(double simTime) {
 		return freq.getBinTimes(simTime);
 	}
 
 	@Output(name = "AverageQueueTime",
-	 description = "The average time each entity waits in the queue.  Calculated as total queue time to date divided " +
-			"by the total number of entities added to the queue.",
-	    unitType = TimeUnit.class,
-	  reportable = true,
-	    sequence = 10)
+			description = "The average time each entity waits in the queue.  Calculated as total queue time to date divided " +
+					"by the total number of entities added to the queue.",
+					unitType = TimeUnit.class,
+					reportable = true,
+					sequence = 10)
 	public double getAverageQueueTime(double simTime) {
 		return stats.getSum(simTime) / getNumberAdded(simTime);
 	}
 
 	@Output(name = "MatchValueCount",
-	 description = "The present number of unique match values in the queue.",
-	    unitType = DimensionlessUnit.class,
-	    sequence = 11)
+			description = "The present number of unique match values in the queue.",
+			unitType = DimensionlessUnit.class,
+			sequence = 11)
 	public int getMatchValueCount(double simTime) {
 		return storage.getTypes().size();
 	}
 
 	@Output(name = "UniqueMatchValues",
-	 description = "The list of unique Match values for the entities in the queue.",
-	    sequence = 12)
+			description = "The list of unique Match values for the entities in the queue.",
+			sequence = 12)
 	public ArrayList<String> getUniqueMatchValues(double simTime) {
 		ArrayList<String> ret = new ArrayList<>(storage.getTypes());
 		Collections.sort(ret);
@@ -763,11 +811,11 @@ public class HCCMQueue extends LinkedComponent {
 	}
 
 	@Output(name = "MatchValueCountMap",
-	 description = "The number of entities in the queue for each Match expression value.\n"
-	             + "For example, '[Queue1].MatchValueCountMap(\"SKU1\")' returns the number of "
-	             + "entities whose Match value is \"SKU1\".",
-	    unitType = DimensionlessUnit.class,
-	    sequence = 13)
+			description = "The number of entities in the queue for each Match expression value.\n"
+					+ "For example, '[Queue1].MatchValueCountMap(\"SKU1\")' returns the number of "
+					+ "entities whose Match value is \"SKU1\".",
+					unitType = DimensionlessUnit.class,
+					sequence = 13)
 	public LinkedHashMap<String, Integer> getMatchValueCountMap(double simTime) {
 		LinkedHashMap<String, Integer> ret = new LinkedHashMap<>(storage.getTypes().size());
 		for (String m : getUniqueMatchValues(simTime)) {
@@ -777,10 +825,10 @@ public class HCCMQueue extends LinkedComponent {
 	}
 
 	@Output(name = "MatchValueMap",
-	 description = "Provides a list of entities in the queue for each Match expression value.\n"
-	             + "For example, '[Queue1].MatchValueMap(\"SKU1\")' returns a list of entities "
-	             + "whose Match value is \"SKU1\".",
-	    sequence = 14)
+			description = "Provides a list of entities in the queue for each Match expression value.\n"
+					+ "For example, '[Queue1].MatchValueMap(\"SKU1\")' returns a list of entities "
+					+ "whose Match value is \"SKU1\".",
+					sequence = 14)
 	public LinkedHashMap<String, ArrayList<DisplayEntity>> getMatchValueMap(double simTime) {
 		LinkedHashMap<String, ArrayList<DisplayEntity>> ret = new LinkedHashMap<>(storage.getTypes().size());
 		for (String m : getUniqueMatchValues(simTime)) {
@@ -790,20 +838,20 @@ public class HCCMQueue extends LinkedComponent {
 	}
 
 	@Output(name = "NumberReneged",
-	 description = "The number of entities that reneged from the queue.",
-	    unitType = DimensionlessUnit.class,
-	  reportable = true,
-	    sequence = 15)
+			description = "The number of entities that reneged from the queue.",
+			unitType = DimensionlessUnit.class,
+			reportable = true,
+			sequence = 15)
 	public long getNumberReneged(double simTime) {
 		return numberReneged;
 	}
 
 	@Output(name = "QueuePosition",
-	 description = "The position in the queue for an entity undergoing the RenegeCondition test.\n"
-	             + "First in queue = 1, second in queue = 2, etc.",
-	    unitType = DimensionlessUnit.class,
-	  reportable = false,
-	    sequence = 16)
+			description = "The position in the queue for an entity undergoing the RenegeCondition test.\n"
+					+ "First in queue = 1, second in queue = 2, etc.",
+					unitType = DimensionlessUnit.class,
+					reportable = false,
+					sequence = 16)
 	public long getQueuePosition(double simTime) {
 		DisplayEntity objEnt = this.getReceivedEntity(simTime);
 		if (objEnt == null)
