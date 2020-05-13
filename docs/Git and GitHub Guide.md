@@ -339,6 +339,9 @@ This command pushes a local branch to the branch of a remote repository with the
 ## Sources
 
 https://www.git-tower.com/learn/git/ebook/en/desktop-gui/remote-repositories/introduction#start
+
 https://www.wikiwand.com/en/Git
+
 https://git-scm.com/book/en/v2
+
 https://www.git-tower.com/learn/git/ebook/en/desktop-gui/branching-merging/branching-can-change-your-life#start
