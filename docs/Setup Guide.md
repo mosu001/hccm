@@ -106,4 +106,4 @@ $ git clone "https://github.com/jaamsim/jaamsim.git"
 
 ## Next Steps
 
-You are now ready to begin working on the hccm plugin. For an overview of Git and GitHub as they pertain to this project, as well as the branch structure and best practices, consult the Git and GitHub Guide in the hccm repository.
+You are now ready to begin working on the hccm plugin. For an overview of Git and GitHub as they pertain to this project consult the Git and GitHub Guide in the hccm repository. For an overview of the working procedures for this project, consult the Working Procedures in the hccm repository.
