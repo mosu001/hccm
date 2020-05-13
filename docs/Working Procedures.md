@@ -1,5 +1,28 @@
 # Working Procedure
 
+<!-- TOC -->
+
+- [Working Procedure](#working-procedure)
+	- [GitHub](#github)
+		- [Branch Structure](#branch-structure)
+		- [Long-term Branch Guidelines](#long-term-branch-guidelines)
+		- [Topic Branch Guidelines](#topic-branch-guidelines)
+		- [Commit Message Guidelines](#commit-message-guidelines)
+		- [Working Procedure - Step by Step](#working-procedure---step-by-step)
+	- [Javadoc](#javadoc)
+		- [Format of a Doc Comment](#format-of-a-doc-comment)
+		- [Descriptions](#descriptions)
+		- [A Style Guide](#a-style-guide)
+		- [Tag Conventions](#tag-conventions)
+		- [Documenting Default Constructors](#documenting-default-constructors)
+		- [Documenting Exceptions with @throws Tag](#documenting-exceptions-with-throws-tag)
+		- [Package-Level Comments](#package-level-comments)
+		- [Documenting Anonymous Inner Classes](#documenting-anonymous-inner-classes)
+		- [Including Images](#including-images)
+		- [Full Example](#full-example)
+
+<!-- /TOC -->
+
 ## GitHub
 
 ### Branch Structure

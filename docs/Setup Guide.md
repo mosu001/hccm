@@ -1,5 +1,23 @@
 # Setup Guide
 
+<!-- TOC -->
+
+- [Setup Guide](#setup-guide)
+	- [Git Installation](#git-installation)
+		- [Windows](#windows)
+		- [macOS](#macos)
+		- [Linux](#linux)
+	- [Git Configuration](#git-configuration)
+	- [GitHub Setup](#github-setup)
+	- [GitHub Account](#github-account)
+	- [Setting up the Project Files](#setting-up-the-project-files)
+		- [Cloning the project repository](#cloning-the-project-repository)
+		- [Cloning the JaamSim repository](#cloning-the-jaamsim-repository)
+	- [Setting Up Eclipse](#setting-up-eclipse)
+	- [Next Steps](#next-steps)
+
+<!-- /TOC -->
+
 ## Git Installation
 
 Details for setting up Git on Windows, macOS, and Linux

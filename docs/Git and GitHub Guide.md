@@ -1,5 +1,27 @@
 # Git and GitHub Guide
 
+<!-- TOC -->
+
+- [Git and GitHub Guide](#git-and-github-guide)
+	- [Git Basics](#git-basics)
+		- [Remote Repositories](#remote-repositories)
+		- [Branching in Git](#branching-in-git)
+		- [Basic Branching and Merging](#basic-branching-and-merging)
+		- [Basic Merge Conflicts](#basic-merge-conflicts)
+		- [Branch Management](#branch-management)
+		- [Remote Branches](#remote-branches)
+		- [Pushing](#pushing)
+	- [Basic Git Commands](#basic-git-commands)
+		- [git clone](#git-clone)
+		- [git status](#git-status)
+		- [git add](#git-add)
+- [Changing commit message](#changing-commit-message)
+- [Add forgotten files](#add-forgotten-files)
+		- [git mv](#git-mv)
+		- [git log](#git-log)
+
+<!-- /TOC -->
+
 ## Git Basics
 
 Git is a distributed version-control system for tracking changes to files, especially in source code during software development. One of Git's main features is strong support for non-linear development. Since each worker has a local copy of the repository, multiple workers can work on a project at the same time with minimal conflicts.
