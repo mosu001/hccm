@@ -138,7 +138,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 */
 	{
 		controlUnitInput = new EntityInput<ControlUnit>(ControlUnit.class, "ControlUnit", Constants.HCCM, null);
-		controlUnitInput.setRequired(true);
+		this.addInput(controlUnitInput);
 		
 		participantList = new EntityListInput<>(ActiveEntity.class, "ParticipantList", Constants.HCCM, null);
 		participantList.setRequired(true);
