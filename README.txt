@@ -4,3 +4,7 @@
 a. You must make both custom and R2_custom source folders in your project to get both HCCM libraries to load when you run JaamSim
 
 3) Once you can run the code then open the <root>/custom/ssq.cfg file and see a Single Server Queue defined using generic HCCM components
+
+Issues to resolve
+
+* MO 2020/05/15 - HCCMLibrary seems to me to only allows an active and a passive entity in a ControlActivity, but activities are often two or more active entities
