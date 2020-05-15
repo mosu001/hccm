@@ -7,3 +7,7 @@
 /R2_custom/HCCMLibrary/controlactivity/*.ini
 /R2_custom/HCCMLibrary/entities/*.ini
 /R2_custom/HCCMLibrary/entitydelay/*.ini
+/generator/generator.py
+/generator/globals.py
+/st_custom/SteelTubeController.java
+/st_custom/steeltube.inc

@@ -36,7 +36,7 @@ public class WaitActivity extends Queue implements Activity {
 	 */
 	@Keyword(description = "The activities that may be requested when waiting starts.",
 	         exampleList = {"Activity1"})
-	protected final EntityListInput<ControlActivity> requestActivityList;
+	protected final EntityListInput<ProcessActivity> requestActivityList;
 
 	@Keyword(description = "A number that determines the choice of requested activity: "
             + "1 = first activity, 2 = second activity, etc.",
@@ -110,7 +110,7 @@ public class WaitActivity extends Queue implements Activity {
 				      i, requestActivityList.getValue());
 
 			// Get the requested activity
-			ControlActivity req = requestActivityList.getValue().get(i-1);
+			ProcessActivity req = requestActivityList.getValue().get(i-1);
 			ControlUnit rcu = req.getControlUnit();
 			
 			// Choose the trigger for this entity
@@ -175,8 +175,8 @@ public class WaitActivity extends Queue implements Activity {
 		startAssignmentList = new AssignmentListInput("StartAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(startAssignmentList);
 
-		requestActivityList = new EntityListInput<>(ControlActivity.class, "RequestActivityList", Constants.HCCM,
-				new ArrayList<ControlActivity>());
+		requestActivityList = new EntityListInput<>(ProcessActivity.class, "RequestActivityList", Constants.HCCM,
+				new ArrayList<ProcessActivity>());
 		this.addInput(requestActivityList);
 		
 		requestActivityChoice = new SampleInput("RequestActivityChoice", Constants.HCCM, null);

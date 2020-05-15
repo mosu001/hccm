@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.jaamsim.Graphics.DisplayEntity;
 
-import hccm.activities.ControlActivity;
+import hccm.activities.ProcessActivity;
 import hccm.activities.WaitActivity;
 import hccm.entities.ActiveEntity;
 
@@ -54,7 +54,7 @@ public class ControlUnit extends DisplayEntity {
 		/**
 		 * variable definitions
 		 */
-		ControlActivity whatRequested;
+		ProcessActivity whatRequested;
 		ActiveEntity whoRequested;
 		WaitActivity whereWaiting;
 		double whenRequested;
@@ -67,7 +67,7 @@ public class ControlUnit extends DisplayEntity {
 		 * @param wact
 		 * @param simTime
 		 */
-		Request(ControlActivity cact, ActiveEntity ent, WaitActivity wact, double simTime) {
+		Request(ProcessActivity cact, ActiveEntity ent, WaitActivity wact, double simTime) {
 			whatRequested = cact;
 			whoRequested = ent;
 			whereWaiting = wact;
@@ -75,10 +75,10 @@ public class ControlUnit extends DisplayEntity {
 		}
 		
 		/**
-		 * Getter method to get ControlActivity whatRequested
-		 * @return ControlActivity whatRequested
+		 * Getter method to get ProcessActivity whatRequested
+		 * @return ProcessActivity whatRequested
 		 */
-		public ControlActivity getRequested()     { return whatRequested; }
+		public ProcessActivity getRequested()     { return whatRequested; }
 		
 		/**
 		 * Getter method to get ActiveEntity whoRequested
@@ -126,7 +126,7 @@ public class ControlUnit extends DisplayEntity {
 	 * @param wact, the wait activity
 	 * @param simTime, the sim time at the request
 	 */
-	public void requestActivity(ControlActivity cact, ActiveEntity ent, WaitActivity wact, double simTime) {
+	public void requestActivity(ProcessActivity cact, ActiveEntity ent, WaitActivity wact, double simTime) {
 		requestList.add(new Request(cact, ent, wact, simTime));
 	}
 

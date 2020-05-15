@@ -31,12 +31,8 @@ import hccm.events.ActivityEvent;
  * @version 0.1
  * @since 0.1
  */
-public class ControlActivity extends EntityDelay implements Activity {
+public class ProcessActivity extends EntityDelay implements Activity {
 	
-	@Keyword(description = "Control unit this activity belongs to.",
-			 exampleList = {"Unit1"})
-	private final EntityInput<ControlUnit> controlUnitInput;
-
 	@Keyword(description = "The (prototype) entities that participate in this activity.",
 	         exampleList = {"ProtoEntity1"})
 	protected final EntityListInput<ActiveEntity> participantList;
@@ -62,19 +58,19 @@ public class ControlActivity extends EntityDelay implements Activity {
 	         exampleList = {"{ 'this.A = 1' } { 'this.obj.B = 1' } { '[Ent1].C = 1' }",
 	                        "{ 'this.D = 1[s] + 0.5*this.SimTime' }"})
 	private final AssignmentListInput finishAssignmentList;
-	
+
 	/**
 	 * 
 	 * @author Michael O'Sullivan
 	 * @version 0.0.1
 	 * @since 0.0.1
 	 */
-	class ControlStart extends ActivityEvent {
+	class DelayStart extends ActivityEvent {
 		/**
-		 * Calls the ActivityEvent ControlStart() method ie. the parent class method
+		 * Calls the ActivityEvent DelayStart() method ie. the parent class method
 		 * @param act, an activity
 		 */
-		ControlStart(Activity act) {
+		DelayStart(Activity act) {
 			super(act);
 		}
 
@@ -105,12 +101,12 @@ public class ControlActivity extends EntityDelay implements Activity {
 	 * @since 0.0.1
 	 *
 	 */
-	class ControlFinish extends ActivityEvent {
+	class DelayFinish extends ActivityEvent {
 		/**
 		 * Calls the ActivityEvent ControlFinish() method ie. the parent class method
 		 * @param act, an activity
 		 */
-		ControlFinish(Activity act) {
+		DelayFinish(Activity act) {
 			super(act);
 		}
 
@@ -130,17 +126,13 @@ public class ControlActivity extends EntityDelay implements Activity {
 		
 	}
 
-	ControlStart startEvent;
-	ControlFinish finishEvent;
+	DelayStart startEvent;
+	DelayFinish finishEvent;
 	
 	/**
 	 * 
 	 */
 	{
-		controlUnitInput = new EntityInput<ControlUnit>(ControlUnit.class, "ControlUnit", Constants.HCCM, null);
-		controlUnitInput.setRequired(true);
-		this.addInput(controlUnitInput);
-		
 		participantList = new EntityListInput<>(ActiveEntity.class, "ParticipantList", Constants.HCCM, null);
 		participantList.setRequired(true);
 		this.addInput(participantList);
@@ -158,8 +150,8 @@ public class ControlActivity extends EntityDelay implements Activity {
 		finishAssignmentList = new AssignmentListInput("FinishAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(finishAssignmentList);
 
-		startEvent = new ControlStart(this);
-		finishEvent = new ControlFinish(this);
+		startEvent = new DelayStart(this);
+		finishEvent = new DelayFinish(this);
 	}
 	/**
 	 * Overrides parent ActivityEvent method, getter method for startEvent
@@ -211,13 +203,7 @@ public class ControlActivity extends EntityDelay implements Activity {
 	}
 	
 	/**
-	 * Getter method to get the controlUnit of the control activity
-	 * @return controlUnitInput.getValue(), the value? 
-	 */
-	public ControlUnit getControlUnit() { return controlUnitInput.getValue(); }
-
-	/**
-	 * Overrides parent ActivityEvent method, gets the entities of the control activity
+	 * Overrides parent ActivityEvent method, gets the entities of the delay activity
 	 * @return ents, a list of ActiveEntity objects
 	 */
 	@Override
@@ -233,7 +219,7 @@ public class ControlActivity extends EntityDelay implements Activity {
 	}
 
 	/**
-	 * Gets the participants of the control activity
+	 * Gets the participants of the delay activity
 	 * @return entArrs, an array of arrays of ActiveEntity objects
 	 */
 	public ArrayList<ArrayList<ActiveEntity>> getParticipants() {
