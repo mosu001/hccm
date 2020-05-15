@@ -15,7 +15,7 @@ import com.jaamsim.input.Keyword;
 import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
 
-import hccm.activities.ControlActivity;
+import hccm.activities.ProcessActivity;
 import hccm.activities.WaitActivity;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
@@ -108,15 +108,15 @@ public class ABMTrigger extends Trigger {
 	    
 	    // Implement what happens when the timer "goes off"
 	    JaamSimModel model = cu.getJaamSimModel();
-	    ArrayList<ControlActivity> controlActs = new ArrayList<ControlActivity>();
+	    ArrayList<ProcessActivity> controlActs = new ArrayList<ProcessActivity>();
 	    ArrayList<WaitActivity>    waitActs = new ArrayList<WaitActivity>();
 	    for (EntityDelay ed : model.getClonesOfIterator(EntityDelay.class))
-	    	if ( (ed instanceof ControlActivity) && (!ed.getName().equals("Ticks")) )
-	    		controlActs.add((ControlActivity)ed);
+	    	if ( (ed instanceof ProcessActivity) && (!ed.getName().equals("Ticks")) )
+	    		controlActs.add((ProcessActivity)ed);
 	    for (Queue q : model.getClonesOfIterator(Queue.class))
 	    	if ( (q instanceof WaitActivity) && (!q.getName().equals("WaitForTicks")) )
     			waitActs.add((WaitActivity)q);
-	    for (ControlActivity cact : controlActs) {
+	    for (ProcessActivity cact : controlActs) {
 	    	System.out.println("In Timer with " + cact.getName());
 	    	int count = 0;
 	    	for (List<ActiveEntity> cents : cact.getParticipants()) {
