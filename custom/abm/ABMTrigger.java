@@ -212,6 +212,8 @@ public class ABMTrigger extends Trigger {
 	            	}
 	            }
 	            // Updates transmission counts
+				System.out.println("Infector = " + infector);
+				System.out.println("Infectee = " + infectee);
 	            if ( infector.startsWith("Customer") && infectee.startsWith("Customer") )
 	            	numCustToCust++;
 	            else if ( infector.startsWith("Customer") && infectee.startsWith("Server") )

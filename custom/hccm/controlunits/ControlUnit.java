@@ -137,6 +137,7 @@ public class ControlUnit extends DisplayEntity {
 	 * @param simTime, the sim time
 	 */
 	public void triggerLogic(Trigger trg, ActiveEntity ent, double simTime) {
+		System.out.println(this.getName() +": Triggered by " + ent.getName());
 		trg.executeLogic(ent, simTime);
 	}
 	

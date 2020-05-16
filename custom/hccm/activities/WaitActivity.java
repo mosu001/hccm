@@ -220,6 +220,7 @@ public class WaitActivity extends Queue implements Activity {
 		assert(ents.size() == 1);
 		finishEvent.happens(ents);
 		removeEntity(ents.get(0));
+        updateGraphics(getSimTime());
 	}
 	
 	/**

@@ -89,7 +89,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				numCons++;
 			EntityContainer participantEntity = model.createInstance(EntityContainer.class,
 					ed.getName() + "_" + (numCons + 1), null, false, true, false, false);
-			participantEntity.setShow(false);
+			participantEntity.setDisplayModelList(null);
+			participantEntity.setShow(true);
 			for (ActiveEntity ent : ents) {
 				participantEntity.addEntity(ent);
 			}
