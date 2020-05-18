@@ -77,9 +77,9 @@ $ git clone "https://github.com/mosu001/hccm.git"
 
 ### Cloning the JaamSim repository
 
-Rather than including the entire JaamSim repository inside the project repository, we will clone it separately and link it within Eclipse. 
+Rather than including the entire JaamSim repository inside the project repository, we will clone it separately and link it within Eclipse.
 
-1. Create an empty folder where the project files will be stored.
+1. Create an empty folder where the JaamSim repository files will be stored.
 2. Open the Terminal and navigate to this folder e.g. 
 ```sh
 $ cd "<directory path>"
@@ -108,14 +108,14 @@ $ git clone "https://github.com/jaamsim/jaamsim.git"
     3. Unselect "Use default location" and select the directory into which the GitHub repository was cloned
     4. Check "Use default JRE" and "Create separate folders for sources and class files"
     5. Select "Next". You should see a list of the repository's files and folders under "Source". Under "Details" use "Link additional source" to link the following directories from the JaamSim repository cloned earlier (Note: links given are examples only, your paths may be slightly different up to \\src\\):
-    
-    | Folder Location | Folder Name |
-    | ------ | ------ |
-    | C:\JaamSim-master\src\main\java | main |
-    | C:\JaamSim-master\src\main\resources | resources |
-    | C:\JaamSim-master\src\test\java | test |
 
-    6. Select the "Libraries" tab and click "Add Library" > "User Library" > "User Libraries" > "New" and enter "JOGL2". Select the new library and click "Add External JARs". Browse to the JaamSim folder .\jar\ and select "gluegen-rt.jar" and "jogl-all.jar". Apply and close. Now check the JOGL2 library to add it to the class path and select "Finish". 
+        | Folder Location | Folder Name |
+        | ------ | ------ |
+        | C:\JaamSim-master\src\main\java | main |
+        | C:\JaamSim-master\src\main\resources | resources |
+        | C:\JaamSim-master\src\test\java | test |
+
+    6. Select the "Libraries" tab and click "Add Library" > "User Library" > "User Libraries" > "New" and enter "JOGL2". Select the new library and click "Add External JARs". Browse to the JaamSim folder .\jar\ and select "gluegen-rt.jar" and "jogl-all.jar". Apply and close. Now check the JOGL2 library to add it to the class path and select "Finish".
     7. Select "Add Library" > "JUnit" > "JUnit4" to add the JUnit library to the build path.
     8. Finally, select "Finish" to create the new Java Project.
 6. Set the Run Configuration
@@ -124,4 +124,4 @@ $ git clone "https://github.com/jaamsim/jaamsim.git"
 
 ## Next Steps
 
-You are now ready to begin working on the hccm plugin. For an overview of Git and GitHub as they pertain to this project consult the Git and GitHub Guide in the hccm repository. For an overview of the working procedures for this project, consult the Working Procedures in the hccm repository.
+You are now ready to begin working on the hccm plugin. For an overview of Git and GitHub as they pertain to this project consult the Git and GitHub Guide, and for an overview of the working procedures, consult the Working Procedures document.

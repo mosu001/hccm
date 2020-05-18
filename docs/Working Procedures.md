@@ -27,29 +27,29 @@
 
 ### Branch Structure
 
-To keep things simple, the project branching will have one long-term branch, master, which should not be worked on directly. This will be supported by topic branches that are created to fulfil a specific purpose. On these branches code will be developed, tested, and finally pushed to master, with the branch then being deleted. 
+To keep things simple, the project branching will have one long-term branch: master, which should not be worked on directly. This will be supported by topic branches that are created to fulfil a specific purpose. On these branches code will be developed, tested, and finally pushed to master, with the topic branch then being deleted.
 
 ![Figure](https://i.imgur.com/Uu8kSFI.png "Figure 1-1")
 
 ### Long-term Branch Guidelines
 
-1. Do not work directly on master (ie. commits to master should be rare)
-2. Only push code to master if it has been tested and is working correctly
-3. At any point, master should be fully functional
+1. Do not work directly on master (ie. commits to master should be rare: simple file adds etc.).
+2. Only push code to master if it has been tested and is working correctly.
+3. At any point, master should be fully functional.
 
 ### Topic Branch Guidelines
 
-1. Only work on a single topic per branch
-2. Each branch should have a relatively short lifespan where possible
-3. Keep the topic branch up to date with master where possible to minimize merge conflicts when the topic branch is pushed back to master
-4. Keep the local and remote branches in sync by pushing often - this helps others stay up-to-date with the progress of your work
+1. Only work on a single topic per branch.
+2. Each branch should have a relatively short lifespan where possible.
+3. Keep the topic branch up to date with master where possible to minimize merge conflicts when the topic branch is pushed back to master.
+4. Keep the local and remote branches in sync by pushing often - this helps others stay up-to-date with the progress of your work.
 
 ### Commit Message Guidelines
 
-1. Be concise
-2. Short reasons for changes if they are not obvious are acceptable
-3. Low level explanations of code should go in JavaDoc comments
-4. High level reasoning for code structure and processes should be detailed elsewhere to be later incorporated into a high level documentation document
+1. Be concise.
+2. Short reasons for changes if they are not obvious are acceptable.
+3. Low level explanations of code should go in JavaDoc comments.
+4. High level reasoning for code structure and processes should be detailed elsewhere to be later incorporated into a high level documentation document.
 
 ### Working Procedure - Step by Step
 
@@ -91,15 +91,15 @@ $ git branch -d [branch-name]
 
 ### Format of a Doc Comment
 
-Doc comments are written in HTML and must proceed a class, field, constructor or method declaration.
-They are made up of two parts -- a description followed by block tags (e.g. @param, @return)
+- Doc comments are written in HTML and must proceed a class, field, constructor or method declaration.
+- They are made up of two parts: a description followed by block tags (e.g. @param, @return).
 
 ### Descriptions
 
  First Sentence:
 
-- The first sentence of each doc comment should be a summary sentence, containing a concise but complete description of the API item. 
-- This means the first sentence of each member, class, interface or package description. 
+- The first sentence of each doc comment should be a summary sentence, containing a concise but complete description of the API item.
+- This means the first sentence of each member, class, interface or package description.
 - The Javadoc tool copies this first sentence to the appropriate member, class/interface or package summary, making it important to write informative initial sentences that can stand on their own.
 - In particular, write summary sentences that distinguish overloaded methods from each other.
 
@@ -118,17 +118,17 @@ Reuse of Method Comments:
 
 ### A Style Guide
 
-- Use <code></code> for keywords and names e.g. Java keywords, package names, class names, method names etc.
-- Use in-line links economically (ie. not necessary for well know API etc.)
-- Omit parentheses for the general form of methods and constructors
-- OK to use phrases instead of complete sentences for brevity
-- Use 3rd person (descriptive) e.g. gets the label not get the label
-- Method description begins with a verb phrase
-- Class/interface/field descriptions can omit the subject and simply state the object
-- Use "this" instead of "the" when referring to an object created from the current class
-- Add description beyond the API name
-- Be clear when using the term "field"
-- Avoid Latin
+- Use ```<code></code>``` for keywords and names e.g. Java keywords, package names, class names, method names etc.
+- Use in-line links economically (ie. not necessary for well know API etc.).
+- Omit parentheses for the general form of methods and constructors.
+- Acceptable to use phrases instead of complete sentences for brevity.
+- Use 3rd person (descriptive) e.g. "gets the label" not "get the label".
+- Method descriptions begin with a verb phrase.
+- Class/interface/field descriptions can omit the subject and simply state the object.
+- Use "this" instead of "the" when referring to an object created from the current class.
+- Add description beyond the API name.
+- Be clear when using the term "field".
+- Avoid Latin.
 
 ### Tag Conventions
 
@@ -146,7 +146,7 @@ Order of Tags:
 
 Ordering Multiple Tags:
 
-- Multiple @author tags should be listed in chronological order, with the creator of the class listed at the top. 
+- Multiple @author tags should be listed in chronological order, with the creator of the class listed at the top.
 - Multiple @param tags should be listed in argument-declaration order.
 - Multiple @throws tags (also known as @exception) should be listed alphabetically by the exception names.
 - Multiple @see, see [here](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#tag)
@@ -160,7 +160,7 @@ Required Tags:
 
 - Good programming practice dictates that code should never make use of default constructors in public APIs: All constructors should be explicit.
 - When it documents such a constructor, Javadoc leaves its description blank, because a default constructor can have no doc comment.
-- Note that when creating an explicit constructor, it must match precisely the declaration of the automatically generated constructor; even if the constructor should logically be protected, it must be made public to match the declaration of the automatically generated constructor, for compatibility. An appropriate doc comment should then be provided. 
+- Note that when creating an explicit constructor, it must match precisely the declaration of the automatically generated constructor; even if the constructor should logically be protected, it must be made public to match the declaration of the automatically generated constructor, for compatibility. An appropriate doc comment should then be provided.
 
 ### Documenting Exceptions with @throws Tag
 
@@ -174,7 +174,7 @@ Required Tags:
 
 - Each package can have its own package-level doc comment source file that the Javadoc tool will merge into the documentation that it produces.
 - This file is named package.html (and is same name for all packages).
-- This file is kept in the source directory along with all the *.java files. 
+- This file is kept in the source directory along with all the *.java files.
 
 Contents:
 
@@ -186,9 +186,9 @@ Sections and Headings:
 - Summary sentence
 - Describe what the package contains and state its purpose
 - Package Specification
-    - Description of/links to package wide specifications for packages not included in the Javadoc documentatino
-    - Links to specifications written outside of doc comments
-    - Include specific references
+  - Description of/links to package wide specifications for packages not included in the Javadoc documentation
+  - Links to specifications written outside of doc comments
+  - Include specific references
 - Related Documentation
 - Class and Interface Summary
 
@@ -201,15 +201,15 @@ Sections and Headings:
 
 Images in Source Tree:
 
-- Naming: Name GIF images <class>-1.gif, incrementing the integer for subsequent images in the same class.
+- Naming: Name GIF images \<class>-1.gif, incrementing the integer for subsequent images in the same class.
 - Location: Put doc images in a directory called "doc-files". This directory should reside in the same package directory where the source files reside.
 
 Images in HTML Destination:
 
-- Naming:  Images would have the same name as they have in the source tree. 
-- Location: 
-    - With hierarchical file output, such as Javadoc 1.2, directories would be located in the package directory named "doc-files". 
-    - With flat file output, such as Javadoc 1.1, directories would be located in the package directory and named "images-<package>".
+- Naming:  Images would have the same name as they have in the source tree.
+- Location:
+  - With hierarchical file output, such as Javadoc 1.2, directories would be located in the package directory named "doc-files".
+  - With flat file output, such as Javadoc 1.1, directories would be located in the package directory and named "images-\<package>".
 
 ### Full Example
 
@@ -258,7 +258,7 @@ Images in HTML Destination:
 * All rendering operations modify only pixels which lie within the
 * area bounded by both the current clip of the graphics context
 * and the extents of the Component used to create the Graphics object.
-* 
+*
 * @author      Sami Shaio
 * @author      Arthur van Hoff
 * @version     %I%, %G%
@@ -266,7 +266,7 @@ Images in HTML Destination:
 */
 public abstract class Graphics {
 
-/** 
+/**
 * Draws as much of the specified image as is currently available
 * with its northwest corner at the specified coordinate (x, y).
 * This method will return immediately in all cases, even if the
@@ -274,7 +274,7 @@ public abstract class Graphics {
 * for the current output device.
 * <p>
 * If the current output representation is not yet complete then
-* the method will return false and the indicated 
+* the method will return false and the indicated
 * {@link ImageObserver} object will be notified as the
 * conversion process progresses.
 *
@@ -284,16 +284,16 @@ public abstract class Graphics {
 * @param y         the y-coordinate of the northwest corner
 *                  of the destination rectangle in pixels
 * @param observer  the image observer to be notified as more
-*                  of the image is converted.  May be 
+*                  of the image is converted.  May be
 *                  <code>null</code>
-* @return          <code>true</code> if the image is completely 
-*                  loaded and was painted successfully; 
+* @return          <code>true</code> if the image is completely
+*                  loaded and was painted successfully;
 *                  <code>false</code> otherwise.
 * @see             Image
 * @see             ImageObserver
 * @since           1.0
 */
-public abstract boolean drawImage(Image img, int x, int y, 
+public abstract boolean drawImage(Image img, int x, int y,
 ImageObserver observer);
 
 /**
