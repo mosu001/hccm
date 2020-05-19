@@ -93,6 +93,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			participantEntity.setShow(true);
 			for (ActiveEntity ent : ents) {
 				participantEntity.addEntity(ent);
+				ent.setCurrentActivity(owner);
 			}
 			ed.addEntity(participantEntity);
 		}

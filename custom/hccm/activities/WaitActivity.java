@@ -103,15 +103,20 @@ public class WaitActivity extends Queue implements Activity {
 				}
 			}
 
-			// Choose the requested activity for this entity
-			int i = (int) requestActivityChoice.getValue().getNextSample(simTime);
-			if (i<1 || i>requestActivityList.getValue().size())
-				error("Chosen index i=%s is out of range for RequestActivityList: %s.",
-				      i, requestActivityList.getValue());
-
-			// Get the requested activity
-			ProcessActivity req = requestActivityList.getValue().get(i-1);
-			ControlUnit rcu = req.getControlUnit();
+			// Choose the requested activity for this entity (if there is one)
+			ProcessActivity req = null;
+			ControlUnit rcu = null;
+			int i;
+			if (requestActivityList.getValue().size() >= 1) {
+				i = (int) requestActivityChoice.getValue().getNextSample(simTime);
+				if (i<1 || i>requestActivityList.getValue().size())
+					error("Chosen index i=%s is out of range for RequestActivityList: %s.",
+					      i, requestActivityList.getValue());
+	
+				// Get the requested activity
+				req = requestActivityList.getValue().get(i-1);
+				rcu = req.getControlUnit();
+			}
 			
 			// Choose the trigger for this entity
 			i = (int) triggerChoice.getValue().getNextSample(simTime);
@@ -124,9 +129,11 @@ public class WaitActivity extends Queue implements Activity {
 			ControlUnit tcu = trg.getControlUnit();
 			
 			ActiveEntity ent = ents.get(0);
+			ent.setCurrentActivity(act);
 			
-			// Request the activity
-			rcu.requestActivity(req, ent, act, simTime);
+			if ((req != null) && (rcu != null))
+  			  // Request the activity
+  			  rcu.requestActivity(req, ent, act, simTime);
 					
 			// Trigger the logic
 			tcu.triggerLogic(trg, ent, simTime);
