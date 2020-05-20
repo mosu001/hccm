@@ -14,6 +14,7 @@
 		- [Cloning the project repository](#cloning-the-project-repository)
 		- [Cloning the JaamSim repository](#cloning-the-jaamsim-repository)
 	- [Setting Up Eclipse](#setting-up-eclipse)
+	- [Create the Java Project](#create-the-java-project)
 	- [Next Steps](#next-steps)
 
 <!-- /TOC -->
@@ -88,6 +89,7 @@ $ cd "<directory path>"
 ```sh
 $ git clone "https://github.com/jaamsim/jaamsim.git"
 ```
+4. Replace \<root>/jaamsim/src/main/resources/resources/inputs/autoload.cfg with \<root>/custom/autoload.cfg
 
 ## Setting Up Eclipse
 
@@ -102,7 +104,10 @@ $ git clone "https://github.com/jaamsim/jaamsim.git"
     1. Launch Eclipse
     2. Select "Window" > "Preferences" > "Java" > "Installed JREs"
     3. Confirm that there is an entry for the JRE installed on your computer. If not, add it using the path to the the main jre directory (e.g. .\\jre1.8.0\_221)
-5. Create a new project in Eclipse for the repository files
+
+## Create the Java Project
+
+1. Create a new project in Eclipse for the repository files
     1. Select "File" > "New" > "Java Project"
     2. Enter a project name (the name is unimportant)
     3. Unselect "Use default location" and select the directory into which the GitHub repository was cloned
@@ -118,7 +123,8 @@ $ git clone "https://github.com/jaamsim/jaamsim.git"
     6. Select the "Libraries" tab and click "Add Library" > "User Library" > "User Libraries" > "New" and enter "JOGL2". Select the new library and click "Add External JARs". Browse to the JaamSim folder .\jar\ and select "gluegen-rt.jar" and "jogl-all.jar". Apply and close. Now check the JOGL2 library to add it to the class path and select "Finish".
     7. Select "Add Library" > "JUnit" > "JUnit4" to add the JUnit library to the build path.
     8. Finally, select "Finish" to create the new Java Project.
-6. Set the Run Configuration
+2. Select "Project" > "Properties" > "Java Build Path". Check that all necessary folders appear under the source tab (e.g. /custom, /r2_custom, /main, /resources, /test, etc). If any are missing, add them with "Add Folder".
+3. Set the Run Configuration
     1. Select "Run" > "Run Configurations"
     2. In the "Main" tab, under "Project" enter the project name, and under "Main Class" select "Search" and find "GUIFrame - com.jaamsim.ui" and select it.
 
