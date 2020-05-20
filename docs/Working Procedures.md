@@ -53,7 +53,7 @@ To keep things simple, the project branching will have one long-term branch: mas
 
 ### Working Procedure - Step by Step
 
-![Figure 1-2](https://i.imgur.com/mJkKzw9.png "Figure 1-2")
+![Figure 1-2](https://i.imgur.com/2ptZs7m.png "Figure 1-2")
 
 Clone repository:
 ```sh
@@ -71,6 +71,11 @@ $ git branch [branch-name]
 $ git checkout [branch-name]
 ```
 
+Add files
+```sh
+$ git add .
+```
+
 Commit to remote:
 ```sh
 $ git commit -m "commit message"
@@ -82,7 +87,9 @@ Push to master:
 $ git push origin master
 ```
 
-Delete branch
+Alternatively, create a pull request using the GitHub website.
+
+Delete branch (optional)
 ```sh
 $ git branch -d [branch-name]
 ```

@@ -11,22 +11,13 @@
 		- [Branch Management](#branch-management)
 		- [Remote Branches](#remote-branches)
 		- [Pushing](#pushing)
+		- [Pull Requests](#pull-requests)
 	- [Basic Git Commands](#basic-git-commands)
 		- [git clone](#git-clone)
 		- [git status](#git-status)
 		- [git add](#git-add)
-		- [git diff](#git-diff)
-		- [git commit](#git-commit)
-		- [git rm](#git-rm)
 		- [git mv](#git-mv)
 		- [git log](#git-log)
-		- [git reset](#git-reset)
-		- [git fetch](#git-fetch)
-		- [git pull](#git-pull)
-		- [git push](#git-push)
-		- [git branch](#git-branch)
-		- [git checkout](#git-checkout)
-		- [git merge](#git-merge)
 
 <!-- /TOC -->
 
@@ -153,6 +144,10 @@ Remote branches are pointers to the state of branches in your remote repositorie
 ### Pushing
 
 To share a local branch to a remote repository so others can view it, you need to explicitly push it using ```git push```.
+
+### Pull Requests
+
+Rather than pushing directly to master, you can use the Github website to create a pull request, which will allow others to review your changes before they are merged.
 
 ## Basic Git Commands
 
