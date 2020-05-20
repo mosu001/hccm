@@ -4,6 +4,7 @@ import java.util.List;
 
 import hccm.ActivityOrEvent;
 import hccm.entities.ActiveEntity;
+import hccm.entities.Entity;
 import hccm.events.ActivityEvent;
 
 /**
@@ -19,8 +20,10 @@ public interface Activity extends ActivityOrEvent {
 	ActivityEvent getStartEvent();
 	ActivityEvent getFinishEvent();
 	
-	void start(List<ActiveEntity> participants);
-	void finish(List<ActiveEntity> participants);
+	void start(List<Entity> participants);
+	void finish(List<Entity> participants);
 	
-	List<ActiveEntity> getEntities();
+	List<Entity> getEntities();
+	
+	String getName();
 }

@@ -6,6 +6,7 @@ import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntitySink;
 
 import hccm.entities.ActiveEntity;
+import hccm.entities.Entity;
 
 /**
  * 
@@ -20,9 +21,9 @@ public class LeaveEvent extends EntitySink implements Event {
 	 * Executes what happens when the leave event occurs
 	 * @param ents, a list of ActiveEntity objects
 	 */
-	public void happens(List<ActiveEntity> ents) { // What occurs when this event happens
+	public void happens(List<Entity> ents) { // What occurs when this event happens
 		// All entities involved in this event leave
-		for (ActiveEntity ent : ents) {
+		for (Entity ent : ents) {
 			DisplayEntity de = (DisplayEntity)ent;
 			addEntity(de);
 		}
