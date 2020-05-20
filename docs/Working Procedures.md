@@ -78,7 +78,7 @@ $ git add .
 
 Commit to remote:
 ```sh
-$ git commit -m "commit message"
+$ git commit [-m "commit message"]
 $ git push origin [branch-name]
 ```
 
