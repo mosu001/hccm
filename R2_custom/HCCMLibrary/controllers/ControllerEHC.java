@@ -17,7 +17,7 @@ import com.jaamsim.units.DimensionlessUnit;
 import HCCMLibrary.controlactivity.HCCMControlActivity;
 import HCCMLibrary.entities.HCCMActiveEntity;
 
-public class ExampleController extends HCCMController {
+public class ControllerEHC extends HCCMController {
 
 	// Create needed entities
 	DisplayEntity exampleentity =  null;

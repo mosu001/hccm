@@ -1,0 +1,361 @@
+RecordEdits
+Define  EventSchedule  {  AppointmentTimes  }
+Define  InputValue  {  WaitingRoomCapacity  }
+Define  TimeSeries  {  AppointmentDoctorRoster  WalkUpDoctorRoster  }
+Define  ControllerTutorialTwo  {  ControllerTutorialTwo1  }
+Define  HCCMActiveEntity  {  AppointmentDoctor  ScheduledPatient  WalkUpDoctor  WalkUpPatient  }
+Define  HCCMArriveEvent  {  AppointmentDoctorArriveEvent  ScheduledPatientArriveEvent  WalkUpDoctorArriveEvent  WalkUpPatientArriveEvent  }
+Define  HCCMControlActivity  {  TreatmentRoom1  TreatmentRoom2  WaitingRoom  }
+Define  HCCMEntityDelay  {  DoctorLeave  PatientArrive  PatientLeave  ScheduledPatientFinished  WalkUpPatientFinished  }
+Define  HCCMLeaveEvent  {  DoctorLeaveEvent  PatientLeaveEvent1  PatientLeaveEvent2  }
+Define  ExponentialDistribution  {  ArrivalDist  }
+Define  TriangularDistribution  {  TreatmentDist  }
+Define  Statistics  {  TimeInSystem1  TimeInSystem2  WaitingTime1  WaitingTime2  }
+Define  ColladaModel  {  Axis  Grid100x100  }
+Define  ImageModel  {  doctor-model  doctor-model1  doctor2-model  doctor2-model1  patient-model  patient-model1  }
+Define  DisplayEntity  {  XY-Grid  XYZ-Axis  }
+Define  EntityLabel  {  AppointmentDoctorArriveEvent_Label  AppointmentDoctorRoster_Label  AppointmentDoctor_Label  AppointmentTimes_Label  ArrivalDist_Label  ControllerTutorialTwo1_Label  DoctorLeaveEvent_Label  DoctorLeave_Label  PatientArrive_Label  PatientLeaveEvent1_Label  PatientLeaveEvent2_Label  PatientLeave_Label  ScheduledPatientArriveEvent_Label  ScheduledPatientFinished_Label  ScheduledPatient_Label  TimeInSystem1_Label  TimeInSystem2_Label  TreatmentDist_Label  TreatmentRoom1_Label  TreatmentRoom2_Label  WaitingRoom_Label  WaitingTime1_Label  WaitingTime2_Label  WalkUpDoctorArriveEvent_Label  WalkUpDoctorRoster_Label  WalkUpDoctor_Label  WalkUpPatientArriveEvent_Label  WalkUpPatientFinished_Label  WalkUpPatient_Label  }
+Define  OverlayClock  {  Clock  }
+Define  OverlayText  {  Title  }
+Define  View  {  View1  }
+WaitingRoomCapacity  UnitType  {  DimensionlessUnit  }
+AppointmentDoctorRoster  UnitType  {  DimensionlessUnit  }
+WalkUpDoctorRoster  UnitType  {  DimensionlessUnit  }
+ArrivalDist  UnitType  {  TimeUnit  }
+TreatmentDist  UnitType  {  TimeUnit  }
+TimeInSystem1  UnitType  {  TimeUnit  }
+TimeInSystem2  UnitType  {  TimeUnit  }
+WaitingTime1  UnitType  {  TimeUnit  }
+WaitingTime2  UnitType  {  TimeUnit  }
+Simulation  UnitTypeList  {  DimensionlessUnit  TimeUnit  TimeUnit  DimensionlessUnit  DimensionlessUnit  TimeUnit  TimeUnit  DimensionlessUnit  DimensionlessUnit  }
+AppointmentDoctor  AttributeDefinitionList  {  {  Match  "AppointmentDoctor"  }  {  ServerAvailable  "1"  }  }
+ScheduledPatient  AttributeDefinitionList  {  {  Match  "ScheduledPatient"  }  }
+WalkUpDoctor  AttributeDefinitionList  {  {  Match  "WalkUpDoctor"  }  {  ServerAvailable  "1"  }  }
+WalkUpPatient  AttributeDefinitionList  {  {  Match  "WalkUpPatient"  }  }
+Simulation  Description  {  Simulation run control inputs  }
+Simulation  RunDuration  {  168  h  }
+Simulation  InitializationDuration  {  24  h  }
+Simulation  GlobalSubstreamSeed  {  [Simulation].RunIndex(2)  }
+Simulation  RunOutputList  {  {  [Simulation].RunIndex(1)  }  {  [WaitingTime1].SampleAverage  }  {  [TimeInSystem1].SampleAverage  }  {  [WaitingRoom].QueueLengthAverage  }  {  [ControllerTutorialTwo1].UtilisationWalkUpDoctor1  }  {  [WaitingTime2].SampleAverage  }  {  [TimeInSystem2].SampleAverage  }  {  [WaitingRoom].QueueLengthAverage  }  {  [ControllerTutorialTwo1].UtilisationAppointmentDoctor1  }  }
+Simulation  RunIndexDefinitionList  {  4  100  }
+Simulation  StartingRunNumber  {  4-1  }
+Simulation  EndingRunNumber  {  4-100  }
+AppointmentTimes  TimeList  {  15  30  60  75  90  105  135  150  165  195  210  240  255  270  285  300  315  330  360  375  405  420  435  495  510  525  555  570  585  615  630  645  660  690  705  720  735  765  795  810  825  840  870  885  930  945  975  990  1005  1035  1065  1080  1095  1110  1125  1140  1155  1200  1215  1230  1245  1260  1290  1320  1335  1350  1365  1380  1395  1410  1425  min  }
+AppointmentTimes  CycleTime  {  24  h  }
+WaitingRoomCapacity  Value  {  100  }
+AppointmentDoctorRoster  Value  {  {  0  h  1  }  {  192  h  0  }  }
+AppointmentDoctorRoster  CycleTime  {  192  h  }
+WalkUpDoctorRoster  Value  {  {  0  h  1  }  {  192  h  0  }  }
+WalkUpDoctorRoster  CycleTime  {  192  h  }
+AppointmentDoctor  DefaultStateList  {  {  Idle  Working  }  }
+AppointmentDoctor  InitialState  {  Idle  }
+ScheduledPatient  DefaultStateList  {  {  Arrive  Wait  Treat  Leave  }  }
+WalkUpDoctor  DefaultStateList  {  {  Idle  Working  }  }
+WalkUpDoctor  InitialState  {  Idle  }
+WalkUpPatient  DefaultStateList  {  {  Arrive  Wait  Treat  Leave  }  }
+AppointmentDoctorArriveEvent  NextComponent  {  TreatmentRoom2  }
+AppointmentDoctorArriveEvent  FirstArrivalTime  {  0  s  }
+AppointmentDoctorArriveEvent  InterArrivalTime  {  192  h  }
+AppointmentDoctorArriveEvent  PrototypeEntity  {  AppointmentDoctor  }
+AppointmentDoctorArriveEvent  BaseName  {  AppointmentDoctor  }
+AppointmentDoctorArriveEvent  MaxNumber  {  1  }
+ScheduledPatientArriveEvent  NextComponent  {  PatientArrive  }
+ScheduledPatientArriveEvent  FirstArrivalTime  {  AppointmentTimes  }
+ScheduledPatientArriveEvent  InterArrivalTime  {  AppointmentTimes  }
+ScheduledPatientArriveEvent  PrototypeEntity  {  ScheduledPatient  }
+ScheduledPatientArriveEvent  BaseName  {  ScheduledPatient  }
+WalkUpDoctorArriveEvent  NextComponent  {  TreatmentRoom1  }
+WalkUpDoctorArriveEvent  FirstArrivalTime  {  0  s  }
+WalkUpDoctorArriveEvent  InterArrivalTime  {  192  h  }
+WalkUpDoctorArriveEvent  PrototypeEntity  {  WalkUpDoctor  }
+WalkUpDoctorArriveEvent  BaseName  {  WalkUpDoctor  }
+WalkUpDoctorArriveEvent  MaxNumber  {  1  }
+WalkUpPatientArriveEvent  NextComponent  {  PatientArrive  }
+WalkUpPatientArriveEvent  FirstArrivalTime  {  ([Simulation].RunIndex(1) == 1) || ([Simulation].RunIndex(1) == 3) ? 20[min] : [ArrivalDist].Value  }
+WalkUpPatientArriveEvent  InterArrivalTime  {  ([Simulation].RunIndex(1) == 1) || ([Simulation].RunIndex(1) == 3) ? 20[min] : [ArrivalDist].Value  }
+WalkUpPatientArriveEvent  PrototypeEntity  {  WalkUpPatient  }
+WalkUpPatientArriveEvent  BaseName  {  WalkUpPatient  }
+TreatmentRoom1  StateAssignment  {  Idle  }
+TreatmentRoom1  StartActivitySignalList  {  ControllerTutorialTwo1  }
+TreatmentRoom1  EndActivitySignalList  {  ControllerTutorialTwo1  }
+TreatmentRoom1  Match  {  this.obj.Match  }
+TreatmentRoom2  StateAssignment  {  Idle  }
+TreatmentRoom2  StartActivitySignalList  {  ControllerTutorialTwo1  }
+TreatmentRoom2  EndActivitySignalList  {  ControllerTutorialTwo1  }
+TreatmentRoom2  Match  {  this.obj.Match  }
+WaitingRoom  StartActivitySignalList  {  ControllerTutorialTwo1  }
+WaitingRoom  EndActivitySignalList  {  ControllerTutorialTwo1  }
+WaitingRoom  Match  {  this.obj.Match  }
+DoctorLeave  NextComponent  {  DoctorLeaveEvent  }
+DoctorLeave  Duration  {  2  s  }
+PatientArrive  NextComponent  {  WaitingRoom  }
+PatientArrive  StateAssignment  {  Arrive  }
+PatientArrive  Duration  {  2  min  }
+PatientLeave  NextComponent  {  PatientLeaveEvent1  }
+PatientLeave  Duration  {  2  s  }
+ScheduledPatientFinished  NextComponent  {  TimeInSystem2  }
+ScheduledPatientFinished  StateAssignment  {  Leave  }
+ScheduledPatientFinished  Duration  {  2  s  }
+WalkUpPatientFinished  NextComponent  {  TimeInSystem1  }
+WalkUpPatientFinished  StateAssignment  {  Leave  }
+WalkUpPatientFinished  Duration  {  2  s  }
+ArrivalDist  RandomSeed  {  1  }
+ArrivalDist  Mean  {  20  min  }
+TreatmentDist  RandomSeed  {  2  }
+TreatmentDist  MinValue  {  5  min  }
+TreatmentDist  MaxValue  {  30  min  }
+TreatmentDist  Mode  {  10  min  }
+TimeInSystem1  NextComponent  {  WaitingTime1  }
+TimeInSystem1  SampleValue  {  this.obj.StateTimes("Arrive") + this.obj.StateTimes("Wait") + this.obj.StateTimes("Treat") + this.obj.StateTimes("Leave")  }
+TimeInSystem2  NextComponent  {  WaitingTime2  }
+TimeInSystem2  SampleValue  {  this.obj.StateTimes("Arrive") + this.obj.StateTimes("Wait") + this.obj.StateTimes("Treat") + this.obj.StateTimes("Leave")  }
+WaitingTime1  NextComponent  {  PatientLeaveEvent2  }
+WaitingTime1  SampleValue  {  this.obj.StateTimes("Wait")  }
+WaitingTime2  NextComponent  {  PatientLeaveEvent2  }
+WaitingTime2  SampleValue  {  this.obj.StateTimes("Wait")  }
+Simulation  RealTime  {  FALSE  }
+Simulation  SnapToGrid  {  TRUE  }
+Simulation  RealTimeFactor  {  16384  }
+Simulation  ShowModelBuilder  {  TRUE  }
+Simulation  ShowObjectSelector  {  TRUE  }
+Simulation  ShowInputEditor  {  TRUE  }
+Simulation  ShowOutputViewer  {  TRUE  }
+Simulation  ShowPropertyViewer  {  FALSE  }
+Simulation  ShowLogViewer  {  FALSE  }
+Simulation  InputEditorPos  {  216  792  }
+Simulation  InputEditorSize  {  897  254  }
+Simulation  OutputViewerPos  {  1136  803  }
+Simulation  LogViewerPos  {  2212  -109  }
+Simulation  LogViewerSize  {  1588  1036  }
+Simulation  ControlPanelWidth  {  1539  }
+AppointmentTimes  Position  {  0.5  0.0  0.0  m  }
+WaitingRoomCapacity  Position  {  8.4  -0.5  0.0  m  }
+AppointmentDoctorRoster  Position  {  -0.5  -3.9  0.0  m  }
+WalkUpDoctorRoster  Position  {  -0.5  -2.5  0.0  m  }
+WalkUpDoctorRoster  Size  {  1.0  1.0  1.0  m  }
+ControllerTutorialTwo1  Position  {  0.6  3.7  0.0  m  }
+AppointmentDoctor  Position  {  2.6  -3.9  0.0  m  }
+AppointmentDoctor  Alignment  {  0.0  0.0  -0.5  }
+AppointmentDoctor  Size  {  0.500000  0.500000  1.0  m  }
+AppointmentDoctor  DisplayModel  {  doctor2-model1  }
+ScheduledPatient  Position  {  2.6  0.1  0.0  m  }
+ScheduledPatient  Alignment  {  0.0  0.0  -0.5  }
+WalkUpDoctor  Position  {  2.6  -2.5  0.0  m  }
+WalkUpDoctor  Alignment  {  0.0  0.0  -0.5  }
+WalkUpDoctor  Size  {  0.500000  0.500000  1.0  m  }
+WalkUpDoctor  DisplayModel  {  doctor-model1  }
+WalkUpPatient  Position  {  2.6  1.5  0.0  m  }
+WalkUpPatient  Alignment  {  0.0  0.0  -0.5  }
+WalkUpPatient  Size  {  0.500000  0.500000  1.0  m  }
+WalkUpPatient  DisplayModel  {  patient-model1  }
+AppointmentDoctorArriveEvent  Position  {  4.0  -3.9  0.0  m  }
+ScheduledPatientArriveEvent  Position  {  4.0  0.1  0.0  m  }
+WalkUpDoctorArriveEvent  Position  {  4.0  -2.5  0.0  m  }
+WalkUpPatientArriveEvent  Position  {  4.0  1.5  0.0  m  }
+TreatmentRoom1  Position  {  12.0  0.7  0.0  m  }
+TreatmentRoom2  Position  {  12.0  -1.4  0.0  m  }
+WaitingRoom  Position  {  8.4  0.8  0.0  m  }
+DoctorLeave  Position  {  12.0  -2.3  0.0  m  }
+DoctorLeave  Points  {  {  12.0  -2.3  0.0  m  }  {  12.0  -3.2  0.0  m  }  }
+DoctorLeave  DisplayModel  {  ArrowModelDefault  }
+PatientArrive  Position  {  6.0  0.8  0.0  m  }
+PatientArrive  Points  {  {  6.0  0.8  0.0  m  }  {  7.0  0.8  0.0  m  }  }
+PatientArrive  DisplayModel  {  ArrowModelDefault  }
+PatientLeave  Position  {  8.4  1.7  0.0  m  }
+PatientLeave  Points  {  {  8.4  1.7  0.0  m  }  {  8.4  2.7  0.0  m  }  }
+PatientLeave  DisplayModel  {  ArrowModelDefault  }
+ScheduledPatientFinished  Position  {  13.5  -1.5  0.0  m  }
+ScheduledPatientFinished  Points  {  {  13.5  -1.5  0.0  m  }  {  14.5  -1.5  0.0  m  }  }
+ScheduledPatientFinished  DisplayModel  {  ArrowModelDefault  }
+WalkUpPatientFinished  Position  {  13.5  0.6  0.0  m  }
+WalkUpPatientFinished  Points  {  {  13.5  0.6  0.0  m  }  {  14.5  0.6  0.0  m  }  }
+WalkUpPatientFinished  DisplayModel  {  ArrowModelDefault  }
+DoctorLeaveEvent  Position  {  12.0  -3.8  0.0  m  }
+PatientLeaveEvent1  Position  {  8.4  3.8  0.0  m  }
+PatientLeaveEvent2  Position  {  18.5  -0.5  0.0  m  }
+ArrivalDist  Position  {  0.5  1.6  0.0  m  }
+TreatmentDist  Position  {  0.6  -3.2  0.0  m  }
+TimeInSystem1  Position  {  15.5  0.5  0.0  m  }
+TimeInSystem2  Position  {  15.5  -1.5  0.0  m  }
+WaitingTime1  Position  {  17.0  0.5  0.0  m  }
+WaitingTime2  Position  {  17.0  -1.5  0.0  m  }
+Axis  ColladaFile  {  <res>/shapes/axis_text.dae  }
+Grid100x100  ColladaFile  {  <res>/shapes/grid100x100.dae  }
+doctor-model1  ImageFile  {  doctor.png  }
+doctor2-model1  ImageFile  {  doctor2.png  }
+patient-model1  ImageFile  {  patient.png  }
+XY-Grid  Description  {  Grid for the X-Y plane (100 m x 100 m)  }
+XY-Grid  Size  {  100  100  m  }
+XY-Grid  DisplayModel  {  Grid100x100  }
+XY-Grid  Show  {  FALSE  }
+XY-Grid  Movable  {  FALSE  }
+XYZ-Axis  Description  {  Unit vectors  }
+XYZ-Axis  Alignment  {  -0.4393409  -0.4410096  -0.4394292  }
+XYZ-Axis  Size  {  1.125000  1.1568242  1.1266404  m  }
+XYZ-Axis  DisplayModel  {  Axis  }
+XYZ-Axis  Movable  {  FALSE  }
+AppointmentDoctorArriveEvent_Label  Position  {  0.0  -0.65  0.0  m  }
+AppointmentDoctorArriveEvent_Label  Size  {  3.3374  0.3  0.0  m  }
+AppointmentDoctorArriveEvent_Label  RelativeEntity  {  AppointmentDoctorArriveEvent  }
+AppointmentDoctorArriveEvent_Label  Show  {  FALSE  }
+AppointmentDoctorArriveEvent_Label  TargetEntity  {  AppointmentDoctorArriveEvent  }
+AppointmentDoctorRoster_Label  Position  {  0.0  -0.65  0.0  m  }
+AppointmentDoctorRoster_Label  Size  {  2.80512  0.3  0.0  m  }
+AppointmentDoctorRoster_Label  RelativeEntity  {  AppointmentDoctorRoster  }
+AppointmentDoctorRoster_Label  Show  {  FALSE  }
+AppointmentDoctorRoster_Label  TargetEntity  {  AppointmentDoctorRoster  }
+AppointmentDoctor_Label  Position  {  0.0  -0.4  0.0  m  }
+AppointmentDoctor_Label  Size  {  2.143384  0.3  0.0  m  }
+AppointmentDoctor_Label  RelativeEntity  {  AppointmentDoctor  }
+AppointmentDoctor_Label  Show  {  FALSE  }
+AppointmentDoctor_Label  TargetEntity  {  AppointmentDoctor  }
+AppointmentTimes_Label  Position  {  0.0  -0.65  0.0  m  }
+AppointmentTimes_Label  Size  {  2.072673  0.3  0.0  m  }
+AppointmentTimes_Label  RelativeEntity  {  AppointmentTimes  }
+AppointmentTimes_Label  Show  {  FALSE  }
+AppointmentTimes_Label  TargetEntity  {  AppointmentTimes  }
+ArrivalDist_Label  Position  {  0.0  -0.65  0.0  m  }
+ArrivalDist_Label  Size  {  1.219947  0.3  0.0  m  }
+ArrivalDist_Label  RelativeEntity  {  ArrivalDist  }
+ArrivalDist_Label  Show  {  FALSE  }
+ArrivalDist_Label  TargetEntity  {  ArrivalDist  }
+ControllerTutorialTwo1_Label  Position  {  0.0  -0.4  0.0  m  }
+ControllerTutorialTwo1_Label  Size  {  2.486769  0.3  0.0  m  }
+ControllerTutorialTwo1_Label  RelativeEntity  {  ControllerTutorialTwo1  }
+ControllerTutorialTwo1_Label  Show  {  FALSE  }
+ControllerTutorialTwo1_Label  TargetEntity  {  ControllerTutorialTwo1  }
+DoctorLeaveEvent_Label  Position  {  0.0  -0.65  0.0  m  }
+DoctorLeaveEvent_Label  Size  {  2.011436  0.3  0.0  m  }
+DoctorLeaveEvent_Label  RelativeEntity  {  DoctorLeaveEvent  }
+DoctorLeaveEvent_Label  Show  {  FALSE  }
+DoctorLeaveEvent_Label  TargetEntity  {  DoctorLeaveEvent  }
+DoctorLeave_Label  Position  {  0.9  -0.5  0.0  m  }
+DoctorLeave_Label  Size  {  1.429987  0.3  0.0  m  }
+DoctorLeave_Label  RelativeEntity  {  DoctorLeave  }
+DoctorLeave_Label  Show  {  FALSE  }
+DoctorLeave_Label  TargetEntity  {  DoctorLeave  }
+PatientArrive_Label  Position  {  0.5  -0.3  0.0  m  }
+PatientArrive_Label  Size  {  1.476363  0.3  0.0  m  }
+PatientArrive_Label  RelativeEntity  {  PatientArrive  }
+PatientArrive_Label  Show  {  FALSE  }
+PatientArrive_Label  TargetEntity  {  PatientArrive  }
+PatientLeaveEvent1_Label  Position  {  0.0  -0.65  0.0  m  }
+PatientLeaveEvent1_Label  Size  {  2.175698  0.3  0.0  m  }
+PatientLeaveEvent1_Label  RelativeEntity  {  PatientLeaveEvent1  }
+PatientLeaveEvent1_Label  Show  {  FALSE  }
+PatientLeaveEvent1_Label  TargetEntity  {  PatientLeaveEvent1  }
+PatientLeaveEvent2_Label  Position  {  0.0  -0.65  0.0  m  }
+PatientLeaveEvent2_Label  Size  {  2.175698  0.3  0.0  m  }
+PatientLeaveEvent2_Label  RelativeEntity  {  PatientLeaveEvent2  }
+PatientLeaveEvent2_Label  Show  {  FALSE  }
+PatientLeaveEvent2_Label  TargetEntity  {  PatientLeaveEvent2  }
+PatientLeave_Label  Position  {  1.2  0.5  0.0  m  }
+PatientLeave_Label  Size  {  1.464395  0.3  0.0  m  }
+PatientLeave_Label  RelativeEntity  {  PatientLeave  }
+PatientLeave_Label  Show  {  FALSE  }
+PatientLeave_Label  TargetEntity  {  PatientLeave  }
+ScheduledPatientArriveEvent_Label  Position  {  0.0  -0.65  0.0  m  }
+ScheduledPatientArriveEvent_Label  Size  {  3.11629  0.3  0.0  m  }
+ScheduledPatientArriveEvent_Label  RelativeEntity  {  ScheduledPatientArriveEvent  }
+ScheduledPatientArriveEvent_Label  Show  {  FALSE  }
+ScheduledPatientArriveEvent_Label  TargetEntity  {  ScheduledPatientArriveEvent  }
+ScheduledPatientFinished_Label  Position  {  0.4  -0.2  0.0  m  }
+ScheduledPatientFinished_Label  Size  {  2.765625  0.3  0.0  m  }
+ScheduledPatientFinished_Label  RelativeEntity  {  ScheduledPatientFinished  }
+ScheduledPatientFinished_Label  Show  {  FALSE  }
+ScheduledPatientFinished_Label  TargetEntity  {  ScheduledPatientFinished  }
+ScheduledPatient_Label  Position  {  0.0  -0.4  0.0  m  }
+ScheduledPatient_Label  Size  {  1.922274  0.3  0.0  m  }
+ScheduledPatient_Label  RelativeEntity  {  ScheduledPatient  }
+ScheduledPatient_Label  Show  {  FALSE  }
+ScheduledPatient_Label  TargetEntity  {  ScheduledPatient  }
+TimeInSystem1_Label  Position  {  0.0  -0.65  0.0  m  }
+TimeInSystem1_Label  Size  {  1.765093  0.3  0.0  m  }
+TimeInSystem1_Label  RelativeEntity  {  TimeInSystem1  }
+TimeInSystem1_Label  Show  {  FALSE  }
+TimeInSystem1_Label  TargetEntity  {  TimeInSystem1  }
+TimeInSystem2_Label  Position  {  0.0  -0.65  0.0  m  }
+TimeInSystem2_Label  Size  {  1.765093  0.3  0.0  m  }
+TimeInSystem2_Label  RelativeEntity  {  TimeInSystem2  }
+TimeInSystem2_Label  Show  {  FALSE  }
+TimeInSystem2_Label  TargetEntity  {  TimeInSystem2  }
+TreatmentDist_Label  Position  {  0.0  -0.65  0.0  m  }
+TreatmentDist_Label  Size  {  1.618285  0.3  0.0  m  }
+TreatmentDist_Label  RelativeEntity  {  TreatmentDist  }
+TreatmentDist_Label  Show  {  FALSE  }
+TreatmentDist_Label  TargetEntity  {  TreatmentDist  }
+TreatmentRoom1_Label  Position  {  0.0  -0.65  0.0  m  }
+TreatmentRoom1_Label  Size  {  1.936436  0.3  0.0  m  }
+TreatmentRoom1_Label  RelativeEntity  {  TreatmentRoom1  }
+TreatmentRoom1_Label  Show  {  FALSE  }
+TreatmentRoom1_Label  TargetEntity  {  TreatmentRoom1  }
+TreatmentRoom2_Label  Position  {  0.0  -0.65  0.0  m  }
+TreatmentRoom2_Label  Size  {  1.936436  0.3  0.0  m  }
+TreatmentRoom2_Label  RelativeEntity  {  TreatmentRoom2  }
+TreatmentRoom2_Label  Show  {  FALSE  }
+TreatmentRoom2_Label  TargetEntity  {  TreatmentRoom2  }
+WaitingRoom_Label  Position  {  0.0  -0.65  0.0  m  }
+WaitingRoom_Label  Size  {  1.512367  0.3  0.0  m  }
+WaitingRoom_Label  RelativeEntity  {  WaitingRoom  }
+WaitingRoom_Label  Show  {  FALSE  }
+WaitingRoom_Label  TargetEntity  {  WaitingRoom  }
+WaitingTime1_Label  Position  {  0.0  -0.65  0.0  m  }
+WaitingTime1_Label  Size  {  1.555851  0.3  0.0  m  }
+WaitingTime1_Label  RelativeEntity  {  WaitingTime1  }
+WaitingTime1_Label  Show  {  FALSE  }
+WaitingTime1_Label  TargetEntity  {  WaitingTime1  }
+WaitingTime2_Label  Position  {  0.0  -0.65  0.0  m  }
+WaitingTime2_Label  Size  {  1.555851  0.3  0.0  m  }
+WaitingTime2_Label  RelativeEntity  {  WaitingTime2  }
+WaitingTime2_Label  Show  {  FALSE  }
+WaitingTime2_Label  TargetEntity  {  WaitingTime2  }
+WalkUpDoctorArriveEvent_Label  Position  {  0.0  -0.65  0.0  m  }
+WalkUpDoctorArriveEvent_Label  Size  {  2.801729  0.3  0.0  m  }
+WalkUpDoctorArriveEvent_Label  RelativeEntity  {  WalkUpDoctorArriveEvent  }
+WalkUpDoctorArriveEvent_Label  Show  {  FALSE  }
+WalkUpDoctorArriveEvent_Label  TargetEntity  {  WalkUpDoctorArriveEvent  }
+WalkUpDoctorRoster_Label  Position  {  0.0  -0.65  0.0  m  }
+WalkUpDoctorRoster_Label  Size  {  2.269448  0.3  0.0  m  }
+WalkUpDoctorRoster_Label  RelativeEntity  {  WalkUpDoctorRoster  }
+WalkUpDoctorRoster_Label  Show  {  FALSE  }
+WalkUpDoctorRoster_Label  TargetEntity  {  WalkUpDoctorRoster  }
+WalkUpDoctor_Label  Position  {  0.0  -0.4  0.0  m  }
+WalkUpDoctor_Label  Size  {  1.607713  0.3  0.0  m  }
+WalkUpDoctor_Label  RelativeEntity  {  WalkUpDoctor  }
+WalkUpDoctor_Label  Show  {  FALSE  }
+WalkUpDoctor_Label  TargetEntity  {  WalkUpDoctor  }
+WalkUpPatientArriveEvent_Label  Position  {  0.0  -0.65  0.0  m  }
+WalkUpPatientArriveEvent_Label  Size  {  2.836137  0.3  0.0  m  }
+WalkUpPatientArriveEvent_Label  RelativeEntity  {  WalkUpPatientArriveEvent  }
+WalkUpPatientArriveEvent_Label  Show  {  FALSE  }
+WalkUpPatientArriveEvent_Label  TargetEntity  {  WalkUpPatientArriveEvent  }
+WalkUpPatientFinished_Label  Position  {  0.5  -0.4  0.0  m  }
+WalkUpPatientFinished_Label  Size  {  2.485472  0.3  0.0  m  }
+WalkUpPatientFinished_Label  RelativeEntity  {  WalkUpPatientFinished  }
+WalkUpPatientFinished_Label  Show  {  FALSE  }
+WalkUpPatientFinished_Label  TargetEntity  {  WalkUpPatientFinished  }
+WalkUpPatient_Label  Position  {  0.0  -0.4  0.0  m  }
+WalkUpPatient_Label  Size  {  1.642121  0.3  0.0  m  }
+WalkUpPatient_Label  RelativeEntity  {  WalkUpPatient  }
+WalkUpPatient_Label  Show  {  FALSE  }
+WalkUpPatient_Label  TargetEntity  {  WalkUpPatient  }
+Clock  Description  {  Simulation date and time  }
+Clock  ScreenPosition  {  15  15  }
+Clock  AlignBottom  {  TRUE  }
+Clock  TextHeight  {  10  }
+Clock  FontColour  {  gray20  }
+Clock  FontStyle  {  ITALIC  }
+Clock  DateFormat  {  yyyy-MMM-dd HH:mm:ss.SSS  }
+Title  Description  {  Title for the simulation model  }
+Title  ScreenPosition  {  15  15  }
+Title  Format  {  Model Title  }
+Title  TextHeight  {  18  }
+Title  FontColour  {  150  23  46  }
+Title  FontStyle  {  BOLD  }
+View1  Description  {  Default view window  }
+View1  ViewCenter  {  7.673491  -0.72268  9.788919  m  }
+View1  ViewPosition  {  7.673491  -0.72268  27.109427  m  }
+View1  ShowWindow  {  TRUE  }
+View1  Lock2D  {  TRUE  }
+View1  SkyboxImage  {  <res>/images/sky_map_2048x1024.jpg  }
+Input Error: 1 input errors and 0 warnings found

@@ -49,7 +49,7 @@ public class HCCMLeaveEvent extends LinkedComponent {
 		// Added
 
 		// Kill the added entity
-		if (ent.isGenerated()) {
+		if (ent.testFlag(FLAG_GENERATED)) {
 			ent.kill();
 		}
 	}
