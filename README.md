@@ -31,6 +31,7 @@ a. You must make both custom and R2_custom source folders in your project to get
 ## Issues to resolve
 
 - MO 2020/05/15 - HCCMLibrary seems to me to only allows an active and a passive entity in a ControlActivity, but activities are often two or more active entities
+- JC 2020/05/20 - Git and GitHub Guide Table of Contents is being difficult, need to manually update it
 
 ## Useful Links
 
