@@ -19,6 +19,7 @@ import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
+import hccm.entities.Entity;
 import hccm.events.ActivityEvent;
 
 
@@ -90,7 +91,7 @@ public class WaitActivity extends Queue implements Activity {
 		 * @param ents, a list of ActiveEntity objects
 		 * @exception ErrorException throws errors related to evaluating the assignment expressions
 		 */
-		public void happens(List<ActiveEntity> ents) {
+		public void happens(List<Entity> ents) {
 			WaitActivity act = (WaitActivity)owner;
 			double simTime = getSimTime();
 			
@@ -103,15 +104,20 @@ public class WaitActivity extends Queue implements Activity {
 				}
 			}
 
-			// Choose the requested activity for this entity
-			int i = (int) requestActivityChoice.getValue().getNextSample(simTime);
-			if (i<1 || i>requestActivityList.getValue().size())
-				error("Chosen index i=%s is out of range for RequestActivityList: %s.",
-				      i, requestActivityList.getValue());
-
-			// Get the requested activity
-			ProcessActivity req = requestActivityList.getValue().get(i-1);
-			ControlUnit rcu = req.getControlUnit();
+			// Choose the requested activity for this entity (if there is one)
+			ProcessActivity req = null;
+			ControlUnit rcu = null;
+			int i;
+			if (requestActivityList.getValue().size() >= 1) {
+				i = (int) requestActivityChoice.getValue().getNextSample(simTime);
+				if (i<1 || i>requestActivityList.getValue().size())
+					error("Chosen index i=%s is out of range for RequestActivityList: %s.",
+					      i, requestActivityList.getValue());
+	
+				// Get the requested activity
+				req = requestActivityList.getValue().get(i-1);
+				rcu = req.getControlUnit();
+			}
 			
 			// Choose the trigger for this entity
 			i = (int) triggerChoice.getValue().getNextSample(simTime);
@@ -123,10 +129,12 @@ public class WaitActivity extends Queue implements Activity {
 			Trigger trg = triggerList.getValue().get(i-1);
 			ControlUnit tcu = trg.getControlUnit();
 			
-			ActiveEntity ent = ents.get(0);
+			ActiveEntity ent = (ActiveEntity)ents.get(0);
+			ent.setCurrentActivity(act);
 			
-			// Request the activity
-			rcu.requestActivity(req, ent, act, simTime);
+			if ((req != null) && (rcu != null))
+  			  // Request the activity
+  			  rcu.requestActivity(req, ent, act, simTime);
 					
 			// Trigger the logic
 			tcu.triggerLogic(trg, ent, simTime);
@@ -150,7 +158,7 @@ public class WaitActivity extends Queue implements Activity {
 		 * Wait finish happens
 		 * @param ents, a list of ActiveEntity objects
 		 */
-		public void happens(List<ActiveEntity> ents) {
+		public void happens(List<Entity> ents) {
 			WaitActivity act = (WaitActivity)owner;
 			
 			// Evaluate the finish assignment expressions
@@ -202,12 +210,12 @@ public class WaitActivity extends Queue implements Activity {
 	
 	/**
 	 * Overrides parent function, starts the wait activity
-	 * @param ents, a list of ActiveEntity objects
+	 * @param ents, a list of Entity objects
 	 */
 	@Override
-	public void start(List<ActiveEntity> ents) {
+	public void start(List<Entity> ents) {
 		assert(ents.size() == 1);
-		addEntity(ents.get(0));
+		addEntity((DisplayEntity)ents.get(0));
 		startEvent.happens(ents);
 	}
 	
@@ -216,10 +224,10 @@ public class WaitActivity extends Queue implements Activity {
 	 * @param ents, a list of ActiveEntity objects
 	 */
 	@Override
-	public void finish(List<ActiveEntity> ents) {
+	public void finish(List<Entity> ents) {
 		assert(ents.size() == 1);
 		finishEvent.happens(ents);
-		removeEntity(ents.get(0));
+		removeEntity((DisplayEntity)ents.get(0));
         updateGraphics(getSimTime());
 	}
 	
@@ -246,10 +254,10 @@ public class WaitActivity extends Queue implements Activity {
 	 * @return ents, a list of ActiveEntity objects
 	 */
 	@Override
-	public List<ActiveEntity> getEntities() {
-		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
+	public List<Entity> getEntities() {
+		ArrayList<Entity> ents = new ArrayList<Entity>();
 		for (DisplayEntity de : getQueueList(getSimTime()))
-			ents.add((ActiveEntity)de);
+			ents.add((Entity)de);
 		return ents;
 	}
 }

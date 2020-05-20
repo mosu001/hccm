@@ -23,6 +23,7 @@ import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 //import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
+import hccm.entities.Entity;
 import hccm.events.ActivityEvent;
 
 
@@ -81,7 +82,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		/**
 		 * ?
 		 */
-		public void happens(List<ActiveEntity> ents) {
+		public void happens(List<Entity> ents) {
 			JaamSimModel model = getJaamSimModel();
 			EntityDelay ed = (EntityDelay)owner;
 			int numCons = 0;
@@ -91,8 +92,11 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					ed.getName() + "_" + (numCons + 1), null, false, true, false, false);
 			participantEntity.setDisplayModelList(null);
 			participantEntity.setShow(true);
-			for (ActiveEntity ent : ents) {
-				participantEntity.addEntity(ent);
+			for (Entity ent : ents) {
+				DisplayEntity de = (DisplayEntity)ent;
+				participantEntity.addEntity(de);
+				if (ent instanceof ActiveEntity)
+					((ActiveEntity)ent).setCurrentActivity(owner);
 			}
 			ed.addEntity(participantEntity);
 		}
@@ -120,11 +124,17 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		 * @param ents, a list of active entities
 		 */
 		@Override
-		public void happens(List<ActiveEntity> ents) {
+		public void happens(List<Entity> ents) {
 			// Send each entity to its next activity or event
 			for (int i=0; i<ents.size(); i++) {
-				ActiveEntity ent = ents.get(i);
-				ActivityOrEvent actEvt = nextActivityEventList.getValue().get(i);
+				Entity ent = ents.get(i);
+				Entity proto = ent.getEntityType();
+				int index = participantList.getValue().indexOf(proto);
+				System.out.print("After ProcessActivity, Entity:" + ent.getName());
+				System.out.print("After ProcessActivity, proto:" + proto.getName());
+				ActivityOrEvent actEvt = nextActivityEventList.getValue().get(index);
+				if (actEvt instanceof Activity)
+					System.out.print("After ProcessActivity, Activity:" + ((Activity)actEvt).getName());
 				ActivityOrEvent.execute(actEvt, ent.asList());
 			}
 		}
@@ -180,7 +190,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * @param participants, a list of ActiveEntity objects that participate in the start event
 	 */
 	@Override
-	public void start(List<ActiveEntity> participants) {
+	public void start(List<Entity> participants) {
 		startEvent.happens(participants);
 	}
 	
@@ -191,7 +201,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	@Override
 	public void sendToNextComponent(DisplayEntity ent) {
 		EntityContainer participantEntity = (EntityContainer)ent;
-		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
+		ArrayList<Entity> participants = new ArrayList<Entity>();
 		while (!participantEntity.isEmpty(null)) {
 			DisplayEntity de = participantEntity.removeEntity(null);
 			participants.add((ActiveEntity)de);
@@ -206,7 +216,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * @param participants, a list of ActiveEntity objects that participate in the start event
 	 */
 	@Override
-	public void finish(List<ActiveEntity> participants) {
+	public void finish(List<Entity> participants) {
 		finishEvent.happens(participants);
 	}
 	
@@ -221,13 +231,13 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * @return ents, a list of ActiveEntity objects
 	 */
 	@Override
-	public List<ActiveEntity> getEntities() {
+	public List<Entity> getEntities() {
 		double simTime = getSimTime();
-		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
+		ArrayList<Entity> ents = new ArrayList<Entity>();
 		for (DisplayEntity de : getEntityList(simTime)) {
 			EntityContainer con = (EntityContainer)de;
 			for (DisplayEntity cde : con.getEntityList(simTime))
-				ents.add((ActiveEntity)cde);
+				ents.add((Entity)cde);
 		}
 		return ents;
 	}
@@ -236,14 +246,14 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * Gets the participants of the delay activity
 	 * @return entArrs, an array of arrays of ActiveEntity objects
 	 */
-	public ArrayList<ArrayList<ActiveEntity>> getParticipants() {
+	public ArrayList<ArrayList<Entity>> getParticipants() {
 		double simTime = getSimTime();
-		ArrayList<ArrayList<ActiveEntity>> entArrs = new ArrayList<ArrayList<ActiveEntity>>();
+		ArrayList<ArrayList<Entity>> entArrs = new ArrayList<ArrayList<Entity>>();
 		for (DisplayEntity de : getEntityList(simTime)) {
 			EntityContainer con = (EntityContainer)de;
-			ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
+			ArrayList<Entity> ents = new ArrayList<Entity>();
 			for (DisplayEntity cde : con.getEntityList(simTime))
-				ents.add((ActiveEntity)cde);
+				ents.add((Entity)cde);
 			entArrs.add(ents);
 		}
 		return entArrs;

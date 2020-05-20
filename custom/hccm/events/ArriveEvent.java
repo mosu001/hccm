@@ -2,6 +2,8 @@ package hccm.events;
 
 import java.util.List;
 
+import com.jaamsim.EntityProviders.EntityProvConstant;
+import com.jaamsim.EntityProviders.EntityProvInput;
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityGenerator;
 import com.jaamsim.input.InterfaceEntityInput;
@@ -10,6 +12,7 @@ import com.jaamsim.input.Keyword;
 import hccm.ActivityOrEvent;
 import hccm.Constants;
 import hccm.entities.ActiveEntity;
+import hccm.entities.Entity;
 
 /**
  * 
@@ -41,16 +44,20 @@ public class ArriveEvent extends EntityGenerator implements Event {
 	 * @param ent, a DisplayEntity object
 	 */
 	@Override
-	public void sendToNextComponent(DisplayEntity ent) {
-		ActiveEntity actEnt = (ActiveEntity)ent;
-		happens(actEnt.asList());
+	public void sendToNextComponent(DisplayEntity dent) {
+		Entity ent = (Entity)dent;
+		@SuppressWarnings("unchecked")
+		EntityProvConstant<DisplayEntity> prov = (EntityProvConstant<DisplayEntity>)getInput("PrototypeEntity").getValue();
+		Entity proto = (Entity)prov.getEntity();
+		ent.setEntityType(proto);
+		happens(ent.asList());
 	}
 
 	/**
 	 * Executes the ArriveEvent happening
 	 * @param ents, a list of ActiveEntity objects
 	 */
-	public void happens(List<ActiveEntity> ents) { // What occurs when this event happens		
+	public void happens(List<Entity> ents) { // What occurs when this event happens		
 		// Send this entity to the next activity or event
 		ActivityOrEvent actEvt = nextActivityEvent.getValue();
 		ActivityOrEvent.execute(actEvt, ents);

@@ -1,5 +1,8 @@
 package hccm.entities;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 
  * @author Michael O'Sullivan
@@ -8,5 +11,9 @@ package hccm.entities;
  * 
  */
 public interface Entity {
+	Entity getEntityType();
+	void setEntityType(Entity type);
 
+	public List<Entity> asList();
+	public String getName();
 }

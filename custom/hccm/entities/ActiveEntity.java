@@ -20,9 +20,11 @@ public class ActiveEntity extends SimEntity implements Entity {
 	/**
 	 * ?
 	 */
+	private ActiveEntity entityType;
 	private Activity currentActivity;
 	
 	{
+		setEntityType(null);
 		setCurrentActivity(null);
 	}
 	
@@ -30,8 +32,24 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 * Helper function that converts a single entity to a list, for use with other functions
 	 * @return a list of ActiveEntity objects
 	 */
-	public List<ActiveEntity> asList() {
+	public List<Entity> asList() {
 		return Arrays.asList(this);
+	}
+
+	/**
+	 * Getter function for entityType
+	 * @return entityType
+	 */
+	public Entity getEntityType() {
+		return entityType;
+	}
+
+	/**
+	 * Setter function for entityType
+	 * @param entityType
+	 */
+	public void setEntityType(Entity type) {
+		this.entityType = (ActiveEntity)type;
 	}
 
 	/**

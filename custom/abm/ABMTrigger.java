@@ -21,6 +21,7 @@ import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
 import hccm.controlunits.ControlUnit.Request;
 import hccm.entities.ActiveEntity;
+import hccm.entities.Entity;
 
 /**
  * @author Michael O'Sullivan
@@ -119,7 +120,7 @@ public class ABMTrigger extends Trigger {
 	    for (ProcessActivity cact : controlActs) {
 	    	System.out.println("In Timer with " + cact.getName());
 	    	int count = 0;
-	    	for (List<ActiveEntity> cents : cact.getParticipants()) {
+	    	for (List<Entity> cents : cact.getParticipants()) {
 	    		count++;
 	    		String entities = cents.stream().map(Object::toString)
                         .collect(Collectors.joining(", "));
@@ -130,7 +131,7 @@ public class ABMTrigger extends Trigger {
 	    // 
 	    for (WaitActivity wact : waitActs) {
 	    	System.out.println("In Timer with " + wact.getName());
-	    	for (ActiveEntity went : wact.getEntities())
+	    	for (Entity went : wact.getEntities())
 	    		System.out.println("Entity waiting = " + went.getName());
 	    	Interact(wact.getEntities());
 	    }
@@ -150,14 +151,14 @@ public class ABMTrigger extends Trigger {
 	 * @param ents, a list of ActiveEntity objects
 	 * @return void
 	 */
-	private void Interact(List<ActiveEntity> ents) {
-		if (ents.size() > 1)
-			for (int i=0; i<ents.size()-1; i++)
-				for (int j=i+1; j<ents.size(); j++) {
+	private void Interact(List<Entity> list) {
+		if (list.size() > 1)
+			for (int i=0; i<list.size()-1; i++)
+				for (int j=i+1; j<list.size(); j++) {
 					System.out.println("Indices = " + i + ", " + j);
-					ActiveEntity ent1 = ents.get(i), ent2 = ents.get(j);
+					Entity ent1 = list.get(i), ent2 = list.get(j);
 					System.out.println("Entities = " + ent1.getName() + ", " + ent2.getName());
-					Interact(ent1, ent2);
+					Interact((ActiveEntity)ent1, (ActiveEntity)ent2);
 				}
 		
 	}

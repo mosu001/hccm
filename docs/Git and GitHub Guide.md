@@ -11,6 +11,7 @@
 		- [Branch Management](#branch-management)
 		- [Remote Branches](#remote-branches)
 		- [Pushing](#pushing)
+		- [Pull Requests](#pull-requests)
 	- [Basic Git Commands](#basic-git-commands)
 		- [git clone](#git-clone)
 		- [git status](#git-status)
@@ -27,6 +28,7 @@
 		- [git branch](#git-branch)
 		- [git checkout](#git-checkout)
 		- [git merge](#git-merge)
+	- [Sources](#sources)
 
 <!-- /TOC -->
 
@@ -154,6 +156,10 @@ Remote branches are pointers to the state of branches in your remote repositorie
 
 To share a local branch to a remote repository so others can view it, you need to explicitly push it using ```git push```.
 
+### Pull Requests
+
+Rather than pushing directly to master, you can use the Github website to create a pull request, which will allow others to review your changes before they are merged.
+
 ## Basic Git Commands
 
 Git commands can be executed in the regular Terminal, the Git Bash shell (which comes with Git), or often indirectly through the IDE you are working with.
@@ -207,6 +213,8 @@ Once the staging area is setup, you can commit your changes with ```git commit``
 Every commit creates a new snapshot of the project that can be reverted to or compared to later.
 
 The -m flag allows you to add a message explaining the changes that you have made since the last commit. Since all the changes are recorded, this needs only to be a couple of lines outlining the major changes.
+
+If you want to add a more detailed comment, you can skip the -m flag, which will take you into the built-in bash text editor. To then write the commit message, hit the INSERT key then type. To finish, hit ESCAPE, then type ```:wq``` and hit ENTER. The first line will appear in yellow and be the title of the commit, with subsequent lines appearing in white and representing additional details.
 
 Note: instead of adding files to the staging area, you can use ```git commit -a -m "commit message"``` to automatically stage every tracked file before committing, allowing you to skip the ```git add``` part.
 

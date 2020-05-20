@@ -10,6 +10,7 @@ import hccm.controlunits.Trigger;
 import hccm.controlunits.ControlUnit.Request;
 import hccm.controlunits.ControlUnit.RequestUtils;
 import hccm.entities.ActiveEntity;
+import hccm.entities.Entity;
 
 /**
  * 
@@ -46,7 +47,7 @@ public class FIFOQTrigger extends Trigger {
 	        // Both a customer and a server have been found waiting
         	if ( (creq != null) & (sreq != null) ) {
 		        ActiveEntity cust = creq.getRequester(), serv = sreq.getRequester();
-		        ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, serv));
+		        ArrayList<Entity> participants = new ArrayList<Entity>(Arrays.asList(cust, serv));
 		        creq.getWaiting().finish(cust.asList());
 		        requests.remove(creq);
 		        sreq.getWaiting().finish(serv.asList());

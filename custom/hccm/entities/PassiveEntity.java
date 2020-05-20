@@ -1,6 +1,11 @@
 package hccm.entities;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.jaamsim.Graphics.DisplayEntity;
+
+import hccm.activities.Activity;
 
 /**
  * 
@@ -11,9 +16,35 @@ import com.jaamsim.Graphics.DisplayEntity;
  */
 public class PassiveEntity extends DisplayEntity implements Entity {
 
+	private PassiveEntity entityType;
+
 	{
 		// Passive entities are essentially DisplayEntities with attributes
 		// that can be defined and modified
 		attributeDefinitionList.setHidden(false);
+	}
+
+	/**
+	 * Helper function that converts a single entity to a list, for use with other functions
+	 * @return a list of ActiveEntity objects
+	 */
+	public List<Entity> asList() {
+		return Arrays.asList(this);
+	}
+
+	/**
+	 * Getter function for entityType
+	 * @return entityType
+	 */
+	public Entity getEntityType() {
+		return entityType;
+	}
+
+	/**
+	 * Setter function for entityType
+	 * @param entityType
+	 */
+	public void setEntityType(Entity type) {
+		this.entityType = (PassiveEntity)type;
 	}
 }
