@@ -125,17 +125,23 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		 */
 		@Override
 		public void happens(List<Entity> ents) {
-			// Send each entity to its next activity or event
-			for (int i=0; i<ents.size(); i++) {
-				Entity ent = ents.get(i);
-				Entity proto = ent.getEntityType();
-				int index = participantList.getValue().indexOf(proto);
-				System.out.print("After ProcessActivity, Entity:" + ent.getName());
-				System.out.print("After ProcessActivity, proto:" + proto.getName());
-				ActivityOrEvent actEvt = nextActivityEventList.getValue().get(index);
-				if (actEvt instanceof Activity)
-					System.out.print("After ProcessActivity, Activity:" + ((Activity)actEvt).getName());
-				ActivityOrEvent.execute(actEvt, ent.asList());
+			if (nextActivityEventList.getValue().size() == 1) {
+				// Send all entities to the next activity or event together
+				ActivityOrEvent actEvt = nextActivityEventList.getValue().get(0);				
+				ActivityOrEvent.execute(actEvt, ents);
+			} else {
+				// Send each entity to its next activity or event
+				for (int i=0; i<ents.size(); i++) {
+					Entity ent = ents.get(i);
+					Entity proto = ent.getEntityType();
+					int index = participantList.getValue().indexOf(proto);
+					System.out.print("After ProcessActivity, Entity:" + ent.getName());
+					System.out.print("After ProcessActivity, proto:" + proto.getName());
+					ActivityOrEvent actEvt = nextActivityEventList.getValue().get(index);
+					if (actEvt instanceof Activity)
+						System.out.print("After ProcessActivity, Activity:" + ((Activity)actEvt).getName());
+					ActivityOrEvent.execute(actEvt, ent.asList());
+				}
 			}
 		}
 		
