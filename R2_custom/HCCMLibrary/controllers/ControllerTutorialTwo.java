@@ -157,8 +157,8 @@ public class ControllerTutorialTwo extends HCCMController{
 			DisplayEntity scheduledpatient = activeEntity;
 			((HCCMActiveEntity)scheduledpatient).setPresentState("Wait");
 
-			// Appointment Doctor is available, Scheduled Patient ends Activity WaitingRoom
-			if  (serverAvailable("AppointmentDoctor",treatmentroom2)) { 
+			// Sim Time >= appointment time, Appointment Doctor is available, Scheduled Patient ends Activity WaitingRoom
+			if  (scheduledpatient.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*60 >= getSimTime() && serverAvailable("AppointmentDoctor",treatmentroom2)) { 
 				sendActivitySignalToList(scheduledpatient, waitingroom, "EndActivity");
 			}
 		}

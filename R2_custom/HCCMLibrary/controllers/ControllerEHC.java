@@ -20,10 +20,26 @@ import HCCMLibrary.entities.HCCMActiveEntity;
 public class ControllerEHC extends HCCMController {
 
 	// Create needed entities
-	DisplayEntity exampleentity =  null;
+	DisplayEntity waitingroom = null;
+	DisplayEntity treatmentroom1 = null;
+	DisplayEntity treatmentroom2 = null;
+	DisplayEntity triageroom = null;
+	DisplayEntity testroom = null;
+	DisplayEntity patientleave1 = null;
+	DisplayEntity patientleave2 = null;
+	DisplayEntity patientleave3 = null;
+	DisplayEntity nurseleave = null;
+	DisplayEntity doctorleave = null;
+	DisplayEntity walkupdoctorroster = null;
+	DisplayEntity appointmentdoctorroster = null;
+	DisplayEntity controllerehc = null;
+	
 
 	// Create needed variables
-	Double examplevariable = null;
+	Double waitingroomcapacity = null;
+	Double simindex = null;
+	Double changeshiftwalkupdoctor = null;
+	Double changeshiftappointmentdoctor = null;
 
 	// Create needed data Maps (utilisationTimes for this example)
 	Map<String, Double> utilisationTimes = new HashMap<String, Double>();
@@ -33,10 +49,31 @@ public class ControllerEHC extends HCCMController {
 		super.earlyInit();
 
 		// Get needed entities
-		exampleentity = getDisplayEntity("Name of Entity");
+		waitingroom = getDisplayEntity("WaitingRoom");
+		treatmentroom1 = getDisplayEntity("TreatmentRoom1");
+		treatmentroom2 = getDisplayEntity("TreatmentRoom2");
+		triageroom = getDisplayEntity("TriageRoom");
+		testroom = getDisplayEntity("TestRoom");
+		patientleave1 = getDisplayEntity("PatientLeave1");
+		patientleave2 = getDisplayEntity("PatientLeave2");
+		patientleave3 = getDisplayEntity("PatientLeave3");
+		nurseleave = getDisplayEntity("NurseLeave");
+		doctorleave = getDisplayEntity("DoctorLeave");
+		walkupdoctorroster = getDisplayEntity("WalkUpDoctorRoster");
+		appointmentdoctorroster = getDisplayEntity("AppointmentDoctorRoster");
+		controllerehc = getDisplayEntity("ControllerEHC");
 
 		// Get needed variables
-		examplevariable = 1.0;
+		waitingroomcapacity = getInputValue("WaitingRoomCapacity");
+		simindex = getSimulationRunIndex(0);
+		
+		// Time when WalkUpDoctorShift changes, send signal to controller
+		changeshiftwalkupdoctor = getNextChange("WalkUpDoctorRoster");
+		this.scheduleProcess(changeshiftwalkupdoctor, 5, "sendActivitySignal",controllerehc, walkupdoctorroster, walkupdoctorroster, "ChangeState");
+
+		// Time when AppointmentDoctorShift changes, send signal to controller
+		changeshiftappointmentdoctor = getNextChange("AppointmentDoctorRoster");
+		this.scheduleProcess(changeshiftappointmentdoctor, 5, "sendActivitySignal",controllerehc, appointmentdoctorroster, appointmentdoctorroster, "ChangeState");
 		
 		// Clear data Maps (utilisationTimes for this example)
 		utilisationTimes.clear();
@@ -46,14 +83,219 @@ public class ControllerEHC extends HCCMController {
 	@Override
 	public void Controller(DisplayEntity activeEntity, DisplayEntity activity, String state){
 
-		// If event happens in system
-		if (happens(activeEntity, activity, state, "Name of Active Entity", "Name of Activity", "State of Activity")) {
-
-			System.out.println("This event happens in system");
+		// WalkUp Patient start Activity at WaitingRoom
+		if (happens(activeEntity, activity, state, "WalkUpPatient", "WaitingRoom", "StartActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			((HCCMActiveEntity)walkuppatient).setPresentState("Wait");
+			
+			// If waiting room is full
+			if (((HCCMControlActivity)waitingroom).getNumberInProgress() >= waitingroomcapacity) {
+				moveEntFromTo(walkuppatient,waitingroom,patientleave1);
+			}
+			// Else if not triaged and Triage nurse available
+			else if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && serverAvailable("TriageNurse",triageroom) ) {
+				sendActivitySignalToList(walkuppatient, waitingroom, "EndActivity");
+			}
 			
 		}
+		// WalkUp Patient ends Activity at WaitingRoom
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "WaitingRoom", "EndActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+
+			// Patient needs to be triaged, Triage Nurse is available, WalkUp Patient ends Activity WaitingRoom
+			if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && serverAvailable("TriageNurse",triageroom)) { 
+				moveEntFromTo(walkuppatient,waitingroom,triageroom);
+			}
+			
+			// Patient needs a test, Test Nurse is available, WalkUp Patient ends Activity WaitingRoom
+			else if (Math.abs(walkuppatient.getOutputHandle("needsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.001 && Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && serverAvailable("TestNurse", testroom)) {
+				moveEntFromTo(walkuppatient,waitingroom,triageroom);
+			}
+			
+			// WalkUp Doctor is available, patient has been triaged and either doesn't need a test or has completed it
+			else if (serverAvailable("WalkUpDoctor",treatmentroom1) && Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && (Math.abs(walkuppatient.getOutputHandle("needsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.001 || Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.001)) {
+				moveEntFromTo(walkuppatient, waitingroom, treatmentroom1);
+			}
+
+			// Appointment Doctor is available, patient has been triaged and either doesn't need a test or has completed it
+			else if ((serverAvailable("AppointmentDoctor",treatmentroom2) && Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && (Math.abs(walkuppatient.getOutputHandle("needsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.001 || Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.001))) {
+				moveEntFromTo(walkuppatient,waitingroom,treatmentroom2);
+			}
+			
+
+		}
+		
+		// WalkUp Patient starts Activity at TriageRoom
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TriageRoom", "StartActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			DisplayEntity triagenurse = getServerAvailable("TraigeNurse",triageroom);
+			
+			((HCCMActiveEntity)walkuppatient).setPresentState("Triage");
+			
+			
+			
+			if (simindex == 1 || simindex == 2) {
+				double triagetime = 5*60;
+				startScheduledActvitity(walkuppatient, triagenurse, triageroom, triagetime);
+			}
+			else if (simindex == 3 || simindex == 4) {
+				double triagetime = getDistributionValue("TriageDist");
+				startScheduledActvitity(walkuppatient, triagenurse, triageroom, triagetime);
+			}
+		}
+
+		// WalkUp Patient ends Activity at TriageRoom
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TriageRoom", "EndActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			ExpResult r = ExpResult.makeStringResult("True");
+			walkuppatient.setAttribute("hasBeenTriaged", null, r);
+			moveEntFromTo(walkuppatient,triageroom,waitingroom);
+		}		
+		
+		// WalkUp Patient starts Activity at TestRoom
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TestRoom", "StartActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			DisplayEntity testnurse = getServerAvailable("TestNurse",testroom);
+			
+			((HCCMActiveEntity)walkuppatient).setPresentState("Test");
+			
+			if (simindex == 1 || simindex == 2) {
+				double testtime = 10*60;
+				startScheduledActvitity(walkuppatient, testnurse, testroom, testtime);	
+			}
+			else if (simindex == 3 || simindex == 4) {
+				double testtime = getDistributionValue("TestDist");
+				startScheduledActvitity(walkuppatient, testnurse, testroom, testtime);	
+			}
+			
+		}
+
+		// WalkUp Patient ends Activity at TestRoom
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TestRoom", "EndActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			ExpResult r = ExpResult.makeStringResult("True");
+			walkuppatient.setAttribute("hasBeenTested", null, r);
+			moveEntFromTo(walkuppatient,treatmentroom1,waitingroom);
+		}
+		
+		// WalkUp Patient starts Activity at TreatmentRoom1
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TreatmentRoom1", "StartActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			DisplayEntity walkupdoctor = getServerAvailable("WalkUpDoctor",treatmentroom1);
+
+			((HCCMActiveEntity)walkuppatient).setPresentState("Treat");
+
+			if (simindex == 1 || simindex == 2) {
+				double treatmenttime = 15*60;
+				startScheduledActvitity (walkuppatient, walkupdoctor, treatmentroom1, treatmenttime);
+			}
+			else if (simindex == 3 || simindex == 4) {
+				double treatmenttime = getDistributionValue("TreatmentDist");
+				startScheduledActvitity (walkuppatient, walkupdoctor, treatmentroom1, treatmenttime);
+			}
+		}
+		
+		// WalkUp Patient starts Activity at TreatmentRoom2
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TreatmentRoom2", "StartActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			DisplayEntity appointmentdoctor = getServerAvailable("AppointmentDoctor",treatmentroom2);
+
+			((HCCMActiveEntity)walkuppatient).setPresentState("Treat");
+
+			if (simindex == 1 || simindex == 2) {
+				double treatmenttime = 15*60;
+				startScheduledActvitity (walkuppatient, appointmentdoctor, treatmentroom2, treatmenttime);
+			}
+			else if (simindex == 3 || simindex == 4) {
+				double treatmenttime = getDistributionValue("TreatmentDist");
+				startScheduledActvitity (walkuppatient, appointmentdoctor, treatmentroom2, treatmenttime);
+			}
+		}		
+		
+		// WalkUp Patient ends Activity at TreatmentRoom1
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TreatmentRoom1", "EndActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			moveEntFromTo(walkuppatient,treatmentroom1,patientleave3);
+		}
+
+		// WalkUp Patient ends Activity at TreatmentRoom2
+		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TreatmentRoom2", "EndActivity")) {
+			DisplayEntity walkuppatient = activeEntity;
+			moveEntFromTo(walkuppatient,treatmentroom2,patientleave3);
+		}
+		
+		// Scheduled Patient start Activity at WaitingRoom
+		else if(happens(activeEntity, activity, state, "ScheduledPatient", "WaitingRoom", "StartActivity")) {
+			DisplayEntity scheduledpatient = activeEntity;
+			((HCCMActiveEntity)scheduledpatient).setPresentState("Wait");
+
+			// Appointment Doctor is available, Scheduled Patient ends Activity WaitingRoom
+			if  (serverAvailable("AppointmentDoctor",treatmentroom2)) { 
+				sendActivitySignalToList(scheduledpatient, waitingroom, "EndActivity");
+			}
+		}
+
+		// Scheduled Patient end Activity at WaitingRoom
+		else if (happens(activeEntity, activity, state, "ScheduledPatient", "WaitingRoom", "EndActivity")) {
+			DisplayEntity scheduledpatient = activeEntity;
+			moveEntFromTo(scheduledpatient,waitingroom,treatmentroom2);
+		}
+
+		// Scheduled Patient starts Activity at TreatmentRoom2
+		else if (happens(activeEntity, activity, state, "ScheduledPatient", "TreatmentRoom2", "StartActivity")) {
+			DisplayEntity scheduledpatient = activeEntity;
+			DisplayEntity appointmentdoctor = getServerAvailable("AppointmentDoctor",treatmentroom2);
+
+			((HCCMActiveEntity)scheduledpatient).setPresentState("Treat");
+
+			if (simindex == 1 || simindex == 2) {
+				double treatmenttime = 15*60;
+				startScheduledActvitity (scheduledpatient, appointmentdoctor, treatmentroom2, treatmenttime);
+			}
+			else if (simindex == 3 || simindex == 4) {
+				double treatmenttime = getDistributionValue("TreatmentDist");
+				startScheduledActvitity (scheduledpatient, appointmentdoctor, treatmentroom2, treatmenttime);
+			}
+
+		}
+
+		// Scheduled Patient ends Activity at TreatmentRoom2
+		else if (happens(activeEntity, activity, state, "ScheduledPatient", "TreatmentRoom2", "EndActivity")) {
+			DisplayEntity scheduledpatient = activeEntity;
+			moveEntFromTo(scheduledpatient,treatmentroom2,patientleave3);
+
+		}		
+
+		// Shift of WalkUpDoctor Ends
+		else if (happens(activeEntity, activity, state, "WalkUpDoctorRoster", "WalkUpDoctorRoster", "ChangeState")) {
+			double WalkUpDoctorShift = getTimeSeriesValue("WalkUpDoctorRoster");
+			if (WalkUpDoctorShift == 0) {
+				while (serverAvailable("WalkUpDoctor",treatmentroom1)) {
+					DisplayEntity walkupdoctor = getServerAvailable("WalkUpDoctor", treatmentroom1);
+					moveEntFromTo(walkupdoctor,treatmentroom1, doctorleave);
+				}
+			}
+			changeshiftwalkupdoctor = getNextChange("WalkUpDoctorRoster")-getSimTime();
+			// Schedule next change
+			this.scheduleProcess(changeshiftwalkupdoctor, 5, "sendActivitySignal",controllerehc, walkupdoctorroster, walkupdoctorroster, "ChangeState");
+		}
+		
+		// Shift of AppointmentDoctor Ends
+		else if (happens(activeEntity, activity, state, "AppointmentDoctorRoster", "AppointmentDoctorRoster", "ChangeState")) {
+			double AppointmentDoctorShift = getTimeSeriesValue("AppointmentDoctorRoster");
+			if (AppointmentDoctorShift == 0) {
+				while (serverAvailable("AppointmentDoctor",treatmentroom2)) {
+					DisplayEntity appointmentdoctor = getServerAvailable("AppointmentDoctor", treatmentroom2);
+					moveEntFromTo(appointmentdoctor,treatmentroom2, doctorleave);
+				}
+			}
+			changeshiftappointmentdoctor = getNextChange("AppointmentDoctorRoster")-getSimTime();// simTime;
+			// Schedule next change
+			this.scheduleProcess(changeshiftappointmentdoctor, 5, "sendActivitySignal",controllerehc, appointmentdoctorroster, appointmentdoctorroster, "ChangeState");
+		}		
 	}
 	
+	// Helper functions go here
 		public void startScheduledActvitity (DisplayEntity customer, DisplayEntity server, DisplayEntity activity, double duration) {
 
 			makeServerUnavailable(server);
