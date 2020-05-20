@@ -2,6 +2,7 @@
 /.classpath
 /.project
 /jaamsim/
+/R2_custom/*.log
 /R2_custom/HCCMLibrary/events/*.ini
 /R2_custom/HCCMLibrary/controllers/*.ini
 /R2_custom/HCCMLibrary/controlactivity/*.ini
