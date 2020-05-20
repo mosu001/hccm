@@ -16,8 +16,19 @@
 		- [git clone](#git-clone)
 		- [git status](#git-status)
 		- [git add](#git-add)
+		- [git diff](#git-diff)
+		- [git commit](#git-commit)
+		- [git rm](#git-rm)
 		- [git mv](#git-mv)
 		- [git log](#git-log)
+		- [git reset](#git-reset)
+		- [git fetch](#git-fetch)
+		- [git pull](#git-pull)
+		- [git push](#git-push)
+		- [git branch](#git-branch)
+		- [git checkout](#git-checkout)
+		- [git merge](#git-merge)
+	- [Sources](#sources)
 
 <!-- /TOC -->
 
