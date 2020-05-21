@@ -32,7 +32,7 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 * Helper function that converts a single entity to a list, for use with other functions
 	 * @return a list of ActiveEntity objects
 	 */
-	public List<Entity> asList() {
+	public List<ActiveEntity> asList() {
 		return Arrays.asList(this);
 	}
 
@@ -40,7 +40,7 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 * Getter function for entityType
 	 * @return entityType
 	 */
-	public Entity getEntityType() {
+	public ActiveEntity getEntityType() {
 		return entityType;
 	}
 

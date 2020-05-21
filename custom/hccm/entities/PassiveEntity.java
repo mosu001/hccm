@@ -25,14 +25,6 @@ public class PassiveEntity extends DisplayEntity implements Entity {
 	}
 
 	/**
-	 * Helper function that converts a single entity to a list, for use with other functions
-	 * @return a list of ActiveEntity objects
-	 */
-	public List<Entity> asList() {
-		return Arrays.asList(this);
-	}
-
-	/**
 	 * Getter function for entityType
 	 * @return entityType
 	 */

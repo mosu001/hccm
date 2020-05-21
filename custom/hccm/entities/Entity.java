@@ -14,6 +14,5 @@ public interface Entity {
 	Entity getEntityType();
 	void setEntityType(Entity type);
 
-	public List<Entity> asList();
 	public String getName();
 }

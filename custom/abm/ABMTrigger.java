@@ -98,7 +98,7 @@ public class ABMTrigger extends Trigger {
 	 * @return void
 	 */
 	@Override
-	public void executeLogic(ActiveEntity ent, double simTime) {
+	public void executeLogic(List<ActiveEntity> ents, double simTime) {
 		ControlUnit cu = getControlUnit();
 		List<Request> requests = cu.getRequestList();
 		assert(requests.size() == 1);
@@ -120,7 +120,7 @@ public class ABMTrigger extends Trigger {
 	    for (ProcessActivity cact : controlActs) {
 	    	System.out.println("In Timer with " + cact.getName());
 	    	int count = 0;
-	    	for (List<Entity> cents : cact.getParticipants()) {
+	    	for (List<ActiveEntity> cents : cact.getParticipants()) {
 	    		count++;
 	    		String entities = cents.stream().map(Object::toString)
                         .collect(Collectors.joining(", "));
@@ -151,14 +151,14 @@ public class ABMTrigger extends Trigger {
 	 * @param ents, a list of ActiveEntity objects
 	 * @return void
 	 */
-	private void Interact(List<Entity> list) {
+	private void Interact(List<ActiveEntity> list) {
 		if (list.size() > 1)
 			for (int i=0; i<list.size()-1; i++)
 				for (int j=i+1; j<list.size(); j++) {
 					System.out.println("Indices = " + i + ", " + j);
-					Entity ent1 = list.get(i), ent2 = list.get(j);
+					ActiveEntity ent1 = list.get(i), ent2 = list.get(j);
 					System.out.println("Entities = " + ent1.getName() + ", " + ent2.getName());
-					Interact((ActiveEntity)ent1, (ActiveEntity)ent2);
+					Interact(ent1, ent2);
 				}
 		
 	}
