@@ -1,6 +1,7 @@
 package hccm.activities;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 //import java.util.stream.StreamSupport;
 
@@ -157,7 +158,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 */
 	class ProcessFinish extends ActivityEvent {
 		/**
-		 * Calls the ActivityEvent ControlFinish() method ie. the parent class method
+		 * Calls the ActivityEvent ControlFinish() method i.e., the parent class method
 		 * @param act, an activity
 		 */
 		ProcessFinish(Activity act) {
@@ -175,6 +176,25 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		 */
 		@Override
 		public void happens(List<ActiveEntity> ents) {
+			// Find the entity container with these entities
+			EntityDelay ed = (EntityDelay)owner;
+			double simTime = getSimTime();
+			for (DisplayEntity de : ed.getEntityList(simTime)) {
+				EntityContainer ec = (EntityContainer)de;
+				HashSet<DisplayEntity> set1 = new HashSet<>(ents),
+						set2 = new HashSet<>(ec.getEntityList(simTime));
+				System.out.println(ents);
+				System.out.println(ec.getEntityList(simTime));
+				if (set1.equals(set2)) {
+					// Remove the container
+					ed.removeDisplayEntity(ec);
+					// Remove all the participants
+					for (ActiveEntity ent : ents) ec.removeEntity(null);
+					// Dispose of the container
+					ec.kill();
+					break;
+				}
+			}
 			if (nextActivityEventList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
 				ActivityOrEvent actEvt = nextActivityEventList.getValue().get(0);				
@@ -185,11 +205,11 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					ActiveEntity ent = ents.get(i);
 					ActiveEntity proto = ent.getEntityType();
 					int index = participantList.getValue().indexOf(proto);
-					System.out.print("After ProcessActivity, Entity:" + ent.getName());
-					System.out.print("After ProcessActivity, proto:" + proto.getName());
+					System.out.println("After ProcessActivity, Entity:" + ent.getName());
+					System.out.println("After ProcessActivity, proto:" + proto.getName());
 					ActivityOrEvent actEvt = nextActivityEventList.getValue().get(index);
 					if (actEvt instanceof Activity)
-						System.out.print("After ProcessActivity, Activity:" + ((Activity)actEvt).getName());
+						System.out.println("After ProcessActivity, Activity:" + ((Activity)actEvt).getName());
 					ActivityOrEvent.execute(actEvt, ent.asList());
 				}
 			}

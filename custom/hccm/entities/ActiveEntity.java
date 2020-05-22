@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.jaamsim.ProcessFlow.SimEntity;
+import com.jaamsim.input.Output;
+import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.activities.Activity;
 
@@ -27,6 +29,14 @@ public class ActiveEntity extends SimEntity implements Entity {
 		setEntityType(null);
 		setCurrentActivity(null);
 	}
+	
+	@Output(name = "CurrentActivity" ,
+			unitType = DimensionlessUnit.class ,
+			description = "Current activity this entity is participating in")
+	public String getCurrentActivity(double simTime) {
+		return getCurrentActivity().getName();
+	}
+
 	
 	/**
 	 * Helper function that converts a single entity to a list, for use with other functions

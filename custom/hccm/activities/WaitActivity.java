@@ -9,6 +9,7 @@ import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.ErrorException;
 import com.jaamsim.input.AssignmentListInput;
 import com.jaamsim.input.EntityListInput;
+import com.jaamsim.input.EntityListListInput;
 import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpEvaluator;
 import com.jaamsim.input.ExpParser;
@@ -35,9 +36,9 @@ public class WaitActivity extends Queue implements Activity {
 	/**
 	 * 
 	 */
-	@Keyword(description = "The activities that may be requested when waiting starts.",
-	         exampleList = {"Activity1"})
-	protected final EntityListInput<ProcessActivity> requestActivityList;
+	@Keyword(description = "Lists of activities that may be requested when waiting starts.",
+	         exampleList = "{ { Activity1 Activity2 } { Activity3 Activity } }")
+	protected final EntityListListInput<ProcessActivity> requestActivityList;
 
 	@Keyword(description = "A number that determines the choice of requested activity: "
             + "1 = first activity, 2 = second activity, etc.",
@@ -112,8 +113,7 @@ public class WaitActivity extends Queue implements Activity {
 			double simTime = getSimTime();			
             
 			// Choose the requested activity for this entity (if there is one)
-			ProcessActivity req = null;
-			ControlUnit rcu = null;
+			List<ProcessActivity> reqs = null;
 			int i;
 			if (requestActivityList.getValue().size() >= 1) {
 				i = (int) requestActivityChoice.getValue().getNextSample(simTime);
@@ -122,8 +122,7 @@ public class WaitActivity extends Queue implements Activity {
 					      i, requestActivityList.getValue());
 	
 				// Get the requested activity
-				req = requestActivityList.getValue().get(i-1);
-				rcu = req.getControlUnit();
+				reqs = requestActivityList.getValue().get(i-1);
 			}
 			
 			// Choose the trigger for this entity
@@ -133,9 +132,13 @@ public class WaitActivity extends Queue implements Activity {
 			ActiveEntity ent = (ActiveEntity)ents.get(0);
 			ent.setCurrentActivity(act);
 			
-			if ((req != null) && (rcu != null))
-  			  // Request the activity
-  			  rcu.requestActivity(req, ent, act, simTime);
+			if (reqs != null)
+				for (ProcessActivity req : reqs) {
+					ControlUnit rcu = req.getControlUnit();
+	  			    // Request the activity
+					System.out.println("Requested activity = " + req.getName());
+	  			    rcu.requestActivity(req, ent, act, simTime);
+				}
 					
 			if (trg != null) {
 				// Trigger the logic
@@ -247,8 +250,8 @@ public class WaitActivity extends Queue implements Activity {
 		startTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(startTriggerChoice);
 
-		requestActivityList = new EntityListInput<>(ProcessActivity.class, "RequestActivityList", Constants.HCCM,
-				new ArrayList<ProcessActivity>());
+		requestActivityList = new EntityListListInput<>(ProcessActivity.class, "RequestActivityList", Constants.HCCM,
+				new ArrayList<ArrayList<ProcessActivity>>());
 		this.addInput(requestActivityList);
 		
 		requestActivityChoice = new SampleInput("RequestActivityChoice", Constants.HCCM, null);
