@@ -20,10 +20,16 @@ public interface Activity extends ActivityOrEvent {
 	ActivityEvent getStartEvent();
 	ActivityEvent getFinishEvent();
 	
-	void start(List<Entity> participants);
-	void finish(List<Entity> participants);
+	// Only keep track of active entities, passive entities
+	// are dealt with by starting and finishing assignments
+
+	void start(List<ActiveEntity> participants);
+	void finish(List<ActiveEntity> participants);
 	
-	List<Entity> getEntities();
+	void startAssignments(double simTime);
+	void finishAssignments(double simTime);
+
+	List<ActiveEntity> getEntities();
 	
 	String getName();
 }

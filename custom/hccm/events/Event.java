@@ -3,7 +3,8 @@ package hccm.events;
 import java.util.List;
 
 import hccm.ActivityOrEvent;
-import hccm.entities.Entity;
+import hccm.controlunits.Trigger;
+import hccm.entities.ActiveEntity;
 
 /**
  * 
@@ -17,5 +18,14 @@ public interface Event extends ActivityOrEvent {
 	 * 
 	 * @param ents, a list of Entity objects
 	 */
-	public abstract void happens(List<Entity> ents); // What occurs when this event happens
+
+	// Assignments that occur before an event happens, particularly useful
+	// for passive entities' attributes within activities
+	public abstract void assigns();
+	
+	// What occurs when this event happens, manages active entities only,
+	// passive entities' attributes dealt with via assignments in activities
+	public abstract void happens(List<ActiveEntity> ents);
+	
+	public abstract Trigger getTrigger(double simTime); // Get the trigger associated with this event
 }

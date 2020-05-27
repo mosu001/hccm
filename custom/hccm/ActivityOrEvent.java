@@ -5,7 +5,7 @@ import java.util.List;
 import com.jaamsim.basicsim.ErrorException;
 
 import hccm.activities.Activity;
-import hccm.entities.Entity;
+import hccm.entities.ActiveEntity;
 import hccm.events.Event;
 
 /**
@@ -21,7 +21,7 @@ public interface ActivityOrEvent {
 	 * @param ents, the list of entities relevant to that activity or event
 	 * @exception ErrorException Thrown if the input activity is not an instance of the Activity or Event class
 	 */
-	public static void execute(ActivityOrEvent actEvt, List<Entity> ents) {
+	public static void execute(ActivityOrEvent actEvt, List<ActiveEntity> ents) {
 		if (actEvt instanceof Activity) {
 			Activity act = (Activity)actEvt;
 			act.start(ents);

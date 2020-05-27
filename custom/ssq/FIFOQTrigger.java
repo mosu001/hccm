@@ -27,7 +27,7 @@ public class FIFOQTrigger extends Trigger {
 	 * @param simTime, a double, the sim time
 	 */
 	@Override
-	public void executeLogic(ActiveEntity ent, double simTime) {
+	public void executeLogic(List<ActiveEntity> ents, double simTime) {
 		ControlUnit cu = getControlUnit();
 		// If there are any requests, then sort them by time
 		List<Request> requests = cu.getRequestList();
@@ -47,7 +47,7 @@ public class FIFOQTrigger extends Trigger {
 	        // Both a customer and a server have been found waiting
         	if ( (creq != null) & (sreq != null) ) {
 		        ActiveEntity cust = creq.getRequester(), serv = sreq.getRequester();
-		        ArrayList<Entity> participants = new ArrayList<Entity>(Arrays.asList(cust, serv));
+		        ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, serv));
 		        creq.getWaiting().finish(cust.asList());
 		        requests.remove(creq);
 		        sreq.getWaiting().finish(serv.asList());

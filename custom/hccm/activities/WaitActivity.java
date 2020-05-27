@@ -9,6 +9,7 @@ import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.ErrorException;
 import com.jaamsim.input.AssignmentListInput;
 import com.jaamsim.input.EntityListInput;
+import com.jaamsim.input.EntityListListInput;
 import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpEvaluator;
 import com.jaamsim.input.ExpParser;
@@ -35,23 +36,14 @@ public class WaitActivity extends Queue implements Activity {
 	/**
 	 * 
 	 */
-	@Keyword(description = "The activities that may be requested when waiting starts.",
-	         exampleList = {"Activity1"})
-	protected final EntityListInput<ProcessActivity> requestActivityList;
+	@Keyword(description = "Lists of activities that may be requested when waiting starts.",
+	         exampleList = "{ { Activity1 Activity2 } { Activity3 Activity } }")
+	protected final EntityListListInput<ProcessActivity> requestActivityList;
 
 	@Keyword(description = "A number that determines the choice of requested activity: "
             + "1 = first activity, 2 = second activity, etc.",
             exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
 	private final SampleInput requestActivityChoice;
-
-	@Keyword(description = "The triggers that may be executed when waiting starts.",
-	         exampleList = {"Trigger1"})
-	protected final EntityListInput<Trigger> triggerList;
-
-	@Keyword(description = "A number that determines the choice of trigger: "
-           + "1 = first trigger, 2 = second trigger, etc.",
-           exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
-	private final SampleInput triggerChoice;
 
 	@Keyword(description = "A list of attribute assignments that are triggered when an entity starts the activity.\n\n" +
 			"The attributes for various entities can be used in an assignment expression:\n" +
@@ -62,6 +54,15 @@ public class WaitActivity extends Queue implements Activity {
 	                        "{ 'this.D = 1[s] + 0.5*this.SimTime' }"})
 	private final AssignmentListInput startAssignmentList;
 
+	@Keyword(description = "The triggers that may be executed when waiting starts.",
+	         exampleList = {"Trigger1"})
+	protected final EntityListInput<Trigger> startTriggerList;
+
+	@Keyword(description = "A number that determines the choice of starting trigger: "
+          + "1 = first trigger, 2 = second trigger, etc.",
+          exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
+	private final SampleInput startTriggerChoice;
+
 	@Keyword(description = "A list of attribute assignments that are triggered when an entity finishes the activity.\n\n" +
 			"The attributes for various entities can be used in an assignment expression:\n" +
 			"- this entity -- this.AttributeName\n" +
@@ -70,6 +71,15 @@ public class WaitActivity extends Queue implements Activity {
 	         exampleList = {"{ 'this.A = 1' } { 'this.obj.B = 1' } { '[Ent1].C = 1' }",
 	                        "{ 'this.D = 1[s] + 0.5*this.SimTime' }"})
 	private final AssignmentListInput finishAssignmentList;
+
+	@Keyword(description = "The triggers that may be executed when waiting finishes.",
+	         exampleList = {"Trigger1"})
+	protected final EntityListInput<Trigger> finishTriggerList;
+
+	@Keyword(description = "A number that determines the choice of finishing trigger: "
+        + "1 = first trigger, 2 = second trigger, etc.",
+        exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
+	private final SampleInput finishTriggerChoice;
 
 	/**
 	 * 
@@ -86,27 +96,24 @@ public class WaitActivity extends Queue implements Activity {
 			super(act);
 		}
 
+		public void assigns() {
+			double simTime = getSimTime();
+			startAssignments(simTime);
+		}
+		
 		/**
 		 * Wait activity happens
 		 * @param ents, a list of ActiveEntity objects
 		 * @exception ErrorException throws errors related to evaluating the assignment expressions
 		 */
-		public void happens(List<Entity> ents) {
+		public void happens(List<ActiveEntity> ents) {
+            assigns();
+            
 			WaitActivity act = (WaitActivity)owner;
-			double simTime = getSimTime();
-			
-			// Evaluate the assignment expressions
-			for (ExpParser.Assignment ass : startAssignmentList.getValue()) {
-				try {
-					ExpEvaluator.evaluateExpression(ass, simTime);
-				} catch (ExpError err) {
-					throw new ErrorException(act, err);
-				}
-			}
-
+			double simTime = getSimTime();			
+            
 			// Choose the requested activity for this entity (if there is one)
-			ProcessActivity req = null;
-			ControlUnit rcu = null;
+			List<ProcessActivity> reqs = null;
 			int i;
 			if (requestActivityList.getValue().size() >= 1) {
 				i = (int) requestActivityChoice.getValue().getNextSample(simTime);
@@ -115,29 +122,46 @@ public class WaitActivity extends Queue implements Activity {
 					      i, requestActivityList.getValue());
 	
 				// Get the requested activity
-				req = requestActivityList.getValue().get(i-1);
-				rcu = req.getControlUnit();
+				reqs = requestActivityList.getValue().get(i-1);
 			}
 			
 			// Choose the trigger for this entity
-			i = (int) triggerChoice.getValue().getNextSample(simTime);
-			if (i<1 || i>triggerList.getValue().size())
-				error("Chosen index i=%s is out of range for TriggerList: %s.",
-				      i, triggerList.getValue());
-
-			// Pass the entity to the selected next component
-			Trigger trg = triggerList.getValue().get(i-1);
-			ControlUnit tcu = trg.getControlUnit();
+			Trigger trg = getTrigger(simTime);
+			ControlUnit tcu = null;
 			
 			ActiveEntity ent = (ActiveEntity)ents.get(0);
 			ent.setCurrentActivity(act);
 			
-			if ((req != null) && (rcu != null))
-  			  // Request the activity
-  			  rcu.requestActivity(req, ent, act, simTime);
+			if (reqs != null)
+				for (ProcessActivity req : reqs) {
+					ControlUnit rcu = req.getControlUnit();
+	  			    // Request the activity
+					System.out.println("Requested activity = " + req.getName());
+	  			    rcu.requestActivity(req, ent, act, simTime);
+				}
 					
-			// Trigger the logic
-			tcu.triggerLogic(trg, ent, simTime);
+			if (trg != null) {
+				// Trigger the logic
+				tcu = trg.getControlUnit();
+				tcu.triggerLogic(trg, ents, simTime);
+			}
+		}
+		
+		public Trigger getTrigger(double simTime) {
+			Trigger trg = null;
+			// Choose the trigger for this entity
+			boolean trigger = (startTriggerList.getValue().size() > 0);
+			if (trigger) {
+				int i = (int) startTriggerChoice.getValue().getNextSample(simTime);
+				if (i<1 || i>startTriggerList.getValue().size())
+					error("Chosen index i=%s is out of range for TriggerList: %s.",
+							i, startTriggerList.getValue());
+
+				// Pass the entity to the selected next component
+				trg = startTriggerList.getValue().get(i-1);
+			}
+
+			return trg;
 		}
 	}
 	
@@ -154,22 +178,56 @@ public class WaitActivity extends Queue implements Activity {
 			super(act);
 		}
 
+		public void assigns() {
+			double simTime = getSimTime();
+			finishAssignments(simTime);
+		}
+
 		/**
 		 * Wait finish happens
 		 * @param ents, a list of ActiveEntity objects
 		 */
-		public void happens(List<Entity> ents) {
-			WaitActivity act = (WaitActivity)owner;
+		public void happens(List<ActiveEntity> ents) {
+			assigns();
 			
-			// Evaluate the finish assignment expressions
-			for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
-				try {
-					ExpEvaluator.evaluateExpression(ass, getSimTime());
-				} catch (ExpError err) {
-					throw new ErrorException(act, err);
-				}
+			double simTime = getSimTime();
+			
+			// Choose the trigger for this entity
+			boolean trigger = (finishTriggerList.getValue().size() > 0);
+			Trigger trg = null;
+			ControlUnit tcu = null;
+			if (trigger) {
+				int i = (int) finishTriggerChoice.getValue().getNextSample(simTime);
+				if (i<1 || i>finishTriggerList.getValue().size())
+					error("Chosen index i=%s is out of range for TriggerList: %s.",
+							i, finishTriggerList.getValue());
+
+				// Pass the entity to the selected next component
+				trg = finishTriggerList.getValue().get(i-1);
+
+				// Trigger the logic
+				tcu = trg.getControlUnit();
+				tcu.triggerLogic(trg, ents, simTime);
 			}
 		}
+		
+		public Trigger getTrigger(double simTime) {
+			Trigger trg = null;
+			// Choose the trigger for this entity
+			boolean trigger = (finishTriggerList.getValue().size() > 0);
+			if (trigger) {
+				int i = (int) finishTriggerChoice.getValue().getNextSample(simTime);
+				if (i<1 || i>finishTriggerList.getValue().size())
+					error("Chosen index i=%s is out of range for TriggerList: %s.",
+							i, finishTriggerList.getValue());
+
+				// Pass the entity to the selected next component
+				trg = finishTriggerList.getValue().get(i-1);
+			}
+
+			return trg;
+		}
+		
 		
 	}
 	
@@ -183,8 +241,17 @@ public class WaitActivity extends Queue implements Activity {
 		startAssignmentList = new AssignmentListInput("StartAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(startAssignmentList);
 
-		requestActivityList = new EntityListInput<>(ProcessActivity.class, "RequestActivityList", Constants.HCCM,
-				new ArrayList<ProcessActivity>());
+		startTriggerList = new EntityListInput<>(Trigger.class, "StartTriggerList", Constants.HCCM,
+				new ArrayList<Trigger>());
+		this.addInput(startTriggerList);
+		
+		startTriggerChoice = new SampleInput("StartTriggerChoice", Constants.HCCM, null);
+		startTriggerChoice.setUnitType(DimensionlessUnit.class);
+		startTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
+		this.addInput(startTriggerChoice);
+
+		requestActivityList = new EntityListListInput<>(ProcessActivity.class, "RequestActivityList", Constants.HCCM,
+				new ArrayList<ArrayList<ProcessActivity>>());
 		this.addInput(requestActivityList);
 		
 		requestActivityChoice = new SampleInput("RequestActivityChoice", Constants.HCCM, null);
@@ -192,17 +259,17 @@ public class WaitActivity extends Queue implements Activity {
 		requestActivityChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(requestActivityChoice);
 
-		triggerList = new EntityListInput<>(Trigger.class, "TriggerList", Constants.HCCM,
-				new ArrayList<Trigger>());
-		this.addInput(triggerList);
-		
-		triggerChoice = new SampleInput("TriggerChoice", Constants.HCCM, null);
-		triggerChoice.setUnitType(DimensionlessUnit.class);
-		triggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
-		this.addInput(triggerChoice);
-
 		finishAssignmentList = new AssignmentListInput("FinishAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(finishAssignmentList);
+
+		finishTriggerList = new EntityListInput<>(Trigger.class, "FinishTriggerList", Constants.HCCM,
+				new ArrayList<Trigger>());
+		this.addInput(finishTriggerList);
+		
+		finishTriggerChoice = new SampleInput("FinishTriggerChoice", Constants.HCCM, null);
+		finishTriggerChoice.setUnitType(DimensionlessUnit.class);
+		finishTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
+		this.addInput(finishTriggerChoice);
 
 		startEvent = new WaitStart(this);
 		finishEvent = new WaitFinish(this);
@@ -213,7 +280,7 @@ public class WaitActivity extends Queue implements Activity {
 	 * @param ents, a list of Entity objects
 	 */
 	@Override
-	public void start(List<Entity> ents) {
+	public void start(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
 		addEntity((DisplayEntity)ents.get(0));
 		startEvent.happens(ents);
@@ -224,7 +291,7 @@ public class WaitActivity extends Queue implements Activity {
 	 * @param ents, a list of ActiveEntity objects
 	 */
 	@Override
-	public void finish(List<Entity> ents) {
+	public void finish(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
 		finishEvent.happens(ents);
 		removeEntity((DisplayEntity)ents.get(0));
@@ -238,7 +305,7 @@ public class WaitActivity extends Queue implements Activity {
 	@Override
 	public ActivityEvent getStartEvent() {
 		return startEvent;
-	}
+	}	
 
 	/**
 	 * Overrides parent function, getter function for the finishEvent object
@@ -250,14 +317,42 @@ public class WaitActivity extends Queue implements Activity {
 	}
 
 	/**
+	 * Overrides parent function for the startAssignments
+	 */
+	@Override
+	public void startAssignments(double simTime) {
+		for (ExpParser.Assignment ass : startAssignmentList.getValue()) {
+			try {
+				ExpEvaluator.evaluateExpression(ass, simTime);
+			} catch (ExpError err) {
+				throw new ErrorException(this, err);
+			}
+		}
+	}
+
+	/**
+	 * Overrides parent function for the finishAssignments
+	 */
+	@Override
+	public void finishAssignments(double simTime) {
+		for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
+			try {
+				ExpEvaluator.evaluateExpression(ass, simTime);
+			} catch (ExpError err) {
+				throw new ErrorException(this, err);
+			}
+		}
+	}
+
+	/**
 	 * Overrides parent function, getter function for ents
 	 * @return ents, a list of ActiveEntity objects
 	 */
 	@Override
-	public List<Entity> getEntities() {
-		ArrayList<Entity> ents = new ArrayList<Entity>();
+	public List<ActiveEntity> getEntities() {
+		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
 		for (DisplayEntity de : getQueueList(getSimTime()))
-			ents.add((Entity)de);
+			ents.add((ActiveEntity)de);
 		return ents;
 	}
 }

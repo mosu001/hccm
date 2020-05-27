@@ -1,5 +1,7 @@
 package hccm.controlunits;
 
+import java.util.List;
+
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.input.EntityInput;
 import com.jaamsim.input.Keyword;
@@ -43,5 +45,5 @@ public abstract class Trigger extends DisplayEntity {
 	 * @param ent, an ActiveEntity
 	 * @param simTime, a double
 	 */
-	public abstract void executeLogic(ActiveEntity ent, double simTime);
+	public abstract void executeLogic(List<ActiveEntity> ents, double simTime);
 }
