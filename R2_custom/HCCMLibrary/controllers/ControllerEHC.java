@@ -86,7 +86,13 @@ public class ControllerEHC extends HCCMController {
 		// WalkUp Patient start Activity at WaitingRoom
 		if (happens(activeEntity, activity, state, "WalkUpPatient", "WaitingRoom", "StartActivity")) {
 			DisplayEntity walkuppatient = activeEntity;
-			((HCCMActiveEntity)walkuppatient).setPresentState("Wait");
+			// Set the appropriate state (since the waiting room handles multiple purposes)
+			if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.001) {
+				((HCCMActiveEntity)walkuppatient).setPresentState("WaitForTriage");
+			}
+			else if (Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.001) {
+				((HCCMActiveEntity)walkuppatient).setPresentState("WaitForTest");
+			}
 			
 			// If waiting room is full
 			if (((HCCMControlActivity)waitingroom).getNumberInProgress() >= waitingroomcapacity) {
@@ -96,7 +102,11 @@ public class ControllerEHC extends HCCMController {
 			else if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && serverAvailable("TriageNurse",triageroom) ) {
 				sendActivitySignalToList(walkuppatient, waitingroom, "EndActivity");
 			}
-			
+			// Else if triaged but not tested and Test nurse available
+			else if (Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && serverAvailable("TestNurse",testroom)) {
+				sendActivitySignalToList(walkuppatient, waitingroom, "EndActivity");
+			}
+		
 		}
 		// WalkUp Patient ends Activity at WaitingRoom
 		else if (happens(activeEntity, activity, state, "WalkUpPatient", "WaitingRoom", "EndActivity")) {
@@ -258,6 +268,8 @@ public class ControllerEHC extends HCCMController {
 			}
 
 		}
+		
+		// Should also have functionality here for changing states of nurses, doctors
 
 		// Scheduled Patient ends Activity at TreatmentRoom2
 		else if (happens(activeEntity, activity, state, "ScheduledPatient", "TreatmentRoom2", "EndActivity")) {
@@ -366,11 +378,17 @@ public class ControllerEHC extends HCCMController {
 			}
 			return serverAvailableEntity;		
 		}
-
+		
 		public DisplayEntity getDisplayEntity(String name) {
 
 			Entity ent = this.getJaamSimModel().getNamedEntity(name);
-			DisplayEntity dispEnt = ((DisplayEntity)ent);
+			DisplayEntity dispEnt = null;
+			
+			try {
+				dispEnt = ((DisplayEntity)ent);
+			} catch (ClassCastException exception) {
+				System.out.print(exception);
+			}
 			return dispEnt;
 		}
 
