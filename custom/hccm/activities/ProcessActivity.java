@@ -235,6 +235,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					int index = participantList.getValue().indexOf(proto);
 					System.out.println("After ProcessActivity " + ed.getName() + ", Entity:" + ent.getName());
 					System.out.println("After ProcessActivity " + ed.getName() + ", proto:" + proto.getName());
+					System.out.println("After ProcessActivity " + ed.getName() + ", proto index:" + index);
+					System.out.println("After ProcessActivity " + ed.getName() + ", participant list:" + participantList.getValue());
 					ActivityOrEvent actEvt = nextActivityEventList.getValue().get(index);
 					if (actEvt instanceof Activity)
 						System.out.println("After ProcessActivity " + ed.getName() + ", Activity:" + ((Activity)actEvt).getName());
