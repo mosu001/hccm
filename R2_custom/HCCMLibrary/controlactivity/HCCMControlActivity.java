@@ -513,6 +513,25 @@ public class HCCMControlActivity extends LinkedComponent {
 		return storage.getTypes();
 	}
 
+	
+	/**
+	 * Returns a DisplayEntity with the unique Name attribute that matches the input 
+	 * argument name string. If there are no matches, it returns null.
+	 * @param name - string representing the unique name of the DisplayEntity to look for
+	 * @returns the DisplayEntity that matches, or null if there is no match.
+	 */
+	
+	public DisplayEntity getEntityWithName(String Name) {
+		Iterator<HCCMLibrary.controlactivity.EntStorage.StorageEntry> itr = storage.iterator();
+		while (itr.hasNext()) {
+			QueueEntry entry = (QueueEntry) itr.next();
+			if (entry.entity.getOutputHandle("ID").getValue(getSimTime(), String.class) == Name) {
+				return entry.entity;
+			}
+		}
+		return null;		
+	}
+	
 	/**
 	 * Returns a match value that has sufficient numbers of entities in each
 	 * queue. The first match value that satisfies the criterion is selected.
