@@ -21,7 +21,9 @@ This project will develop a prototype HCCM plug-in for JaamSim. This plug-in wil
 ## Documentation Links
 
 [Setup Guide](<https://github.com/mosu001/hccm/tree/ehc-jack/docs/Setup Guide.md>)
+
 [Git and GitHub Guide](<https://github.com/mosu001/hccm/tree/ehc-jack/docs/Git and GitHub Guide.md>)
+
 [Working Procedures](<https://github.com/mosu001/hccm/tree/ehc-jack/docs/Working Procedures.md>)
 
 ## Setup Notes
