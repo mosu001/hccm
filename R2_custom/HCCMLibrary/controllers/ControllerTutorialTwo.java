@@ -368,7 +368,13 @@ public class ControllerTutorialTwo extends HCCMController{
 		// Gets the DisplayEntity of the model with the given name
 		
 		Entity ent = this.getJaamSimModel().getNamedEntity(name);
-		DisplayEntity dispEnt = ((DisplayEntity)ent);
+		DisplayEntity dispEnt = null;
+		try {
+			dispEnt = ((DisplayEntity)ent);
+		} catch (ClassCastException exception){
+			System.out.print(name + " " + exception.getMessage());
+			
+		}
 		return dispEnt;
 	}
 

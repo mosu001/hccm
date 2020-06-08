@@ -121,7 +121,7 @@ Simulation  ShowObjectSelector  {  TRUE  }
 Simulation  ShowInputEditor  {  TRUE  }
 Simulation  ShowOutputViewer  {  TRUE  }
 Simulation  ShowPropertyViewer  {  FALSE  }
-Simulation  ShowLogViewer  {  FALSE  }
+Simulation  ShowLogViewer  {  TRUE  }
 Simulation  InputEditorPos  {  216  792  }
 Simulation  InputEditorSize  {  897  254  }
 Simulation  OutputViewerPos  {  1136  803  }
