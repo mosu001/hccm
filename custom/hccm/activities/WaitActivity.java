@@ -193,18 +193,10 @@ public class WaitActivity extends Queue implements Activity {
 			double simTime = getSimTime();
 			
 			// Choose the trigger for this entity
-			boolean trigger = (finishTriggerList.getValue().size() > 0);
-			Trigger trg = null;
+			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
-			if (trigger) {
-				int i = (int) finishTriggerChoice.getValue().getNextSample(simTime);
-				if (i<1 || i>finishTriggerList.getValue().size())
-					error("Chosen index i=%s is out of range for TriggerList: %s.",
-							i, finishTriggerList.getValue());
-
-				// Pass the entity to the selected next component
-				trg = finishTriggerList.getValue().get(i-1);
-
+											
+			if (trg != null) {
 				// Trigger the logic
 				tcu = trg.getControlUnit();
 				tcu.triggerLogic(trg, ents, simTime);

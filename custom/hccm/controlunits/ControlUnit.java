@@ -127,8 +127,10 @@ public class ControlUnit extends DisplayEntity {
 	 * @param wact, the wait activity
 	 * @param simTime, the sim time at the request
 	 */
-	public void requestActivity(ProcessActivity cact, ActiveEntity ent, WaitActivity wact, double simTime) {
-		requestList.add(new Request(cact, ent, wact, simTime));
+	public Request requestActivity(ProcessActivity cact, ActiveEntity ent, WaitActivity wact, double simTime) {
+		Request req = new Request(cact, ent, wact, simTime);
+		requestList.add(req);
+		return req;
 	}
 
 	/**

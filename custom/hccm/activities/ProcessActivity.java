@@ -113,6 +113,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		 * ?
 		 */
 		public void happens(List<ActiveEntity> ents) {
+			assigns();
+			
 			JaamSimModel model = getJaamSimModel();
 			EntityDelay ed = (EntityDelay)owner;
 			int numCons = 0;
@@ -129,6 +131,22 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					((ActiveEntity)ent).setCurrentActivity(owner);
 			}
 			ed.addEntity(participantEntity);
+			
+			ProcessActivity act = (ProcessActivity)owner;
+			double simTime = getSimTime();			
+
+			// Choose the trigger for this entity
+			Trigger trg = getTrigger(simTime);
+			ControlUnit tcu = null;
+			
+			for (ActiveEntity ent : ents)
+			  ent.setCurrentActivity(act);
+								
+			if (trg != null) {
+				// Trigger the logic
+				tcu = trg.getControlUnit();
+				tcu.triggerLogic(trg, ents, simTime);
+			}
 		}
 		
 		public Trigger getTrigger(double simTime) {
@@ -176,6 +194,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		 */
 		@Override
 		public void happens(List<ActiveEntity> ents) {
+			assigns();
+			
 			// Find the entity container with these entities
 			EntityDelay ed = (EntityDelay)owner;
 			double simTime = getSimTime();
@@ -197,7 +217,15 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			}
 			if (nextActivityEventList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
-				ActivityOrEvent actEvt = nextActivityEventList.getValue().get(0);				
+			    ActivityOrEvent actEvt = nextActivityEventList.getValue().get(0);				
+				for (int i=0; i<ents.size(); i++) {
+				  ActiveEntity ent = ents.get(i);
+				  ActiveEntity proto = ent.getEntityType();
+				  System.out.println("After ProcessActivity " + ed.getName() + ", Entity:" + ent.getName());
+				  System.out.println("After ProcessActivity " + ed.getName() + ", proto:" + proto.getName());
+				  if (actEvt instanceof Activity)
+					  System.out.println("After ProcessActivity " + ed.getName() + ", Activity:" + ((Activity)actEvt).getName());
+				}
 				ActivityOrEvent.execute(actEvt, ents);
 			} else {
 				// Send each entity to its next activity or event
@@ -205,13 +233,25 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					ActiveEntity ent = ents.get(i);
 					ActiveEntity proto = ent.getEntityType();
 					int index = participantList.getValue().indexOf(proto);
-					System.out.println("After ProcessActivity, Entity:" + ent.getName());
-					System.out.println("After ProcessActivity, proto:" + proto.getName());
+					System.out.println("After ProcessActivity " + ed.getName() + ", Entity:" + ent.getName());
+					System.out.println("After ProcessActivity " + ed.getName() + ", proto:" + proto.getName());
+					System.out.println("After ProcessActivity " + ed.getName() + ", proto index:" + index);
+					System.out.println("After ProcessActivity " + ed.getName() + ", participant list:" + participantList.getValue());
 					ActivityOrEvent actEvt = nextActivityEventList.getValue().get(index);
 					if (actEvt instanceof Activity)
-						System.out.println("After ProcessActivity, Activity:" + ((Activity)actEvt).getName());
+						System.out.println("After ProcessActivity " + ed.getName() + ", Activity:" + ((Activity)actEvt).getName());
 					ActivityOrEvent.execute(actEvt, ent.asList());
 				}
+			}
+			
+			// Choose the trigger for this entity
+			Trigger trg = getTrigger(simTime);
+			ControlUnit tcu = null;
+											
+			if (trg != null) {
+				// Trigger the logic
+				tcu = trg.getControlUnit();
+				tcu.triggerLogic(trg, ents, simTime);
 			}
 		}
 		
