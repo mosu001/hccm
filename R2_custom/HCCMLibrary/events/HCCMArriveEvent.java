@@ -36,7 +36,6 @@ import com.jaamsim.input.StringInput;
 import com.jaamsim.units.DimensionlessUnit;
 import com.jaamsim.units.TimeUnit;
 
-import HCCMLibrary.controlactivity.LinkedService;
 import HCCMLibrary.controllers.HCCMController;
 
 import com.jaamsim.ProcessFlow.*;
@@ -44,7 +43,7 @@ import com.jaamsim.ProcessFlow.*;
 /**
  * EntityGenerator creates sequence of DisplayEntities at random intervals, which are placed in a target Queue.
  */
-public class HCCMArriveEvent extends LinkedService implements EntityGen {
+public class HCCMArriveEvent extends LinkedService {
 
 	// Added
 	@Keyword(description = "List of Controllers to which the Event signal is sended.",
@@ -96,7 +95,7 @@ public class HCCMArriveEvent extends LinkedService implements EntityGen {
 		EventSignalList.setUnique(false);
 		this.addInput(EventSignalList);
 		// Added
-
+		
 		firstArrivalTime = new SampleInput("FirstArrivalTime", KEY_INPUTS, new SampleConstant(TimeUnit.class, 0.0));
 		firstArrivalTime.setUnitType(TimeUnit.class);
 		firstArrivalTime.setValidRange(0, Double.POSITIVE_INFINITY);
@@ -224,18 +223,17 @@ public class HCCMArriveEvent extends LinkedService implements EntityGen {
 		return true;  // can always stop when isFinished is called in startStep
 	}
 
-	@Override
 	public void setPrototypeEntity(DisplayEntity proto) {
 		KeywordIndex kw = InputAgent.formatArgs(prototypeEntity.getKeyword(), proto.getName());
 		InputAgent.storeAndExecute(new KeywordCommand(this, kw));
 	}
 
 	@Override
-	public ArrayList<DisplayEntity> getSourceEntities() {
-		ArrayList<DisplayEntity> ret = new ArrayList<>();
+	public ArrayList<Entity> getSourceEntities() {
+		ArrayList<Entity> ret = new ArrayList<>();
 		if (prototypeEntity.getValue() == null)
 			return ret;
-		DisplayEntity ent = prototypeEntity.getValue().getNextEntity(0.0d);
+		Entity ent = prototypeEntity.getValue().getNextEntity(0.0d);
 		if (ent != null) {
 			ret.add(ent);
 		}

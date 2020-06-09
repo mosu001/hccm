@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.jaamsim.Commands.KeywordCommand;
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.StringProviders.StringProvInput;
+import com.jaamsim.basicsim.Entity;
 import com.jaamsim.input.EntityInput;
 import com.jaamsim.input.InputAgent;
 import com.jaamsim.input.Keyword;
@@ -179,8 +180,8 @@ public abstract class LinkedService extends LinkedDevice implements QueueUser {
 	}
 
 	@Override
-	public ArrayList<DisplayEntity> getSourceEntities() {
-		ArrayList<DisplayEntity> ret = super.getSourceEntities();
+	public ArrayList<Entity> getSourceEntities() {
+		ArrayList<Entity> ret = super.getSourceEntities();
 		ret.addAll(getQueues());
 		return ret;
 	}

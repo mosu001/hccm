@@ -512,7 +512,7 @@ public class HCCMControlActivity extends LinkedComponent {
 	public Set<String> getEntityTypes() {
 		return storage.getTypes();
 	}
-
+	
 	/**
 	 * Returns a match value that has sufficient numbers of entities in each
 	 * queue. The first match value that satisfies the criterion is selected.
@@ -681,8 +681,8 @@ public class HCCMControlActivity extends LinkedComponent {
 
 	// LinkDisplayable
 	@Override
-	public ArrayList<DisplayEntity> getDestinationEntities() {
-		ArrayList<DisplayEntity> ret = super.getDestinationEntities();
+	public ArrayList<Entity> getDestinationEntities() {
+		ArrayList<Entity> ret = super.getDestinationEntities();
 		Linkable l = renegeDestination.getValue();
 		if (l != null && (l instanceof DisplayEntity)) {
 			ret.add((DisplayEntity)l);
