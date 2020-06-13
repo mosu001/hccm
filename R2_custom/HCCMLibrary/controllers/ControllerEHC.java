@@ -8,7 +8,6 @@ import com.jaamsim.BasicObjects.InputValue;
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProbabilityDistributions.Distribution;
 import com.jaamsim.ProcessFlow.Linkable;
-import com.jaamsim.ProcessFlow.EntityGate;
 import com.jaamsim.Samples.TimeSeries;
 import com.jaamsim.basicsim.Entity;
 import com.jaamsim.input.ExpResult;
@@ -56,6 +55,7 @@ public class ControllerEHC extends HCCMController {
 	int daystart = 0; // (day start in seconds)
 	int lengthofday = 32400; //(9 hour day in seconds)
 	int wrapuptime = 3180; // time in seconds to finish existing treatments etc roughly
+	double waitingroomopen = 1;
 
 	// Create needed data Maps (utilisationTimes for this example)
 	Map<String, Double> utilisationTimes = new HashMap<String, Double>();
@@ -73,8 +73,8 @@ public class ControllerEHC extends HCCMController {
 		waitingroomleave = getDisplayEntity("WaitingRoomFullLeaveEvent");
 		walkuppatientleave = getDisplayEntity("WalkUpPatientLeaveEvent");
 		scheduledpatientleave = getDisplayEntity("ScheduledPatientLeaveEvent");
-		triagenurseleave = getDisplayEntity("TriageNurseLeaveEvent");
-		testnurseleave = getDisplayEntity("TestNurseLeaveEvent");
+		triagenurseleave = getDisplayEntity("TriageNurseLeave");
+		testnurseleave = getDisplayEntity("TestNurseLeave");
 		doctorleave = getDisplayEntity("DoctorLeaveEvent");
 		walkupdoctorroster = getDisplayEntity("WalkUpDoctorRoster");
 		appointmentdoctorroster = getDisplayEntity("AppointmentDoctorRoster");
@@ -92,11 +92,8 @@ public class ControllerEHC extends HCCMController {
 		controllerehc = this;
 
 		// Get needed variables
-		waitingroomcapacity = getInputValue("WaitingRoomCapacity");
 		simindex = getSimulationRunIndex(0);
-		
-		// Set needed parameters
-		((HCCMControlActivity)waitingroom).setQueueMax(100);
+		waitingroomopen = 1.0;
 		
 		// Time when WalkUpDoctorShift changes, send signal to controller
 		changeshiftwalkupdoctor = getNextChange("WalkUpDoctorRoster");
@@ -111,14 +108,14 @@ public class ControllerEHC extends HCCMController {
 		//this.scheduleProcess(daystart + lengthofday, 5, "sendActivitySignal", controllerehc, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor"), (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")), "EndDay");
 		
 		// End of run 192h (168+24h setup)
-		this.scheduleProcess(691200 - wrapuptime - 5, 5, "sendActivitySignal", controllerehc, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor"), (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")), "WrapUpDay");
-		this.scheduleProcess(691200 - 5, 5, "sendActivitySignal", controllerehc, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor"), (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")), "EndDay");		
+		this.scheduleProcess(691200 - wrapuptime - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "WrapUpDay");
+		this.scheduleProcess(691200 - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");		
 		
 		// Clear data Maps (utilisationTimes for this example)
 		utilisationTimes.clear();
 
 	}
-
+	
 	@Override
 	public void Controller(DisplayEntity activeEntity, DisplayEntity activity, String state){
 		//System.out.println(activeEntity.toString() + " " + activity.toString() + " " + state);
@@ -126,7 +123,6 @@ public class ControllerEHC extends HCCMController {
 		// WalkUp Patient start Activity at WaitingRoom
 		if (happens(activeEntity, activity, state, "WalkUpPatient", "WaitingRoom", "StartActivity")) {
 			DisplayEntity walkuppatient = activeEntity;
-			String patientName = walkuppatient.getName();
 			
 			// Set the appropriate state (since the waiting room handles multiple purposes)
 			if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.001 && ((HCCMActiveEntity)walkuppatient).getState().toString() != "WaitForTriage") {
@@ -141,7 +137,7 @@ public class ControllerEHC extends HCCMController {
 			
 			
 			// If waiting room is full
-			if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) >= waitingroomcapacity) {
+			if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) >= ((HCCMControlActivity)waitingroom).getMaxQueueLength()) {
 				moveEntFromTo(walkuppatient,waitingroom,waitingroomleave);
 			}
 			// Else if not triaged and Triage nurse available
@@ -155,29 +151,6 @@ public class ControllerEHC extends HCCMController {
 			// Finally, if ready for treatment (ie. triaged and either test completed or didnt need test)
 			else if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && serverAvailable("WalkUpDoctor",treatmentroom1) && (Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 || Math.abs(walkuppatient.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01)) {
 				sendActivitySignalToList(walkuppatient, waitingroom, "EndActivity");
-			}
-			
-			// If none trigger, retry in 30 seconds
-			else {
-				try {
-					DisplayEntity patient = null;
-					ArrayList<HCCMActiveEntity> activeentitieslist = new ArrayList<>();
-					for (HCCMActiveEntity e: this.getJaamSimModel().getClonesOfIterator(HCCMActiveEntity.class)) {
-						activeentitieslist.add(e);
-					}
-					for (HCCMActiveEntity e: activeentitieslist) {
-						if (e.getName() == patientName) {
-							patient = (DisplayEntity)e;
-							break;
-						}
-					}
-					
-					// Add activity to retry start event in (retrywaittime) seconds
-					this.scheduleProcess(retrywaittime, 5, "sendActivitySignal", controllerehc, patient, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("WaitingRoom")), "StartActivity");
-				}
-				catch (Exception e) {
-					System.out.println(e);
-				}
 			}
 		}
 		
@@ -233,13 +206,27 @@ public class ControllerEHC extends HCCMController {
 
 		// WalkUp Patient ends Activity at TriageRoom
 		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TriageRoom", "EndActivity")) {
+			// Move patient back to waiting room and update nurse states
 			ExpResult r = ExpResult.makeNumResult(1.0, DimensionlessUnit.class);
 			((HCCMControlActivity)getDisplayEntity("TriageRoom")).getFirstForMatch("WalkUpPatient").setAttribute("hasBeenTriaged", null, r);
 			DisplayEntity walkuppatient = activeEntity;
 			moveEntFromTo(walkuppatient,triageroom,triagetowaitingroom);
-			makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TriageRoom")).getFirstForMatch("TriageNurse"));
+			makeServerAvailable((DisplayEntity)((HCCMControlActivity)triageroom).getFirstForMatch("TriageNurse"));
 			DisplayEntity triagenurse = getServerAvailable("TriageNurse",triageroom);
 			((HCCMActiveEntity)triagenurse).setPresentState("Idle");
+			
+			// Check waiting room for waiting patient, grab the one that has been waiting longest
+			if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+						if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.01) {
+							moveEntFromTo(ent, waitingroom, waitingroomtotriage);
+							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)triageroom).getFirstForMatch("TriageNurse"));
+							break;
+						}
+					}
+				}
+			}
 		}		
 		
 		// WalkUp Patient starts Activity at TestRoom
@@ -264,6 +251,7 @@ public class ControllerEHC extends HCCMController {
 
 		// WalkUp Patient ends Activity at TestRoom
 		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TestRoom", "EndActivity")) {
+			// Move patient back to waiting room and update nurse states
 			DisplayEntity walkuppatient = activeEntity;
 			ExpResult r = ExpResult.makeNumResult(1.0, DimensionlessUnit.class);
 			walkuppatient.setAttribute("hasBeenTested", null, r);
@@ -271,6 +259,19 @@ public class ControllerEHC extends HCCMController {
 			makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TestRoom")).getFirstForMatch("TestNurse"));
 			DisplayEntity testnurse = getServerAvailable("TestNurse",testroom);
 			((HCCMActiveEntity)testnurse).setPresentState("Idle");
+
+			// Check waiting room for waiting patient, grab the one that has been waiting longest
+			if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+						if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.01) {
+							moveEntFromTo(ent, waitingroom, waitingroomtotest);
+							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)testroom).getFirstForMatch("TestNurse"));
+							break;
+						}
+					}
+				}
+			}
 		}
 		
 		// WalkUp Patient starts Activity at TreatmentRoom1
@@ -313,20 +314,61 @@ public class ControllerEHC extends HCCMController {
 		
 		// WalkUp Patient ends Activity at TreatmentRoom1
 		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TreatmentRoom1", "EndActivity")) {
+			// Move patient on and update doctor states
 			DisplayEntity walkuppatient = activeEntity;
 			moveEntFromTo(walkuppatient,treatmentroom1,treat1finished);
 			makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor"));
 			DisplayEntity walkupdoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor");
 			((HCCMActiveEntity)walkupdoctor).setPresentState("Idle");
+			
+			// Check waiting room for waiting patient, grab the one that has been waiting longest
+			if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+						if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+							moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
+							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom1).getFirstForMatch("WalkUpDoctor"));
+							break;
+						}
+					}
+				}
+			}
 		}
 
 		// WalkUp Patient ends Activity at TreatmentRoom2
 		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TreatmentRoom2", "EndActivity")) {
+			// Move patient on and update doctor states
 			DisplayEntity walkuppatient = activeEntity;
 			moveEntFromTo(walkuppatient,treatmentroom2,treat2finished);
 			makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor"));
 			DisplayEntity appointmendoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor");
 			((HCCMActiveEntity)appointmendoctor).setPresentState("Idle");
+
+			// Check waiting room for scheduled patient where the current time is >= their appointment time
+			boolean moved = false;
+			if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient")) {
+						if (ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime())
+							moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+							moved = true;
+							break;
+					}
+				}
+			}
+			// If no scheduled patients, check for a walkup patient ready to be treated
+			if (moved == false) {
+				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+						if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+							moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+							break;
+						}
+					}
+				}
+			}
 		}
 		
 		// Scheduled Patient start Activity at WaitingRoom
@@ -336,34 +378,11 @@ public class ControllerEHC extends HCCMController {
 			if (((HCCMActiveEntity)scheduledpatient).getState().toString() != "WaitForTreat") {
 				((HCCMActiveEntity)scheduledpatient).setPresentState("WaitForTreat");
 			}
-			String patientName = scheduledpatient.getName();
 
 			// Appointment Doctor is available, Scheduled Patient ends Activity WaitingRoom
 			if  (serverAvailable("AppointmentDoctor",treatmentroom2) && scheduledpatient.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*60 >= getSimTime()) { 
 				sendActivitySignalToList(scheduledpatient, waitingroom, "EndActivity");
-			}
-			// If none trigger, retry in 30 seconds
-			else {
-				try {
-					DisplayEntity patient = null;
-					ArrayList<HCCMActiveEntity> activeentitieslist = new ArrayList<>();
-					for (HCCMActiveEntity e: this.getJaamSimModel().getClonesOfIterator(HCCMActiveEntity.class)) {
-						activeentitieslist.add(e);
-					}
-					for (HCCMActiveEntity e: activeentitieslist) {
-						if (e.getName() == patientName) {
-							patient = (DisplayEntity)e;
-							break;
-						}
-					}
-					// Add activity to retry start event in (retrywaittime) seconds
-					this.scheduleProcess(retrywaittime, 5, "sendActivitySignal", controllerehc, patient, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("WaitingRoom")), "StartActivity");
-				}
-				catch (Exception e) {
-					System.out.println(e);
-				}
-			}
-			
+			}			
 		}
 
 		// Scheduled Patient end Activity at WaitingRoom
@@ -395,11 +414,38 @@ public class ControllerEHC extends HCCMController {
 
 		// Scheduled Patient ends Activity at TreatmentRoom2
 		else if (happens(activeEntity, activity, state, "ScheduledPatient", "TreatmentRoom2", "EndActivity")) {
+			// Move patient on and update doctor states
 			DisplayEntity scheduledpatient = activeEntity;
 			moveEntFromTo(scheduledpatient,treatmentroom2,treat2finished);
 			makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor"));
 			DisplayEntity appointmendoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor");
 			((HCCMActiveEntity)appointmendoctor).setPresentState("Idle");
+			
+			// Check waiting room for scheduled patient where the current time is >= their appointment time
+			boolean moved = false;
+			if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient")) {
+						if (ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime())
+							moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+							moved = true;
+							break;
+					}
+				}
+			}
+			// If no scheduled patients, check for a walkup patient ready to be treated
+			if (moved == false) {
+				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+						if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+							moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+							break;
+						}
+					}
+				}
+			}
 
 		}		
 
@@ -432,13 +478,10 @@ public class ControllerEHC extends HCCMController {
 		}		
 		
 		// Wrap up day
-		else if (happens(activeEntity, activity, state, "AppointmentDoctor", "TreatmentRoom1", "WrapUpDay")) {
+		else if (happens(activeEntity, activity, state, "WaitingRoom", "WaitingRoom", "WrapUpDay")) {
 			// Move all patients in waiting room who haven't started triage to leave
-			ExpResult eR = ExpResult.makeStringResult("false");
-			((EntityGate)arrivalgate).setAttribute("Open", null, eR);;
-			DisplayEntity e;
-			while (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) != 0) {
-				e = ((HCCMControlActivity)waitingroom).getFirst();
+			setWaitingRoomOpen(0.0);
+			for (DisplayEntity e : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
 				if (((HCCMActiveEntity)e).getState().toString() == "WaitForTriage") {
 					moveEntFromTo(((HCCMControlActivity)waitingroom).getFirst(), waitingroom, waitingroomleave);
 				}
@@ -446,11 +489,11 @@ public class ControllerEHC extends HCCMController {
 		}
 		
 		// End of Day
-		else if (happens(activeEntity, activity, state, "AppointmentDoctor", "TreatmentRoom1", "EndDay")) {
+		else if (happens(activeEntity, activity, state, "WaitingRoom", "WaitingRoom", "EndDay")) {
 			moveEntFromTo(((HCCMControlActivity)triageroom).getFirstForMatch("TriageNurse"), triageroom, triagenurseleave);
 			moveEntFromTo(((HCCMControlActivity)testroom).getFirstForMatch("TestNurse"), testroom, testnurseleave);
 			moveEntFromTo(((HCCMControlActivity)treatmentroom1).getFirstForMatch("WalkUpDoctor"), treatmentroom1, doctor1utilization);
-			moveEntFromTo(((HCCMControlActivity)treatmentroom2).getFirstForMatch("ApointmentDoctor"), treatmentroom2, doctor2utilization);
+			moveEntFromTo(((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"), treatmentroom2, doctor2utilization);
 		}
 	}
 	
@@ -652,5 +695,15 @@ public class ControllerEHC extends HCCMController {
 		public double getCustomOutput1(double simTime) {
 			double output = 1;
 			return output;
+		}
+		
+		@Output(name = "WaitingRoomOpen",
+				description = "1 for open, 0 for closed",
+				unitType = DimensionlessUnit.class)
+		public double getWaitingRoomOpen(double simTime) {
+			return waitingroomopen;
+		}
+		public void setWaitingRoomOpen(double v) {
+			waitingroomopen = v;
 		}
 	}

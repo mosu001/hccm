@@ -93,6 +93,10 @@ public class HCCMControlActivity extends LinkedComponent {
 			exampleList = {"Branch1"})
 	protected final InterfaceEntityInput<Linkable> renegeDestination;
 
+	@Keyword(description = "Determines maximum number of entities that can be placed in the queue.",
+            exampleList = {"FALSE"})
+	private final ValueInput maxQueueLength;
+	
 	@Keyword(description = "The amount of graphical space shown between DisplayEntity objects in "
 			+ "the queue.",
 			exampleList = {"1 m"})
@@ -114,7 +118,6 @@ public class HCCMControlActivity extends LinkedComponent {
 	private final ArrayList<QueueUser> userList;  // other objects that use this queue
 	private final TimeBasedStatistics stats;
 	private final TimeBasedFrequency freq;
-	private int queue_max;
 	protected long numberReneged;  // number of entities that reneged from the queue
 
 	{
@@ -159,6 +162,11 @@ public class HCCMControlActivity extends LinkedComponent {
 
 		renegeDestination = new InterfaceEntityInput<>(Linkable.class, "RenegeDestination", KEY_INPUTS, null);
 		this.addInput(renegeDestination);
+		
+		maxQueueLength = new ValueInput("MaxQueueLength", KEY_INPUTS, Double.POSITIVE_INFINITY);
+		maxQueueLength.setUnitType(DimensionlessUnit.class);
+		maxQueueLength.setValidRange(0.0d, Double.POSITIVE_INFINITY);
+		this.addInput(maxQueueLength);
 
 		spacing = new ValueInput("Spacing", FORMAT, 0.0d);
 		spacing.setUnitType(DistanceUnit.class);
@@ -181,7 +189,6 @@ public class HCCMControlActivity extends LinkedComponent {
 		userList = new ArrayList<>();
 		stats = new TimeBasedStatistics();
 		freq = new TimeBasedFrequency(0, 10);
-		queue_max = 10^9;
 	}
 
 	@Override
@@ -255,7 +262,7 @@ public class HCCMControlActivity extends LinkedComponent {
 	@Override
 	public void addEntity(DisplayEntity ent) {
 		// Only allow adding entities when queue_max has not been reached
-		if (this.getQueueLength(getSimTime()) < queue_max) {
+		if (this.getQueueLength(getSimTime()) < this.maxQueueLength.getValue()) {
 			super.addEntity(ent);
 			double simTime = getSimTime();
 	
@@ -520,6 +527,10 @@ public class HCCMControlActivity extends LinkedComponent {
 		return storage.getTypes();
 	}
 	
+	public double getMaxQueueLength() {
+		return this.maxQueueLength.getValue();
+	}
+	
 	/**
 	 * Returns a match value that has sufficient numbers of entities in each
 	 * queue. The first match value that satisfies the criterion is selected.
@@ -587,24 +598,7 @@ public class HCCMControlActivity extends LinkedComponent {
 				return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Sets the max number of entities permitted in the queue for the given control activity
-	 * @param max
-	 */
-	public void setQueueMax(int max) {
-		queue_max = max;
-	}
-	
-	/**
-	 * Gets the max number of entities permitted in the queue for the given activity
-	 * @return
-	 */
-	public int getQueueMax() {
-		return queue_max;
 	}	
-	
 	
 	/**
 	 * Update the position of all entities in the queue. ASSUME that entities
