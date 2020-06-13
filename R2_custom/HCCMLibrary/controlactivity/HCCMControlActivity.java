@@ -114,6 +114,7 @@ public class HCCMControlActivity extends LinkedComponent {
 	private final ArrayList<QueueUser> userList;  // other objects that use this queue
 	private final TimeBasedStatistics stats;
 	private final TimeBasedFrequency freq;
+	private int queue_max;
 	protected long numberReneged;  // number of entities that reneged from the queue
 
 	{
@@ -180,6 +181,7 @@ public class HCCMControlActivity extends LinkedComponent {
 		userList = new ArrayList<>();
 		stats = new TimeBasedStatistics();
 		freq = new TimeBasedFrequency(0, 10);
+		queue_max = 10^9;
 	}
 
 	@Override
@@ -252,50 +254,55 @@ public class HCCMControlActivity extends LinkedComponent {
 
 	@Override
 	public void addEntity(DisplayEntity ent) {
-		super.addEntity(ent);
-		double simTime = getSimTime();
-
-		// Update the queue statistics
-		stats.addValue(simTime, storage.size() + 1);
-		freq.addValue(simTime, storage.size() + 1);
-
-		// Build the entry for the entity
-		long n = this.getTotalNumberAdded();
-		if (!fifo.getValue())
-			n *= -1;
-		int pri = (int) priority.getValue().getNextSample(simTime);
-		String m = null;
-		if (match.getValue() != null)
-			m = match.getValue().getNextString(simTime, 1.0d, true);
-
-		EventHandle rh = null;
-		if (renegeTime.getValue() != null)
-			rh = new EventHandle();
-
-		QueueEntry entry = new QueueEntry(ent, m, pri, n, simTime, rh);
-		storage.add(entry);
-
-		// Notify the users of this queue
-		if (!userUpdateHandle.isScheduled())
-			EventManager.scheduleTicks(0, 2, false, userUpdate, userUpdateHandle);
-
-		// Schedule the time to check the renege condition
-		if (renegeTime.getValue() != null) {
-			double dur = renegeTime.getValue().getNextSample(getSimTime());
-			// Schedule the renege tests in FIFO order so that if two or more entities are added to
-			// the queue at the same time, the one nearest the front of the queue is tested first
-			EventManager.scheduleSeconds(dur, 5, true, new RenegeActionTarget(this, entry), rh);
-		}
-
-
-		// Added
-		if (StartActivitySignalList.getValue() != null) {
-			for (HCCMController controller : StartActivitySignalList.getValue()) {
-				String state = "StartActivity";
-				((HCCMController)controller).Controller(ent, this, state);
+		// Only allow adding entities when queue_max has not been reached
+		if (this.getQueueLength(getSimTime()) < queue_max) {
+			super.addEntity(ent);
+			double simTime = getSimTime();
+	
+			// Update the queue statistics
+			stats.addValue(simTime, storage.size() + 1);
+			freq.addValue(simTime, storage.size() + 1);
+	
+			// Build the entry for the entity
+			long n = this.getTotalNumberAdded();
+			if (!fifo.getValue())
+				n *= -1;
+			int pri = (int) priority.getValue().getNextSample(simTime);
+			String m = null;
+			if (match.getValue() != null)
+				m = match.getValue().getNextString(simTime, 1.0d, true);
+	
+			EventHandle rh = null;
+			if (renegeTime.getValue() != null)
+				rh = new EventHandle();
+	
+			QueueEntry entry = new QueueEntry(ent, m, pri, n, simTime, rh);
+			storage.add(entry);
+	
+			// Notify the users of this queue
+			if (!userUpdateHandle.isScheduled())
+				EventManager.scheduleTicks(0, 2, false, userUpdate, userUpdateHandle);
+	
+			// Schedule the time to check the renege condition
+			if (renegeTime.getValue() != null) {
+				double dur = renegeTime.getValue().getNextSample(getSimTime());
+				// Schedule the renege tests in FIFO order so that if two or more entities are added to
+				// the queue at the same time, the one nearest the front of the queue is tested first
+				EventManager.scheduleSeconds(dur, 5, true, new RenegeActionTarget(this, entry), rh);
+			}
+	
+	
+			// Added
+			if (StartActivitySignalList.getValue() != null) {
+				for (HCCMController controller : StartActivitySignalList.getValue()) {
+					String state = "StartActivity";
+					((HCCMController)controller).Controller(ent, this, state);
+				}
 			}
 		}
-		// Added
+		else {
+			throw new RuntimeException("Could not add entity to Control Activity, queue limit has been reached.");
+		}
 	}
 
 	private static class RenegeActionTarget extends EntityTarget<HCCMControlActivity> {
@@ -583,9 +590,27 @@ public class HCCMControlActivity extends LinkedComponent {
 	}
 
 	/**
+	 * Sets the max number of entities permitted in the queue for the given control activity
+	 * @param max
+	 */
+	public void setQueueMax(int max) {
+		queue_max = max;
+	}
+	
+	/**
+	 * Gets the max number of entities permitted in the queue for the given activity
+	 * @return
+	 */
+	public int getQueueMax() {
+		return queue_max;
+	}	
+	
+	
+	/**
 	 * Update the position of all entities in the queue. ASSUME that entities
 	 * will line up according to the orientation of the queue.
 	 */
+	
 	@Override
 	public void updateGraphics(double simTime) {
 
