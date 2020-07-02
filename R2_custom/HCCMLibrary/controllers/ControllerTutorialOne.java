@@ -5,7 +5,6 @@ import com.jaamsim.ProbabilityDistributions.Distribution;
 import com.jaamsim.ProcessFlow.Linkable;
 import com.jaamsim.Samples.TimeSeries;
 import com.jaamsim.basicsim.Entity;
-import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpResult;
 import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
@@ -224,24 +223,14 @@ public class ControllerTutorialOne extends HCCMController{
 				
 		((HCCMActiveEntity)server).setPresentState("Idle");
 		ExpResult eR = ExpResult.makeStringResult("1");
-		try {
-			((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
-		} catch (ExpError e) {
-			// Auto-generated catch block
-			e.printStackTrace();
-		}
+		((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
 	}
 
 	public void makeServerUnavailable(DisplayEntity server) {
 		// Changes the ServerAvailable attribute of the server to 0
 		
 		ExpResult eR = ExpResult.makeStringResult("0");
-		try {
-			((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
-		} catch (ExpError e) {
-			// Auto-generated catch block
-			e.printStackTrace();
-		}
+		((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
 
 	}
 

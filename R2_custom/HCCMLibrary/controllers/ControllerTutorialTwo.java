@@ -5,7 +5,6 @@ import com.jaamsim.ProbabilityDistributions.Distribution;
 import com.jaamsim.ProcessFlow.Linkable;
 import com.jaamsim.Samples.TimeSeries;
 import com.jaamsim.basicsim.Entity;
-import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpResult;
 import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
@@ -158,8 +157,8 @@ public class ControllerTutorialTwo extends HCCMController{
 			DisplayEntity scheduledpatient = activeEntity;
 			((HCCMActiveEntity)scheduledpatient).setPresentState("Wait");
 
-			// Appointment Doctor is available, Scheduled Patient ends Activity WaitingRoom
-			if  (serverAvailable("AppointmentDoctor",treatmentroom2)) { 
+			// Sim Time >= appointment time, Appointment Doctor is available, Scheduled Patient ends Activity WaitingRoom
+			if  (scheduledpatient.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*60 >= getSimTime() && serverAvailable("AppointmentDoctor",treatmentroom2)) { 
 				sendActivitySignalToList(scheduledpatient, waitingroom, "EndActivity");
 			}
 		}
@@ -338,24 +337,14 @@ public class ControllerTutorialTwo extends HCCMController{
 				
 		((HCCMActiveEntity)server).setPresentState("Idle");
 		ExpResult eR = ExpResult.makeStringResult("1");
-		try {
-			((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
-		} catch (ExpError e) {
-			// Auto-generated catch block
-			e.printStackTrace();
-		}
+		((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
 	}
 
 	public void makeServerUnavailable(DisplayEntity server) {
 		// Changes the ServerAvailable attribute of the server to 0
 		
 		ExpResult eR = ExpResult.makeStringResult("0");
-		try {
-			((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
-		} catch (ExpError e) {
-			// Auto-generated catch block
-			e.printStackTrace();
-		}
+		((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
 
 	}
 
@@ -379,7 +368,13 @@ public class ControllerTutorialTwo extends HCCMController{
 		// Gets the DisplayEntity of the model with the given name
 		
 		Entity ent = this.getJaamSimModel().getNamedEntity(name);
-		DisplayEntity dispEnt = ((DisplayEntity)ent);
+		DisplayEntity dispEnt = null;
+		try {
+			dispEnt = ((DisplayEntity)ent);
+		} catch (ClassCastException exception){
+			System.out.print(name + " " + exception.getMessage());
+			
+		}
 		return dispEnt;
 	}
 
