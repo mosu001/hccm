@@ -37,11 +37,11 @@ public class WaitActivity extends Queue implements Activity {
 	 * 
 	 */
 	@Keyword(description = "Lists of activities that may be requested when waiting starts.",
-	         exampleList = "{ { Activity1 Activity2 } { Activity3 Activity } }")
+	         exampleList = "{ { Activity1 Activity2 } { Activity3 Activity4 } }")
 	protected final EntityListListInput<ProcessActivity> requestActivityList;
 
 	@Keyword(description = "A number that determines the choice of requested activity: "
-            + "1 = first activity, 2 = second activity, etc.",
+            + "1 = first activity list, 2 = second activity list, etc.",
             exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
 	private final SampleInput requestActivityChoice;
 

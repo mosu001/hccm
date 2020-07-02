@@ -112,9 +112,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		/**
 		 * ?
 		 */
-		public void happens(List<ActiveEntity> ents) {
-			assigns();
-			
+		public void happens(List<ActiveEntity> ents) {			
 			JaamSimModel model = getJaamSimModel();
 			EntityDelay ed = (EntityDelay)owner;
 			int numCons = 0;
@@ -131,6 +129,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					((ActiveEntity)ent).setCurrentActivity(owner);
 			}
 			ed.addEntity(participantEntity);
+			
+			assigns();
 			
 			ProcessActivity act = (ProcessActivity)owner;
 			double simTime = getSimTime();			
@@ -208,8 +208,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				if (set1.equals(set2)) {
 					// Remove the container
 					ed.removeDisplayEntity(ec);
-					// Remove all the participants
-					for (ActiveEntity ent : ents) ec.removeEntity(null);
+					// Remove participants
+					for (ActiveEntity ent : ents)
+						ec.removeEntity(null);
 					// Dispose of the container
 					ec.kill();
 					break;
@@ -350,13 +351,13 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 */
 	@Override
 	public void sendToNextComponent(DisplayEntity ent) {
+		assert(nextComponent == null); // Moving components is achieved using events, so this should be null as it is hidden
+		super.sendToNextComponent(ent);
 		EntityContainer participantEntity = (EntityContainer)ent;
 		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
-		while (!participantEntity.isEmpty(null)) {
-			DisplayEntity de = participantEntity.removeEntity(null);
+		for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
 			participants.add((ActiveEntity)de);
 		}
-		participantEntity.kill();
 		
 		finish(participants);
 	}
