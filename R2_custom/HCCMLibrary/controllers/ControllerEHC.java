@@ -10,6 +10,7 @@ import com.jaamsim.ProbabilityDistributions.Distribution;
 import com.jaamsim.ProcessFlow.Linkable;
 import com.jaamsim.Samples.TimeSeries;
 import com.jaamsim.basicsim.Entity;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpResult;
 import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
@@ -117,7 +118,7 @@ public class ControllerEHC extends HCCMController {
 	}
 	
 	@Override
-	public void Controller(DisplayEntity activeEntity, DisplayEntity activity, String state){
+	public void Controller(DisplayEntity activeEntity, DisplayEntity activity, String state) throws ExpError {
 		//System.out.println(activeEntity.toString() + " " + activity.toString() + " " + state);
 
 		// WalkUp Patient start Activity at WaitingRoom
@@ -498,7 +499,7 @@ public class ControllerEHC extends HCCMController {
 	}
 	
 	// Helper functions go here
-		public void startScheduledActvitity (DisplayEntity customer, DisplayEntity server, DisplayEntity activity, double duration) {
+		public void startScheduledActvitity (DisplayEntity customer, DisplayEntity server, DisplayEntity activity, double duration) throws ExpError {
 
 			makeServerUnavailable(server);
 			((HCCMActiveEntity)server).setPresentState("Working");
@@ -545,7 +546,7 @@ public class ControllerEHC extends HCCMController {
 			return serverAvailable;
 		}
 
-		public void makeServerAvailable(DisplayEntity server) {
+		public void makeServerAvailable(DisplayEntity server) throws ExpError {
 			try {
 				((HCCMActiveEntity)server).setPresentState("Idle");
 			}
@@ -556,7 +557,7 @@ public class ControllerEHC extends HCCMController {
 			((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
 		}
 
-		public void makeServerUnavailable(DisplayEntity server) {
+		public void makeServerUnavailable(DisplayEntity server) throws ExpError {
 
 			ExpResult eR = ExpResult.makeStringResult("0");
 			((DisplayEntity)server).setAttribute("ServerAvailable", null, eR);
@@ -672,7 +673,7 @@ public class ControllerEHC extends HCCMController {
 			}
 		}
 
-		public void sendActivitySignalToList(DisplayEntity active, DisplayEntity passive, String state) {
+		public void sendActivitySignalToList(DisplayEntity active, DisplayEntity passive, String state) throws ExpError {
 
 			if (((HCCMControlActivity)passive).EndActivitySignalList.getValue() != null) {
 				for (HCCMController controller : ((HCCMControlActivity)passive).EndActivitySignalList.getValue()) {
@@ -681,7 +682,7 @@ public class ControllerEHC extends HCCMController {
 			}
 		}
 
-		public void sendActivitySignal(DisplayEntity controller,DisplayEntity active, DisplayEntity passive, String state) {
+		public void sendActivitySignal(DisplayEntity controller,DisplayEntity active, DisplayEntity passive, String state) throws ExpError {
 
 			((HCCMController)controller).Controller(active, passive, state);
 		}

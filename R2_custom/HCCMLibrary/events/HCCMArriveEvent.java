@@ -26,6 +26,7 @@ import com.jaamsim.Graphics.TextBasics;
 import com.jaamsim.Samples.SampleConstant;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.Entity;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.input.Input;
 import com.jaamsim.input.InputAgent;
 import com.jaamsim.input.InterfaceEntityListInput;
@@ -203,7 +204,11 @@ public class HCCMArriveEvent extends LinkedService {
 			if (EventSignalList.getValue() != null) {
 				for (HCCMController controller : EventSignalList.getValue()) {
 					String state = "Event";
-					((HCCMController)controller).Controller(ent, this, state);
+					try {
+						((HCCMController)controller).Controller(ent, this, state);
+					} catch (ExpError e) {
+						System.out.println("Error in HCCMArriveEvent::processStep = " + e.toString());
+					}
 				}
 			}
 			// Added
@@ -229,13 +234,13 @@ public class HCCMArriveEvent extends LinkedService {
 	}
 
 	@Override
-	public ArrayList<Entity> getSourceEntities() {
-		ArrayList<Entity> ret = new ArrayList<>();
+	public ArrayList<DisplayEntity> getSourceEntities() {
+		ArrayList<DisplayEntity> ret = new ArrayList<>();
 		if (prototypeEntity.getValue() == null)
 			return ret;
 		Entity ent = prototypeEntity.getValue().getNextEntity(0.0d);
 		if (ent != null) {
-			ret.add(ent);
+			ret.add((DisplayEntity)ent);
 		}
 		return ret;
 	}

@@ -15,6 +15,7 @@ import com.jaamsim.basicsim.EntityTarget;
 import com.jaamsim.events.EventManager;
 import com.jaamsim.input.BooleanInput;
 import com.jaamsim.input.ColourInput;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.input.Input;
 import com.jaamsim.input.IntegerInput;
 import com.jaamsim.input.InterfaceEntityListInput;
@@ -211,7 +212,11 @@ public class HCCMEntityDelay extends LinkedComponent implements LineEntity {
 		if (StartActivitySignalList.getValue() != null) {
 			for (HCCMController controller : StartActivitySignalList.getValue()) {
 				String state = "StartActivity";
-				((HCCMController)controller).Controller(ent, this, state);
+				try {
+					((HCCMController)controller).Controller(ent, this, state);
+				} catch (ExpError e) {
+					System.out.println("Error in HCCMEntityDelay::addEntity = " + e.toString());
+				}
 			}
 		}
 		// Added
@@ -244,7 +249,11 @@ public class HCCMEntityDelay extends LinkedComponent implements LineEntity {
 		if (EndActivitySignalList.getValue() != null) {
 			for (HCCMController controller : EndActivitySignalList.getValue()) {
 				String state = "EndActivity";
-				((HCCMController)controller).Controller(ent, this, state);
+				try {
+					((HCCMController)controller).Controller(ent, this, state);
+				} catch (ExpError e) {
+					System.out.println("Error in HCCMEntityDelay::removeDisplayEntity = " + e.toString());
+				}
 			}
 		}
 		// Added

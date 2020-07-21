@@ -21,6 +21,7 @@ import com.jaamsim.events.EventManager;
 import com.jaamsim.events.ProcessTarget;
 import com.jaamsim.input.BooleanInput;
 import com.jaamsim.input.Input;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.input.IntegerInput;
 import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.InterfaceEntityListInput;
@@ -303,7 +304,11 @@ public class HCCMControlActivity extends LinkedComponent {
 			if (StartActivitySignalList.getValue() != null) {
 				for (HCCMController controller : StartActivitySignalList.getValue()) {
 					String state = "StartActivity";
-					((HCCMController)controller).Controller(ent, this, state);
+					try {
+						((HCCMController)controller).Controller(ent, this, state);
+					} catch (ExpError e) {
+						System.out.println("Error in HCCMControlActivity::addEntity = " + e.toString());
+					}
 				}
 			}
 		}
@@ -700,8 +705,8 @@ public class HCCMControlActivity extends LinkedComponent {
 
 	// LinkDisplayable
 	@Override
-	public ArrayList<Entity> getDestinationEntities() {
-		ArrayList<Entity> ret = super.getDestinationEntities();
+	public ArrayList<DisplayEntity> getDestinationEntities() {
+		ArrayList<DisplayEntity> ret = super.getDestinationEntities();
 		Linkable l = renegeDestination.getValue();
 		if (l != null && (l instanceof DisplayEntity)) {
 			ret.add((DisplayEntity)l);
