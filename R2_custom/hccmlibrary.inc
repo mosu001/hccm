@@ -9,6 +9,7 @@ Define ObjectType	{
 	ControllerTutorialTwo
 	ExampleController
 	ControllerEHC
+	ControllerEHC_Rosters
 }
 
 Define	IconModel  {
@@ -32,3 +33,4 @@ ControllerTutorialOne JavaClass { HCCMLibrary.controllers.ControllerTutorialOne}
 ControllerTutorialTwo JavaClass { HCCMLibrary.controllers.ControllerTutorialTwo} Palette {'HCCM Controllers'} DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 ExampleController JavaClass { HCCMLibrary.controllers.ExampleController} Palette {'HCCM Controllers'} DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 ControllerEHC JavaClass { HCCMLibrary.controllers.ControllerEHC} Palette {'HCCM Controllers'} DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
+ControllerEHC_Rosters JavaClass { HCCMLibrary.controllers.ControllerEHC_Rosters} Palette {'HCCM Controllers'} DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
