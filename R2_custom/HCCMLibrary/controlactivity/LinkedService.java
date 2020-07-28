@@ -180,8 +180,8 @@ public abstract class LinkedService extends LinkedDevice implements QueueUser {
 	}
 
 	@Override
-	public ArrayList<Entity> getSourceEntities() {
-		ArrayList<Entity> ret = super.getSourceEntities();
+	public ArrayList<DisplayEntity> getSourceEntities() {
+		ArrayList<DisplayEntity> ret = super.getSourceEntities();
 		ret.addAll(getQueues());
 		return ret;
 	}

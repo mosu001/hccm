@@ -2,6 +2,7 @@ package HCCMLibrary.events;
 
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.*;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.input.InterfaceEntityListInput;
 import com.jaamsim.input.Keyword;
 
@@ -43,13 +44,17 @@ public class HCCMLeaveEvent extends LinkedComponent {
 		if (EventSignalList.getValue() != null) {
 			for (HCCMController controller : EventSignalList.getValue()) {
 				String state = "Event";
-				((HCCMController)controller).Controller(ent, this, state);
+				try {
+					((HCCMController)controller).Controller(ent, this, state);
+				} catch (ExpError e) {
+					System.out.println("Error in HCCMLeaveEvent::addEntity = " + e.toString());
+				}
 			}
 		}
 		// Added
 
 		// Kill the added entity
-		if (ent.testFlag(FLAG_GENERATED)) {
+		if (ent.isGenerated()) {
 			ent.kill();
 		}
 	}
