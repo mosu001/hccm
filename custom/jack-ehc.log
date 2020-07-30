@@ -1,0 +1,151 @@
+RecordEdits
+Define  ActiveEntity  {  Doctor1  Doctor2  ScheduledPatient  WalkUpPatient  }
+Define  ArriveEvent  {  Doctor1ArriveEvent  Doctor2ArriveEvent  ScheduledPatientArrive  WalkUpPatientArriveEvent  }
+Define  PassiveEntity  {  TestRoom  TreatmentRoom1  TreatmentRoom2  TriageRoom  WaitingRoom  }
+Define  ColladaModel  {  Axis  Grid100x100  }
+Define  DisplayEntity  {  XY-Grid  XYZ-Axis  }
+Define  EntityLabel  {  Doctor1ArriveEvent_Label  Doctor1_Label  Doctor2ArriveEvent_Label  Doctor2_Label  ScheduledPatientArrive_Label  ScheduledPatient_Label  TestRoom_Label  TreatmentRoom1_Label  TreatmentRoom2_Label  TriageRoom_Label  WaitingRoom_Label  WalkUpPatientArriveEvent_Label  WalkUpPatient_Label  }
+Define  OverlayClock  {  Clock  }
+Define  OverlayText  {  Title  }
+Define  View  {  View1  }
+Simulation  Description  {  Simulation run control inputs  }
+Doctor1ArriveEvent  FirstArrivalTime  {  0  h  }
+Doctor1ArriveEvent  InterArrivalTime  {  192  h  }
+Doctor1ArriveEvent  PrototypeEntity  {  Doctor1  }
+Doctor1ArriveEvent  MaxNumber  {  1  }
+Doctor2ArriveEvent  FirstArrivalTime  {  0  h  }
+Doctor2ArriveEvent  InterArrivalTime  {  192  h  }
+Doctor2ArriveEvent  PrototypeEntity  {  Doctor2  }
+Doctor2ArriveEvent  MaxNumber  {  1  }
+ScheduledPatientArrive  PrototypeEntity  {  ScheduledPatient  }
+WalkUpPatientArriveEvent  PrototypeEntity  {  WalkUpPatient  }
+Simulation  RealTime  {  TRUE  }
+Simulation  SnapToGrid  {  TRUE  }
+Simulation  ShowLabels  {  TRUE  }
+Simulation  ShowSubModels  {  TRUE  }
+Simulation  ShowEntityFlow  {  TRUE  }
+Simulation  ShowModelBuilder  {  TRUE  }
+Simulation  ShowObjectSelector  {  TRUE  }
+Simulation  ShowInputEditor  {  TRUE  }
+Simulation  ShowOutputViewer  {  TRUE  }
+Simulation  ShowPropertyViewer  {  FALSE  }
+Simulation  ShowLogViewer  {  FALSE  }
+Simulation  ControlPanelWidth  {  1023  }
+Doctor1  Position  {  -5.5  -3.4  0.0  m  }
+Doctor1  Alignment  {  0.0  0.0  -0.5  }
+Doctor2  Position  {  -5.5  -4.4  0.0  m  }
+Doctor2  Alignment  {  0.0  0.0  -0.5  }
+ScheduledPatient  Position  {  -8.4  0.6  0.0  m  }
+ScheduledPatient  Alignment  {  0.0  0.0  -0.5  }
+WalkUpPatient  Position  {  -8.4  2.6  0.0  m  }
+WalkUpPatient  Alignment  {  0.0  0.0  -0.5  }
+Doctor1ArriveEvent  Position  {  -3.5  -3.4  0.0  m  }
+Doctor2ArriveEvent  Position  {  -3.5  -4.4  0.0  m  }
+ScheduledPatientArrive  Position  {  -6.2  0.6  0.0  m  }
+WalkUpPatientArriveEvent  Position  {  -6.2  2.6  0.0  m  }
+TestRoom  Position  {  3.5  2.6  0.0  m  }
+TreatmentRoom1  Position  {  4.5  -0.4  0.0  m  }
+TreatmentRoom2  Position  {  4.5  -2.4  0.0  m  }
+TreatmentRoom2  Size  {  0.5  0.5  0.5  m  }
+TriageRoom  Position  {  3.5  5.6  0.0  m  }
+WaitingRoom  Position  {  -1.5  1.6  0.0  m  }
+Axis  ColladaFile  {  <res>/shapes/axis_text.dae  }
+Grid100x100  ColladaFile  {  <res>/shapes/grid100x100.dae  }
+XY-Grid  Description  {  Grid for the X-Y plane (100 m x 100 m)  }
+XY-Grid  Size  {  100  100  m  }
+XY-Grid  DisplayModel  {  Grid100x100  }
+XY-Grid  Movable  {  FALSE  }
+XYZ-Axis  Description  {  Unit vectors  }
+XYZ-Axis  Alignment  {  -0.4393409  -0.4410096  -0.4394292  }
+XYZ-Axis  Size  {  1.125000  1.1568242  1.1266404  m  }
+XYZ-Axis  DisplayModel  {  Axis  }
+XYZ-Axis  Movable  {  FALSE  }
+Doctor1ArriveEvent_Label  Position  {  0.0  -0.4  0.0  m  }
+Doctor1ArriveEvent_Label  Size  {  2.153258  0.3  0.0  m  }
+Doctor1ArriveEvent_Label  RelativeEntity  {  Doctor1ArriveEvent  }
+Doctor1ArriveEvent_Label  Show  {  FALSE  }
+Doctor1ArriveEvent_Label  TargetEntity  {  Doctor1ArriveEvent  }
+Doctor1_Label  Position  {  0.0  -0.4  0.0  m  }
+Doctor1_Label  Size  {  0.959242  0.3  0.0  m  }
+Doctor1_Label  RelativeEntity  {  Doctor1  }
+Doctor1_Label  Show  {  FALSE  }
+Doctor1_Label  TargetEntity  {  Doctor1  }
+Doctor2ArriveEvent_Label  Position  {  0.0  -0.4  0.0  m  }
+Doctor2ArriveEvent_Label  Size  {  2.153258  0.3  0.0  m  }
+Doctor2ArriveEvent_Label  RelativeEntity  {  Doctor2ArriveEvent  }
+Doctor2ArriveEvent_Label  Show  {  FALSE  }
+Doctor2ArriveEvent_Label  TargetEntity  {  Doctor2ArriveEvent  }
+Doctor2_Label  Position  {  0.0  -0.4  0.0  m  }
+Doctor2_Label  Size  {  0.959242  0.3  0.0  m  }
+Doctor2_Label  RelativeEntity  {  Doctor2  }
+Doctor2_Label  Show  {  FALSE  }
+Doctor2_Label  TargetEntity  {  Doctor2  }
+ScheduledPatientArrive_Label  Position  {  0.0  -0.4  0.0  m  }
+ScheduledPatientArrive_Label  Size  {  2.53484  0.3  0.0  m  }
+ScheduledPatientArrive_Label  RelativeEntity  {  ScheduledPatientArrive  }
+ScheduledPatientArrive_Label  Show  {  FALSE  }
+ScheduledPatientArrive_Label  TargetEntity  {  ScheduledPatientArrive  }
+ScheduledPatient_Label  Position  {  0.0  -0.4  0.0  m  }
+ScheduledPatient_Label  Size  {  1.922274  0.3  0.0  m  }
+ScheduledPatient_Label  RelativeEntity  {  ScheduledPatient  }
+ScheduledPatient_Label  Show  {  FALSE  }
+ScheduledPatient_Label  TargetEntity  {  ScheduledPatient  }
+TestRoom_Label  Position  {  0.0  -0.4  0.0  m  }
+TestRoom_Label  Size  {  1.173072  0.3  0.0  m  }
+TestRoom_Label  RelativeEntity  {  TestRoom  }
+TestRoom_Label  Show  {  FALSE  }
+TestRoom_Label  TargetEntity  {  TestRoom  }
+TreatmentRoom1_Label  Position  {  0.0  -0.4  0.0  m  }
+TreatmentRoom1_Label  Size  {  1.936436  0.3  0.0  m  }
+TreatmentRoom1_Label  RelativeEntity  {  TreatmentRoom1  }
+TreatmentRoom1_Label  Show  {  FALSE  }
+TreatmentRoom1_Label  TargetEntity  {  TreatmentRoom1  }
+TreatmentRoom2_Label  Position  {  0.0  -0.4  0.0  m  }
+TreatmentRoom2_Label  Size  {  1.936436  0.3  0.0  m  }
+TreatmentRoom2_Label  RelativeEntity  {  TreatmentRoom2  }
+TreatmentRoom2_Label  Show  {  FALSE  }
+TreatmentRoom2_Label  TargetEntity  {  TreatmentRoom2  }
+TriageRoom_Label  Position  {  0.0  -0.4  0.0  m  }
+TriageRoom_Label  Size  {  1.379322  0.3  0.0  m  }
+TriageRoom_Label  RelativeEntity  {  TriageRoom  }
+TriageRoom_Label  Show  {  FALSE  }
+TriageRoom_Label  TargetEntity  {  TriageRoom  }
+WaitingRoom_Label  Position  {  0.0  -0.4  0.0  m  }
+WaitingRoom_Label  Size  {  1.512367  0.3  0.0  m  }
+WaitingRoom_Label  RelativeEntity  {  WaitingRoom  }
+WaitingRoom_Label  Show  {  FALSE  }
+WaitingRoom_Label  TargetEntity  {  WaitingRoom  }
+WalkUpPatientArriveEvent_Label  Position  {  0.0  -0.4  0.0  m  }
+WalkUpPatientArriveEvent_Label  Size  {  2.836137  0.3  0.0  m  }
+WalkUpPatientArriveEvent_Label  RelativeEntity  {  WalkUpPatientArriveEvent  }
+WalkUpPatientArriveEvent_Label  Show  {  FALSE  }
+WalkUpPatientArriveEvent_Label  TargetEntity  {  WalkUpPatientArriveEvent  }
+WalkUpPatient_Label  Position  {  0.0  -0.4  0.0  m  }
+WalkUpPatient_Label  Size  {  1.642121  0.3  0.0  m  }
+WalkUpPatient_Label  RelativeEntity  {  WalkUpPatient  }
+WalkUpPatient_Label  Show  {  FALSE  }
+WalkUpPatient_Label  TargetEntity  {  WalkUpPatient  }
+Clock  Description  {  Simulation date and time  }
+Clock  ScreenPosition  {  15  15  }
+Clock  AlignBottom  {  TRUE  }
+Clock  TextHeight  {  10  }
+Clock  FontColour  {  gray20  }
+Clock  FontStyle  {  ITALIC  }
+Clock  DateFormat  {  yyyy-MMM-dd HH:mm:ss.SSS  }
+Title  Description  {  Title for the simulation model  }
+Title  ScreenPosition  {  15  15  }
+Title  Format  {  Model Title  }
+Title  TextHeight  {  18  }
+Title  FontColour  {  150  23  46  }
+Title  FontStyle  {  BOLD  }
+View1  Description  {  Default view window  }
+View1  ViewCenter  {  -1.335545  -1.978161  8.038449  m  }
+View1  ViewPosition  {  -1.335545  -1.978161  25.358957  m  }
+View1  ShowWindow  {  TRUE  }
+View1  Lock2D  {  TRUE  }
+View1  SkyboxImage  {  <res>/images/sky_map_2048x1024.jpg  }
+Validation Error - Doctor1ArriveEvent: An input must be provided for the keyword 'NextActivityEvent'.
+Validation Error - Doctor2ArriveEvent: An input must be provided for the keyword 'NextActivityEvent'.
+Validation Error - ScheduledPatientArrive: An input must be provided for the keyword 'NextActivityEvent'.
+Validation Error - WalkUpPatientArriveEvent: An input must be provided for the keyword 'NextActivityEvent'.
+Input Error: 4 input errors and 0 warnings found
