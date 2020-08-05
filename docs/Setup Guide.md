@@ -76,19 +76,14 @@ $ cd "<directory path>"
 $ git clone "https://github.com/mosu001/hccm.git"
 ```
 
-### Cloning the JaamSim repository
+### Downloading JaamSim
 
-Rather than including the entire JaamSim repository inside the project repository, we will clone it separately and link it within Eclipse.
+Note: the version of JaamSim being used is subject to change, please check the mosu001/hccm repository for the current version being used.
+
+Rather than including the entire JaamSim repository inside the project repository, we will download it separately and link it within Eclipse.
 
 1. Create an empty folder where the JaamSim repository files will be stored.
-2. Open the Terminal and navigate to this folder e.g. 
-```sh
-$ cd "<directory path>"
-```
-3. Clone the repository
-```sh
-$ git clone "https://github.com/jaamsim/jaamsim.git"
-```
+2. Navigate to the JaamSim 2019-06 repository [here](https://github.com/jaamsim/jaamsim/tree/d680f653ca182ed26ffc9c21754d7be604242315)
 4. Replace \<root>/jaamsim/src/main/resources/resources/inputs/autoload.cfg with \<root>/custom/autoload.cfg
 
 ## Setting Up Eclipse
@@ -106,6 +101,10 @@ Note: there seems to be some confusion around whether the JDK or JRE is required
     1. Launch Eclipse
     2. Select "Window" > "Preferences" > "Java" > "Installed JREs"
     3. Confirm that there is an entry for the JRE installed on your computer. If not, add it using the path to the the main jre directory (e.g. .\\jre1.8.0\_221)
+5. Set the compiler compliance level as follows (if you get a compliance error)
+    1. Select "Window" > "Preferences" > "Java" > "Compiler"
+    2. Set the compiler compliance level to 1.8
+    3. Apply and close
 
 ## Create the Java Project
 
