@@ -93,6 +93,8 @@ $ git clone "https://github.com/jaamsim/jaamsim.git"
 
 ## Setting Up Eclipse
 
+Note: there seems to be some confusion around whether the JDK or JRE is required and if it is the JRE then how to get it. This is currently unsolved.
+
 1. Download the Eclipse IDE [here](https://www.eclipse.org/downloads/) and choose Eclipse for Java development in the installer.
 2. Install the Java JRE from [here](https://www.oracle.com/java/technologies/javase-jre8-downloads.html).
 3. Append the path for the JDK bin folder (e.g. C:\\Program Files\\Java\\jdk1.7.0\_45\\bin) to the PATH environment variable as follows (Windows 10)
