@@ -125,8 +125,6 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			for (Entity ent : ents) {
 				DisplayEntity de = (DisplayEntity)ent;
 				participantEntity.addEntity(de);
-				if (ent instanceof ActiveEntity)
-					((ActiveEntity)ent).setCurrentActivity(owner);
 			}
 			ed.addEntity(participantEntity);
 			
@@ -351,10 +349,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 */
 	@Override
 	public void sendToNextComponent(DisplayEntity ent) {
-		assert(nextComponent == null); // Moving components is achieved using events, so this should be null as it is hidden
+		assert(nextComponent.getValue() == null); // Moving components is achieved using events, so this should be null as it is hidden
 		super.sendToNextComponent(ent);
-		EntityContainer participantEntity = (EntityContainer)ent;
 		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
+	    EntityContainer participantEntity = (EntityContainer)ent;
 		for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
 			participants.add((ActiveEntity)de);
 		}

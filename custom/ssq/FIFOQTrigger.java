@@ -48,10 +48,10 @@ public class FIFOQTrigger extends Trigger {
         	if ( (creq != null) & (sreq != null) ) {
 		        ActiveEntity cust = creq.getRequester(), serv = sreq.getRequester();
 		        ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, serv));
-		        creq.getWaiting().finish(cust.asList());
 		        requests.remove(creq);
-		        sreq.getWaiting().finish(serv.asList());
 		        requests.remove(sreq);
+		        creq.getWaiting().finish(cust.asList());
+		        sreq.getWaiting().finish(serv.asList());
 		        assert(creq.getRequested().getName().equals(sreq.getRequested().getName()));
 		        creq.getRequested().start(participants);
         	}
