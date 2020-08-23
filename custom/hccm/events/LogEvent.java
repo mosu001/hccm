@@ -14,7 +14,7 @@ import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.Keyword;
 import com.jaamsim.input.Output;
 
-import hccm.ActivityOrEvent;
+import hccm.ActivityOrEventOrJaamSim;
 import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
@@ -29,7 +29,7 @@ import hccm.entities.ActiveEntity;
  */
 public class LogEvent extends EntityLogger implements Event {
 
-	protected final InterfaceEntityInput<ActivityOrEvent> nextActivityEvent;
+	protected final InterfaceEntityInput<ActivityOrEventOrJaamSim> nextActivityEvent;
 
 	@Keyword(description = "The triggers that may be executed when this event occurs.",
 	         exampleList = {"Trigger1"})
@@ -48,7 +48,7 @@ public class LogEvent extends EntityLogger implements Event {
 		nextComponent.setRequired(false);
 		nextComponent.setHidden(true);
 		
-		nextActivityEvent = new InterfaceEntityInput<>(ActivityOrEvent.class, "NextActivityEvent", Constants.HCCM, null);
+		nextActivityEvent = new InterfaceEntityInput<>(ActivityOrEventOrJaamSim.class, "NextActivityEvent", Constants.HCCM, null);
 		nextActivityEvent.setRequired(true);
 		this.addInput(nextActivityEvent);
 
@@ -88,8 +88,8 @@ public class LogEvent extends EntityLogger implements Event {
 		}
 
 		// Send this entity to the next activity or event
-		ActivityOrEvent actEvt = nextActivityEvent.getValue();
-		ActivityOrEvent.execute(actEvt, ents);
+		ActivityOrEventOrJaamSim actEvt = nextActivityEvent.getValue();
+		ActivityOrEventOrJaamSim.execute(actEvt, ents);
 	}
 	
 	@Override

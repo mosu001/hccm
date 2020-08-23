@@ -2,7 +2,7 @@ package hccm.events;
 
 import java.util.List;
 
-import hccm.ActivityOrEvent;
+import hccm.ActivityOrEventOrJaamSim;
 import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
 
@@ -13,7 +13,7 @@ import hccm.entities.ActiveEntity;
  * @since 0.0.1
  * 
  */
-public interface Event extends ActivityOrEvent {
+public interface Event extends ActivityOrEventOrJaamSim {
 	/**
 	 * 
 	 * @param ents, a list of Entity objects

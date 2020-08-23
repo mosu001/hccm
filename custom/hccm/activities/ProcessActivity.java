@@ -24,7 +24,7 @@ import com.jaamsim.input.Keyword;
 //import com.jaamsim.units.DimensionlessUnit;
 import com.jaamsim.units.DimensionlessUnit;
 
-import hccm.ActivityOrEvent;
+import hccm.ActivityOrEventOrJaamSim;
 import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
@@ -51,7 +51,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 
 	@Keyword(description = "The activities/events that each of the entities goes to from this activity.",
 	         exampleList = {"Activity1"})
-	protected final InterfaceEntityListInput<ActivityOrEvent> nextActivityEventList;
+	protected final InterfaceEntityListInput<ActivityOrEventOrJaamSim> nextActivityEventList;
 
 	@Keyword(description = "A list of attribute assignments that are triggered when an entity starts the activity.\n\n" +
 			"The attributes for various entities can be used in an assignment expression:\n" +
@@ -197,8 +197,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			// Find the entity container with these entities
 			EntityDelay ed = (EntityDelay)owner;
 			double simTime = getSimTime();
+			EntityContainer ec = null;
 			for (DisplayEntity de : ed.getEntityList(simTime)) {
-				EntityContainer ec = (EntityContainer)de;
+				ec = (EntityContainer)de;
 				HashSet<DisplayEntity> set1 = new HashSet<>(ents),
 						set2 = new HashSet<>(ec.getEntityList(simTime));
 				System.out.println(ents);
@@ -214,9 +215,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					break;
 				}
 			}
+			
 			if (nextActivityEventList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
-			    ActivityOrEvent actEvt = nextActivityEventList.getValue().get(0);				
+			    ActivityOrEventOrJaamSim actEvt = nextActivityEventList.getValue().get(0);				
 				for (int i=0; i<ents.size(); i++) {
 				  ActiveEntity ent = ents.get(i);
 				  ActiveEntity proto = ent.getEntityType();
@@ -225,7 +227,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				  if (actEvt instanceof Activity)
 					  System.out.println("After ProcessActivity " + ed.getName() + ", Activity:" + ((Activity)actEvt).getName());
 				}
-				ActivityOrEvent.execute(actEvt, ents);
+				ActivityOrEventOrJaamSim.execute(actEvt, ents);
 			} else {
 				// Send each entity to its next activity or event
 				for (int i=0; i<ents.size(); i++) {
@@ -236,10 +238,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					System.out.println("After ProcessActivity " + ed.getName() + ", proto:" + proto.getName());
 					System.out.println("After ProcessActivity " + ed.getName() + ", proto index:" + index);
 					System.out.println("After ProcessActivity " + ed.getName() + ", participant list:" + participantList.getValue());
-					ActivityOrEvent actEvt = nextActivityEventList.getValue().get(index);
+					ActivityOrEventOrJaamSim actEvt = nextActivityEventList.getValue().get(index);
 					if (actEvt instanceof Activity)
 						System.out.println("After ProcessActivity " + ed.getName() + ", Activity:" + ((Activity)actEvt).getName());
-					ActivityOrEvent.execute(actEvt, ent.asList());
+					ActivityOrEventOrJaamSim.execute(actEvt, ent.asList());
 				}
 			}
 			
@@ -301,7 +303,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		startTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(startTriggerChoice);
 
-		nextActivityEventList = new InterfaceEntityListInput<>(ActivityOrEvent.class, "NextActivityEventList", Constants.HCCM, null);
+		nextActivityEventList = new InterfaceEntityListInput<>(ActivityOrEventOrJaamSim.class, "NextActivityEventList", Constants.HCCM, null);
 		nextActivityEventList.setRequired(true);
 		this.addInput(nextActivityEventList);
 
