@@ -1,0 +1,11 @@
+Simulation	Software Name	JaamSim	-
+Simulation	Software Version	2020-10	-
+Simulation	Configuration File	C:\Users\Jack\Desktop\hccm\custom\jack-ehc.cfg	-
+Simulation	RunNumber	1.0	-
+Simulation	RunIndex	{ 1 }	-
+Simulation	Present Time and Date	Aug 23, 2020 15:55	-
+Simulation	Initialization Duration	0.0	h
+Simulation	Run Duration	8760.0	h
+Simulation	Present Simulation Time	0.0	h
+
+this.SimTime/1[h]	this.obj	this.obj.WaitForTriage
