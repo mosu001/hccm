@@ -3,23 +3,23 @@ Define  EventSchedule  {  AppointmentTimes  }
 Define  TimeSeries  {  WalkUpRates  }
 Define  TestTrigger  {  TestTrigger1  }
 Define  TreatTrigger  {  TreatTrigger1  }
-Define  TriageEndTrigger  {  TriageEndTrigger1  }
 Define  TriageTrigger  {  TriageTrigger1  }
 Define  ActiveEntity  {  Doctor1  Doctor2  ScheduledPatient  TestNurse  TriageNurse  WalkUpPatient  }
 Define  ArriveEvent  {  Doctor1ArriveEvent  Doctor2ArriveEvent  ScheduledPatientArrive  TestNurseArriveEvent  TriageNurseArriveEvent  WalkUpPatientArriveEvent  }
 Define  ControlUnit  {  ControlUnit1  }
 Define  LeaveEvent  {  DoctorLeave  ScheduledPatientLeaveEvent  WalkUpPatientLeaveEvent  }
-Define  LogEvent  {  WalkUpWaitForTest  WalkUpWaitForTreat  WalkUpWaitForTriage  }
 Define  ProcessActivity  {  MoveToLeave  MoveToLeave2  MoveToLeave3  MoveToLeave4  MoveToTest  MoveToTreat  MoveToTreat2  MoveToTreat3  MoveToTriage  Test  TreatScheduled  TreatWalkUp  Triage  }
 Define  WaitActivity  {  WaitForTest  WaitForTreat  WaitForTriage  WaitToTest  WaitToTreatScheduled  WaitToTreatWalkUp  WaitToTriage  }
-Define  BooleanSelector  {  BooleanSelector1  NeedsTestDist  }
+Define  BooleanSelector  {  NeedsTestDist  }
 Define  NonStatExponentialDist  {  WalkUpDist  }
 Define  NormalDistribution  {  AppointmentArrivalDist  }
 Define  TriangularDistribution  {  AppointmentTreatDist  TestDist  TriageDist  WalkUpTreatDist  }
+Define  Branch  {  Branch1  }
+Define  Statistics  {  WalkUpWaitForTriage  WalkUpWaitForTest  WalkUpWaitForTreat  ScheduledWaitForTreat  Doctor1Utilization  Doctor2Utilization  }
 Define  ColladaModel  {  Axis  Grid100x100  }
 Define  ImageModel  {  doctor-female-model  doctor-male-model  nurse-model  nurse2-model  patient-female-model  patient-male-model  }
 Define  DisplayEntity  {  XY-Grid  XYZ-Axis  }
-Define  EntityLabel  {  AppointmentArrivalDist_Label  AppointmentTimes_Label  AppointmentTreatDist_Label  BooleanSelector1_Label  ControlUnit1_Label  Doctor1ArriveEvent_Label  Doctor1_Label  Doctor2ArriveEvent_Label  Doctor2_Label  DoctorLeave_Label  MoveToLeave2_Label  MoveToLeave3_Label  MoveToLeave4_Label  MoveToLeave_Label  MoveToTest_Label  MoveToTreat2_Label  MoveToTreat3_Label  MoveToTreat_Label  MoveToTriage_Label  ScheduledPatientArrive_Label  ScheduledPatientLeaveEvent_Label  ScheduledPatient_Label  TestDist_Label  TestNurseArriveEvent_Label  TestNurse_Label  TestTrigger1_Label  Test_Label  TreatScheduled_Label  TreatTrigger1_Label  TreatWalkUp_Label  TriageDist_Label  TriageEndTrigger1_Label  TriageNurseArriveEvent_Label  TriageNurse_Label  TriageTrigger1_Label  Triage_Label  WaitForTest_Label  WaitForTreat_Label  WaitForTriage_Label  WaitToTest_Label  WaitToTreatScheduled_Label  WaitToTreatWalkUp_Label  WaitToTriage_Label  WalkUpDist_Label  WalkUpPatientArriveEvent_Label  WalkUpPatientLeaveEvent_Label  WalkUpPatient_Label  WalkUpRates_Label  WalkUpTreatDist_Label  WalkUpWaitForTest_Label  WalkUpWaitForTreat_Label  WalkUpWaitForTriage_Label  }
+Define  EntityLabel  {  AppointmentArrivalDist_Label  AppointmentTimes_Label  AppointmentTreatDist_Label  Branch1_Label  ControlUnit1_Label  Doctor1ArriveEvent_Label  Doctor1_Label  Doctor2ArriveEvent_Label  Doctor2_Label  DoctorLeave_Label  MoveToLeave2_Label  MoveToLeave3_Label  MoveToLeave4_Label  MoveToLeave_Label  MoveToTest_Label  MoveToTreat2_Label  MoveToTreat3_Label  MoveToTreat_Label  MoveToTriage_Label  NeedsTestDist_Label  ScheduledPatientArrive_Label  ScheduledPatientLeaveEvent_Label  ScheduledPatient_Label  Statistics1_Label  Statistics2_Label  Statistics3_Label  Statistics4_Label  Statistics5_Label  Statistics6_Label  TestDist_Label  TestNurseArriveEvent_Label  TestNurse_Label  TestTrigger1_Label  Test_Label  TreatScheduled_Label  TreatTrigger1_Label  TreatWalkUp_Label  TriageDist_Label  TriageNurseArriveEvent_Label  TriageNurse_Label  TriageTrigger1_Label  Triage_Label  WaitForTest_Label  WaitForTreat_Label  WaitForTriage_Label  WaitToTest_Label  WaitToTreatScheduled_Label  WaitToTreatWalkUp_Label  WaitToTriage_Label  WalkUpDist_Label  WalkUpPatientArriveEvent_Label  WalkUpPatientLeaveEvent_Label  WalkUpPatient_Label  WalkUpRates_Label  WalkUpTreatDist_Label  }
 Define  OverlayClock  {  Clock  }
 Define  OverlayText  {  Title  }
 Define  View  {  View1  }
@@ -32,7 +32,7 @@ WalkUpTreatDist  UnitType  {  TimeUnit  }
 Doctor1  AttributeDefinitionList  {  {  isDoctor2  0  }  }
 Doctor2  AttributeDefinitionList  {  {  isDoctor2  1  }  }
 ScheduledPatient  AttributeDefinitionList  {  {  isScheduled  1  }  {  Match  "Scheduled"  }  }
-WalkUpPatient  AttributeDefinitionList  {  {  isScheduled  0  }  {  Match  "WalkUp"  }  {  needsTest  [NeedsTestDist].Value  }  }
+WalkUpPatient  AttributeDefinitionList  {  {  isScheduled  0  }  {  Match  "WalkUp"  }  {  needsTest  "FALSE"  }  }
 WalkUpPatientArriveEvent  AttributeDefinitionList  {  {  needsTest  [NeedsTestDist].Value  }  }
 Simulation  Description  {  Simulation run control inputs  }
 AppointmentTimes  TimeList  {  15  30  60  75  90  105  135  150  165  195  210  240  255  270  285  300  315  330  360  375  405  420  435  495  510  525  555  570  585  615  630  645  660  690  705  720  735  765  795  810  825  840  870  885  930  945  975  990  1005  1035  1065  1080  1095  1110  1125  1140  1155  1200  1215  1230  1245  1260  1290  1320  1335  1350  1365  1380  1395  1410  1425  min  }
@@ -41,7 +41,6 @@ WalkUpRates  Value  {  {  0  h  0  }  {  8  h  8  }  {  17  h  44  }  {  24  h  
 WalkUpRates  CycleTime  {  24  h  }
 TestTrigger1  ControlUnit  {  ControlUnit1  }
 TreatTrigger1  ControlUnit  {  ControlUnit1  }
-TriageEndTrigger1  ControlUnit  {  ControlUnit1  }
 TriageTrigger1  ControlUnit  {  ControlUnit1  }
 Doctor1  DefaultStateList  {  Idle  Working  }
 Doctor1  InitialState  {  Idle  }
@@ -84,11 +83,7 @@ WalkUpPatientArriveEvent  FirstArrivalTime  {  [WalkUpDist].Value  }
 WalkUpPatientArriveEvent  InterArrivalTime  {  [WalkUpDist].Value  }
 WalkUpPatientArriveEvent  PrototypeEntity  {  WalkUpPatient  }
 WalkUpPatientArriveEvent  BaseName  {  WalkUpPatient  }
-WalkUpPatientArriveEvent  NextActivityEvent  {  WaitForTriage  }
-WalkUpWaitForTest  NextActivityEvent  {  WalkUpWaitForTreat  }
-WalkUpWaitForTreat  NextActivityEvent  {  WalkUpPatientLeaveEvent  }
-WalkUpWaitForTriage  DataSource  {  {  this.obj.WaitForTriage  }  }
-WalkUpWaitForTriage  NextActivityEvent  {  WalkUpWaitForTest  }
+WalkUpPatientArriveEvent  NextActivityEvent  {  MoveToTriage  }
 MoveToLeave  StateAssignment  {  Leave  }
 MoveToLeave  Duration  {  2  min  }
 MoveToLeave  ParticipantList  {  WalkUpPatient  }
@@ -125,9 +120,7 @@ MoveToTreat3  ParticipantList  {  ScheduledPatient  }
 MoveToTreat3  NextActivityEventList  {  WaitForTreat  }
 MoveToTriage  Duration  {  2  min  }
 MoveToTriage  ParticipantList  {  WalkUpPatient  }
-MoveToTriage  StartAssignmentList  {  {  this.obj.State = "Moving"  }  {  this.obj.NeedsTest = [**DeletedEntity**].Value  }  }
-*** INPUT ERROR *** Entity: MoveToTriage, Keyword: StartAssignmentList - Could not find entity: **DeletedEntity**
-
+MoveToTriage  StartAssignmentList  {  {  this.obj.needsTest = [NeedsTestDist].Value  }  }
 MoveToTriage  NextActivityEventList  {  WaitForTriage  }
 Test  Duration  {  TestDist  }
 Test  ControlUnit  {  ControlUnit1  }
@@ -145,7 +138,7 @@ Triage  Duration  {  TriageDist  }
 Triage  ControlUnit  {  ControlUnit1  }
 Triage  ParticipantList  {  WalkUpPatient  TriageNurse  }
 Triage  NextActivityEventList  {  MoveToTest  }
-Triage  FinishTriggerList  {  TriageEndTrigger1  }
+Triage  FinishTriggerList  {  }
 Triage  FinishTriggerChoice  {  1  }
 WaitForTest  StateAssignment  {  WaitForTest  }
 WaitForTest  StartTriggerList  {  TestTrigger1  }
@@ -182,7 +175,6 @@ WaitToTriage  StartTriggerList  {  TriageTrigger1  }
 WaitToTriage  StartTriggerChoice  {  1  }
 WaitToTriage  RequestActivityList  {  Triage  }
 WaitToTriage  RequestActivityChoice  {  1  }
-BooleanSelector1  RandomSeed  {  8  }
 NeedsTestDist  RandomSeed  {  4  }
 NeedsTestDist  TrueProbability  {  0.3  }
 WalkUpDist  RandomSeed  {  6  }
@@ -219,11 +211,12 @@ Simulation  ShowInputEditor  {  TRUE  }
 Simulation  ShowOutputViewer  {  TRUE  }
 Simulation  ShowPropertyViewer  {  FALSE  }
 Simulation  ShowLogViewer  {  TRUE  }
+Simulation  PropertyViewerPos  {  584  41  }
+Simulation  PropertyViewerSize  {  1029  750  }
 AppointmentTimes  Position  {  -13.5  -2.5  0.0  m  }
 WalkUpRates  Position  {  -14.8  2.5  0.0  m  }
 TestTrigger1  Position  {  2.5  3.6  0.0  m  }
 TreatTrigger1  Position  {  -3.5  0.6  0.0  m  }
-TriageEndTrigger1  Position  {  2.5  6.6  0.0  m  }
 TriageTrigger1  Position  {  0.5  6.6  0.0  m  }
 Doctor1  Position  {  -10.4  -0.4  0.0  m  }
 Doctor1  Alignment  {  0.0  0.0  -0.5  }
@@ -259,12 +252,6 @@ ControlUnit1  Position  {  -8.5  7.6  0.0  m  }
 DoctorLeave  Position  {  3.5  -6.5  0.0  m  }
 ScheduledPatientLeaveEvent  Position  {  6.5  -1.5  0.0  m  }
 WalkUpPatientLeaveEvent  Position  {  11.5  -0.4  0.0  m  }
-WalkUpWaitForTest  Position  {  7.5  -0.4  0.0  m  }
-WalkUpWaitForTest  Size  {  0.5  0.7  0.5  m  }
-WalkUpWaitForTreat  Position  {  9.5  -0.4  0.0  m  }
-WalkUpWaitForTreat  Size  {  0.5  0.7  0.5  m  }
-WalkUpWaitForTriage  Position  {  5.5  -0.5  0.0  m  }
-WalkUpWaitForTriage  Size  {  0.5  0.7  0.5  m  }
 MoveToLeave  Position  {  3.8  -0.4  0.0  m  }
 MoveToLeave  Points  {  {  2.6  -0.5  0.0  m  }  {  5.0  -0.5  0.0  m  }  }
 MoveToLeave2  Position  {  2.7  -1.5  0.0  m  }
@@ -298,7 +285,6 @@ WaitToTest  Position  {  -2.5  3.6  0.0  m  }
 WaitToTreatScheduled  Position  {  -2.5  -2.4  0.0  m  }
 WaitToTreatWalkUp  Position  {  -2.5  -1.4  0.0  m  }
 WaitToTriage  Position  {  -2.5  6.6  0.0  m  }
-BooleanSelector1  Position  {  -14.3  4.9  0.0  m  }
 NeedsTestDist  Position  {  -12.0  2.5  0.0  m  }
 WalkUpDist  Position  {  -13.4  2.5  0.0  m  }
 AppointmentArrivalDist  Position  {  -15.5  -2.5  0.0  m  }
@@ -306,14 +292,27 @@ AppointmentTreatDist  Position  {  -2.5  -5.5  0.0  m  }
 TestDist  Position  {  -2.0  8.0  0.0  m  }
 TriageDist  Position  {  -3.0  8.0  0.0  m  }
 WalkUpTreatDist  Position  {  -4.5  -5.5  0.0  m  }
+Branch1  Position  {  5.5  5.5  0.0  m  }
+Statistics1  Position  {  8.9  0.1  0.0  m  }
+*** ERROR *** Could not find Entity: Statistics1
+
+Statistics2  Position  {  7.1  1.4  0.0  m  }
+*** ERROR *** Could not find Entity: Statistics2
+
+Statistics4  Position  {  8.7  -1.9  0.0  m  }
+*** ERROR *** Could not find Entity: Statistics4
+
+Statistics5  Position  {  5.2  -5.2  0.0  m  }
+*** ERROR *** Could not find Entity: Statistics5
+
+Statistics6  Position  {  6.7  -6.7  0.0  m  }
+*** ERROR *** Could not find Entity: Statistics6
+
+W  Position  {  5.7  0.8  0.0  m  }
+*** INPUT ERROR *** Entity: W, Keyword: Position - Not a valid keyword
+
 Axis  ColladaFile  {  <res>/shapes/axis_text.dae  }
 Grid100x100  ColladaFile  {  <res>/shapes/grid100x100.dae  }
-doctor-female-model  ImageFile  {  /C:/Users/Jack/Desktop/hccm/R2_custom/doctor-female.png  }
-doctor-male-model  ImageFile  {  /C:/Users/Jack/Desktop/hccm/R2_custom/doctor-male.png  }
-nurse-model  ImageFile  {  /C:/Users/Jack/Desktop/hccm/R2_custom/nurse.png  }
-nurse2-model  ImageFile  {  /C:/Users/Jack/Desktop/hccm/R2_custom/nurse2.png  }
-patient-female-model  ImageFile  {  /C:/Users/Jack/Desktop/hccm/R2_custom/patient-female.png  }
-patient-male-model  ImageFile  {  /C:/Users/Jack/Desktop/hccm/R2_custom/patient-male.png  }
 XY-Grid  Description  {  Grid for the X-Y plane (100 m x 100 m)  }
 XY-Grid  Size  {  100  100  m  }
 XY-Grid  DisplayModel  {  Grid100x100  }
@@ -340,11 +339,11 @@ AppointmentTreatDist_Label  Size  {  2.402194  0.3  0.0  m  }
 AppointmentTreatDist_Label  RelativeEntity  {  AppointmentTreatDist  }
 AppointmentTreatDist_Label  Show  {  FALSE  }
 AppointmentTreatDist_Label  TargetEntity  {  AppointmentTreatDist  }
-BooleanSelector1_Label  Position  {  0.0  -0.65  0.0  m  }
-BooleanSelector1_Label  Size  {  1.934541  0.3  0.0  m  }
-BooleanSelector1_Label  RelativeEntity  {  BooleanSelector1  }
-BooleanSelector1_Label  Show  {  FALSE  }
-BooleanSelector1_Label  TargetEntity  {  BooleanSelector1  }
+Branch1_Label  Position  {  0.0  -0.65  0.0  m  }
+Branch1_Label  Size  {  0.994648  0.3  0.0  m  }
+Branch1_Label  RelativeEntity  {  Branch1  }
+Branch1_Label  Show  {  FALSE  }
+Branch1_Label  TargetEntity  {  Branch1  }
 ControlUnit1_Label  Position  {  0.0  -0.4  0.0  m  }
 ControlUnit1_Label  Size  {  1.438664  0.3  0.0  m  }
 ControlUnit1_Label  RelativeEntity  {  ControlUnit1  }
@@ -420,6 +419,10 @@ MoveToTriage_Label  Size  {  1.579189  0.3  0.0  m  }
 MoveToTriage_Label  RelativeEntity  {  MoveToTriage  }
 MoveToTriage_Label  Show  {  FALSE  }
 MoveToTriage_Label  TargetEntity  {  MoveToTriage  }
+NeedsTestDist_Label  Position  {  0.0  -0.65  0.0  m  }
+NeedsTestDist_Label  Size  {  1.614594  0.3  0.0  m  }
+NeedsTestDist_Label  RelativeEntity  {  NeedsTestDist  }
+NeedsTestDist_Label  TargetEntity  {  NeedsTestDist  }
 ScheduledPatientArrive_Label  Position  {  0.0  -0.4  0.0  m  }
 ScheduledPatientArrive_Label  Size  {  2.53484  0.3  0.0  m  }
 ScheduledPatientArrive_Label  RelativeEntity  {  ScheduledPatientArrive  }
@@ -435,6 +438,60 @@ ScheduledPatient_Label  Size  {  1.922274  0.3  0.0  m  }
 ScheduledPatient_Label  RelativeEntity  {  ScheduledPatient  }
 ScheduledPatient_Label  Show  {  FALSE  }
 ScheduledPatient_Label  TargetEntity  {  ScheduledPatient  }
+Statistics1_Label  Position  {  0.0  -0.65  0.0  m  }
+Statistics1_Label  Size  {  1.21496  0.3  0.0  m  }
+Statistics1_Label  RelativeEntity  {  Statistics1  }
+*** INPUT ERROR *** Entity: Statistics1_Label, Keyword: RelativeEntity - Could not find an Entity named: Statistics1
+
+Statistics1_Label  Show  {  FALSE  }
+Statistics1_Label  TargetEntity  {  Statistics1  }
+*** INPUT ERROR *** Entity: Statistics1_Label, Keyword: TargetEntity - Could not find an Entity named: Statistics1
+
+Statistics2_Label  Position  {  0.0  -0.65  0.0  m  }
+Statistics2_Label  Size  {  1.21496  0.3  0.0  m  }
+Statistics2_Label  RelativeEntity  {  Statistics2  }
+*** INPUT ERROR *** Entity: Statistics2_Label, Keyword: RelativeEntity - Could not find an Entity named: Statistics2
+
+Statistics2_Label  Show  {  FALSE  }
+Statistics2_Label  TargetEntity  {  Statistics2  }
+*** INPUT ERROR *** Entity: Statistics2_Label, Keyword: TargetEntity - Could not find an Entity named: Statistics2
+
+Statistics3_Label  Position  {  0.0  -0.65  0.0  m  }
+Statistics3_Label  Size  {  1.21496  0.3  0.0  m  }
+Statistics3_Label  RelativeEntity  {  W  }
+*** INPUT ERROR *** Entity: Statistics3_Label, Keyword: RelativeEntity - Expected a DisplayEntity, W is a PowerUnit
+
+Statistics3_Label  Show  {  FALSE  }
+Statistics3_Label  TargetEntity  {  W  }
+*** INPUT ERROR *** Entity: Statistics3_Label, Keyword: TargetEntity - Expected a DisplayEntity, W is a PowerUnit
+
+Statistics4_Label  Position  {  0.0  -0.65  0.0  m  }
+Statistics4_Label  Size  {  1.21496  0.3  0.0  m  }
+Statistics4_Label  RelativeEntity  {  Statistics4  }
+*** INPUT ERROR *** Entity: Statistics4_Label, Keyword: RelativeEntity - Could not find an Entity named: Statistics4
+
+Statistics4_Label  Show  {  FALSE  }
+Statistics4_Label  TargetEntity  {  Statistics4  }
+*** INPUT ERROR *** Entity: Statistics4_Label, Keyword: TargetEntity - Could not find an Entity named: Statistics4
+
+Statistics5_Label  Position  {  0.0  -0.65  0.0  m  }
+Statistics5_Label  Size  {  1.21496  0.3  0.0  m  }
+Statistics5_Label  RelativeEntity  {  Statistics5  }
+*** INPUT ERROR *** Entity: Statistics5_Label, Keyword: RelativeEntity - Could not find an Entity named: Statistics5
+
+Statistics5_Label  Show  {  FALSE  }
+Statistics5_Label  TargetEntity  {  Statistics5  }
+*** INPUT ERROR *** Entity: Statistics5_Label, Keyword: TargetEntity - Could not find an Entity named: Statistics5
+
+Statistics6_Label  Position  {  0.0  -0.65  0.0  m  }
+Statistics6_Label  Size  {  1.21496  0.3  0.0  m  }
+Statistics6_Label  RelativeEntity  {  Statistics6  }
+*** INPUT ERROR *** Entity: Statistics6_Label, Keyword: RelativeEntity - Could not find an Entity named: Statistics6
+
+Statistics6_Label  Show  {  FALSE  }
+Statistics6_Label  TargetEntity  {  Statistics6  }
+*** INPUT ERROR *** Entity: Statistics6_Label, Keyword: TargetEntity - Could not find an Entity named: Statistics6
+
 TestDist_Label  Position  {  0.0  -0.65  0.0  m  }
 TestDist_Label  Size  {  0.984774  0.3  0.0  m  }
 TestDist_Label  RelativeEntity  {  TestDist  }
@@ -480,11 +537,6 @@ TriageDist_Label  Size  {  1.191024  0.3  0.0  m  }
 TriageDist_Label  RelativeEntity  {  TriageDist  }
 TriageDist_Label  Show  {  FALSE  }
 TriageDist_Label  TargetEntity  {  TriageDist  }
-TriageEndTrigger1_Label  Position  {  0.0  -0.4  0.0  m  }
-TriageEndTrigger1_Label  Size  {  2.038664  0.3  0.0  m  }
-TriageEndTrigger1_Label  RelativeEntity  {  TriageEndTrigger1  }
-TriageEndTrigger1_Label  Show  {  FALSE  }
-TriageEndTrigger1_Label  TargetEntity  {  TriageEndTrigger1  }
 TriageNurseArriveEvent_Label  Position  {  0.0  -0.4  0.0  m  }
 TriageNurseArriveEvent_Label  Size  {  2.582015  0.3  0.0  m  }
 TriageNurseArriveEvent_Label  RelativeEntity  {  TriageNurseArriveEvent  }
@@ -570,21 +622,6 @@ WalkUpTreatDist_Label  Size  {  1.866523  0.3  0.0  m  }
 WalkUpTreatDist_Label  RelativeEntity  {  WalkUpTreatDist  }
 WalkUpTreatDist_Label  Show  {  FALSE  }
 WalkUpTreatDist_Label  TargetEntity  {  WalkUpTreatDist  }
-WalkUpWaitForTest_Label  Position  {  0.0  -0.5  0.0  m  }
-WalkUpWaitForTest_Label  Size  {  2.15246  0.3  0.0  m  }
-WalkUpWaitForTest_Label  RelativeEntity  {  WalkUpWaitForTest  }
-WalkUpWaitForTest_Label  Show  {  FALSE  }
-WalkUpWaitForTest_Label  TargetEntity  {  WalkUpWaitForTest  }
-WalkUpWaitForTreat_Label  Position  {  0.0  -0.5  0.0  m  }
-WalkUpWaitForTreat_Label  Size  {  2.255884  0.3  0.0  m  }
-WalkUpWaitForTreat_Label  RelativeEntity  {  WalkUpWaitForTreat  }
-WalkUpWaitForTreat_Label  Show  {  FALSE  }
-WalkUpWaitForTreat_Label  TargetEntity  {  WalkUpWaitForTreat  }
-WalkUpWaitForTriage_Label  Position  {  0.0  -0.4  0.0  m  }
-WalkUpWaitForTriage_Label  Size  {  2.35871  0.3  0.0  m  }
-WalkUpWaitForTriage_Label  RelativeEntity  {  WalkUpWaitForTriage  }
-WalkUpWaitForTriage_Label  Show  {  FALSE  }
-WalkUpWaitForTriage_Label  TargetEntity  {  WalkUpWaitForTriage  }
 Clock  Description  {  Simulation date and time  }
 Clock  ScreenPosition  {  15  15  }
 Clock  AlignBottom  {  TRUE  }
@@ -599,57 +636,16 @@ Title  TextHeight  {  18  }
 Title  FontColour  {  150  23  46  }
 Title  FontStyle  {  BOLD  }
 View1  Description  {  Default view window  }
-View1  ViewCenter  {  -7.085238  3.416437  3.960115  m  }
-View1  ViewPosition  {  -7.085238  3.416437  21.28062  m  }
+View1  ViewCenter  {  6.730452  -1.149697  16.952147  m  }
+View1  ViewPosition  {  6.730452  -1.149697  34.272652  m  }
 View1  ShowWindow  {  TRUE  }
 View1  Lock2D  {  TRUE  }
 View1  SkyboxImage  {  <res>/images/sky_map_2048x1024.jpg  }
-Input Error: 1 input errors and 0 warnings found
-EXCEPTION AT TIME: 116.585002 s
-MoveToTriage: Invalid attribute name for MoveToTriage_1: needsTest
-Thrown exception call stack:
-hccm.activities.ProcessActivity.startAssignments(ProcessActivity.java:387)
-hccm.activities.ProcessActivity$ProcessStart.assigns(ProcessActivity.java:109)
-hccm.activities.ProcessActivity$ProcessStart.happens(ProcessActivity.java:131)
-hccm.activities.ProcessActivity.start(ProcessActivity.java:343)
-hccm.ActivityOrEvent.execute(ActivityOrEvent.java:27)
-hccm.events.ArriveEvent.happens(ArriveEvent.java:101)
-hccm.events.ArriveEvent.sendToNextComponent(ArriveEvent.java:75)
-com.jaamsim.ProcessFlow.EntityGenerator.processStep(EntityGenerator.java:188)
-com.jaamsim.ProcessFlow.Device.endStep(Device.java:237)
-com.jaamsim.ProcessFlow.Device$EndStepTarget.process(Device.java:217)
-com.jaamsim.events.EventManager.executeTarget(EventManager.java:172)
-com.jaamsim.events.EventManager.execute(EventManager.java:257)
-com.jaamsim.events.Process.run(Process.java:101)
-EXCEPTION AT TIME: 116.585002 s
-MoveToTriage: Invalid attribute name for MoveToTriage_1: needsTest
-Thrown exception call stack:
-hccm.activities.ProcessActivity.startAssignments(ProcessActivity.java:387)
-hccm.activities.ProcessActivity$ProcessStart.assigns(ProcessActivity.java:109)
-hccm.activities.ProcessActivity$ProcessStart.happens(ProcessActivity.java:131)
-hccm.activities.ProcessActivity.start(ProcessActivity.java:343)
-hccm.ActivityOrEvent.execute(ActivityOrEvent.java:27)
-hccm.events.ArriveEvent.happens(ArriveEvent.java:101)
-hccm.events.ArriveEvent.sendToNextComponent(ArriveEvent.java:75)
-com.jaamsim.ProcessFlow.EntityGenerator.processStep(EntityGenerator.java:188)
-com.jaamsim.ProcessFlow.Device.endStep(Device.java:237)
-com.jaamsim.ProcessFlow.Device$EndStepTarget.process(Device.java:217)
-com.jaamsim.events.EventManager.executeTarget(EventManager.java:172)
-com.jaamsim.events.EventManager.execute(EventManager.java:257)
-com.jaamsim.events.Process.run(Process.java:101)
-EXCEPTION AT TIME: 116.585002 s
-MoveToTriage: Invalid attribute name for MoveToTriage_1: needsTest
-Thrown exception call stack:
-hccm.activities.ProcessActivity.startAssignments(ProcessActivity.java:387)
-hccm.activities.ProcessActivity$ProcessStart.assigns(ProcessActivity.java:109)
-hccm.activities.ProcessActivity$ProcessStart.happens(ProcessActivity.java:131)
-hccm.activities.ProcessActivity.start(ProcessActivity.java:343)
-hccm.ActivityOrEvent.execute(ActivityOrEvent.java:27)
-hccm.events.ArriveEvent.happens(ArriveEvent.java:101)
-hccm.events.ArriveEvent.sendToNextComponent(ArriveEvent.java:75)
-com.jaamsim.ProcessFlow.EntityGenerator.processStep(EntityGenerator.java:188)
-com.jaamsim.ProcessFlow.Device.endStep(Device.java:237)
-com.jaamsim.ProcessFlow.Device$EndStepTarget.process(Device.java:217)
-com.jaamsim.events.EventManager.executeTarget(EventManager.java:172)
-com.jaamsim.events.EventManager.execute(EventManager.java:257)
-com.jaamsim.events.Process.run(Process.java:101)
+Validation Error - Branch1: An input must be provided for the keyword 'NextComponentList'.
+Validation Error - WalkUpWaitForTriage: An input must be provided for the keyword 'NextComponent'.
+Validation Error - WalkUpWaitForTest: An input must be provided for the keyword 'NextComponent'.
+Validation Error - WalkUpWaitForTreat: An input must be provided for the keyword 'NextComponent'.
+Validation Error - ScheduledWaitForTreat: An input must be provided for the keyword 'NextComponent'.
+Validation Error - Doctor1Utilization: An input must be provided for the keyword 'NextComponent'.
+Validation Error - Doctor2Utilization: An input must be provided for the keyword 'NextComponent'.
+Input Error: 25 input errors and 0 warnings found
