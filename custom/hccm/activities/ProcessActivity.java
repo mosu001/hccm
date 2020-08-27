@@ -196,6 +196,13 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		public void happens(List<ActiveEntity> ents) {
 			assigns();
 						
+			// Now finishing assignments are complete, remove the entity container
+			ProcessActivity act = (ProcessActivity)owner;
+			EntityContainer ec = act.leavingContainer;
+			double simTime = act.getSimTime();
+			for (DisplayEntity de : ec.getEntityList(simTime))
+				ec.removeEntity(null);
+			
 			if (nextAEJList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
 			    Linkable nextCmpt = nextAEJList.getValue().get(0);				
@@ -226,7 +233,6 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			}
 			
 			// Choose the trigger for this entity
-			double simTime = ((DisplayEntity)owner).getSimTime();
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
 											
@@ -257,6 +263,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 
 	ProcessStart startEvent;
 	ProcessFinish finishEvent;
+	EntityContainer leavingContainer;
 	
 	/**
 	 * 
@@ -333,16 +340,17 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	@Override
 	public void sendToNextComponent(DisplayEntity ent) {
 		assert(nextComponent.getValue() == null); // Moving components is achieved using events, so this should be null as it is hidden
-		super.sendToNextComponent(ent);
 		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
 	    EntityContainer participantEntity = (EntityContainer)ent;
 		for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
-			participantEntity.removeEntity(null);
 			participants.add((ActiveEntity)de);
 		}
-		participantEntity.kill();
+		leavingContainer = participantEntity;
 		
 		finish(participants);
+		super.sendToNextComponent(participantEntity);
+		participantEntity.kill();
+		leavingContainer = null;
 	}
 
 	/**
