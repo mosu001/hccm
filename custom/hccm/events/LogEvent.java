@@ -7,6 +7,7 @@ import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityContainer;
 import com.jaamsim.ProcessFlow.EntityLogger;
 import com.jaamsim.ProcessFlow.EntitySink;
+import com.jaamsim.ProcessFlow.LinkedComponent;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.FileEntity;
 import com.jaamsim.input.EntityListInput;
@@ -14,7 +15,6 @@ import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.Keyword;
 import com.jaamsim.input.Output;
 
-import hccm.ActivityOrEventOrJaamSim;
 import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
@@ -29,7 +29,7 @@ import hccm.entities.ActiveEntity;
  */
 public class LogEvent extends EntityLogger implements Event {
 
-	protected final InterfaceEntityInput<ActivityOrEventOrJaamSim> nextActivityEvent;
+	protected final InterfaceEntityInput<LinkedComponent> nextActivityEvent;
 
 	@Keyword(description = "The triggers that may be executed when this event occurs.",
 	         exampleList = {"Trigger1"})
@@ -48,7 +48,7 @@ public class LogEvent extends EntityLogger implements Event {
 		nextComponent.setRequired(false);
 		nextComponent.setHidden(true);
 		
-		nextActivityEvent = new InterfaceEntityInput<>(ActivityOrEventOrJaamSim.class, "NextActivityEvent", Constants.HCCM, null);
+		nextActivityEvent = new InterfaceEntityInput<>(LinkedComponent.class, "NextActivityEvent", Constants.HCCM, null);
 		nextActivityEvent.setRequired(true);
 		this.addInput(nextActivityEvent);
 
@@ -88,8 +88,8 @@ public class LogEvent extends EntityLogger implements Event {
 		}
 
 		// Send this entity to the next activity or event
-		ActivityOrEventOrJaamSim actEvt = nextActivityEvent.getValue();
-		ActivityOrEventOrJaamSim.execute(actEvt, ents);
+		LinkedComponent nextCmpt = nextActivityEvent.getValue();
+		Constants.nextComponent(nextCmpt, ents);
 	}
 	
 	@Override

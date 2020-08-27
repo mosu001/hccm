@@ -8,6 +8,8 @@ import java.util.List;
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityContainer;
 import com.jaamsim.ProcessFlow.EntityDelay;
+import com.jaamsim.ProcessFlow.Linkable;
+import com.jaamsim.ProcessFlow.LinkedComponent;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.ErrorException;
 //import com.jaamsim.Samples.SampleInput;
@@ -24,7 +26,6 @@ import com.jaamsim.input.Keyword;
 //import com.jaamsim.units.DimensionlessUnit;
 import com.jaamsim.units.DimensionlessUnit;
 
-import hccm.ActivityOrEventOrJaamSim;
 import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
@@ -32,6 +33,7 @@ import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
 import hccm.entities.Entity;
 import hccm.events.ActivityEvent;
+import hccm.events.Event;
 
 
 /**
@@ -51,7 +53,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 
 	@Keyword(description = "The activities/events that each of the entities goes to from this activity.",
 	         exampleList = {"Activity1"})
-	protected final InterfaceEntityListInput<ActivityOrEventOrJaamSim> nextActivityEventList;
+	protected final InterfaceEntityListInput<Linkable> nextActivityEventList;
 
 	@Keyword(description = "A list of attribute assignments that are triggered when an entity starts the activity.\n\n" +
 			"The attributes for various entities can be used in an assignment expression:\n" +
@@ -193,59 +195,38 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		@Override
 		public void happens(List<ActiveEntity> ents) {
 			assigns();
-			
-			// Find the entity container with these entities
-			EntityDelay ed = (EntityDelay)owner;
-			double simTime = getSimTime();
-			EntityContainer ec = null;
-			for (DisplayEntity de : ed.getEntityList(simTime)) {
-				ec = (EntityContainer)de;
-				HashSet<DisplayEntity> set1 = new HashSet<>(ents),
-						set2 = new HashSet<>(ec.getEntityList(simTime));
-				System.out.println(ents);
-				System.out.println(ec.getEntityList(simTime));
-				if (set1.equals(set2)) {
-					// Remove the container
-					ed.removeDisplayEntity(ec);
-					// Remove participants
-					for (ActiveEntity ent : ents)
-						ec.removeEntity(null);
-					// Dispose of the container
-					ec.kill();
-					break;
-				}
-			}
-			
+						
 			if (nextActivityEventList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
-			    ActivityOrEventOrJaamSim actEvt = nextActivityEventList.getValue().get(0);				
+			    Linkable nextCmpt = nextActivityEventList.getValue().get(0);				
 				for (int i=0; i<ents.size(); i++) {
 				  ActiveEntity ent = ents.get(i);
 				  ActiveEntity proto = ent.getEntityType();
-				  System.out.println("After ProcessActivity " + ed.getName() + ", Entity:" + ent.getName());
-				  System.out.println("After ProcessActivity " + ed.getName() + ", proto:" + proto.getName());
-				  if (actEvt instanceof Activity)
-					  System.out.println("After ProcessActivity " + ed.getName() + ", Activity:" + ((Activity)actEvt).getName());
+				  System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+				  System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+				  if (nextCmpt instanceof Activity)
+					  System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
 				}
-				ActivityOrEventOrJaamSim.execute(actEvt, ents);
+				Constants.nextComponent(nextCmpt, ents);
 			} else {
 				// Send each entity to its next activity or event
 				for (int i=0; i<ents.size(); i++) {
 					ActiveEntity ent = ents.get(i);
 					ActiveEntity proto = ent.getEntityType();
 					int index = participantList.getValue().indexOf(proto);
-					System.out.println("After ProcessActivity " + ed.getName() + ", Entity:" + ent.getName());
-					System.out.println("After ProcessActivity " + ed.getName() + ", proto:" + proto.getName());
-					System.out.println("After ProcessActivity " + ed.getName() + ", proto index:" + index);
-					System.out.println("After ProcessActivity " + ed.getName() + ", participant list:" + participantList.getValue());
-					ActivityOrEventOrJaamSim actEvt = nextActivityEventList.getValue().get(index);
-					if (actEvt instanceof Activity)
-						System.out.println("After ProcessActivity " + ed.getName() + ", Activity:" + ((Activity)actEvt).getName());
-					ActivityOrEventOrJaamSim.execute(actEvt, ent.asList());
+					System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+					System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+					System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
+					System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
+					Linkable nextCmpt = nextActivityEventList.getValue().get(index);
+					if (nextCmpt instanceof Activity)
+						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+					Constants.nextComponent(nextCmpt, ent);
 				}
 			}
 			
 			// Choose the trigger for this entity
+			double simTime = ((DisplayEntity)owner).getSimTime();
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
 											
@@ -303,7 +284,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		startTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(startTriggerChoice);
 
-		nextActivityEventList = new InterfaceEntityListInput<>(ActivityOrEventOrJaamSim.class, "NextActivityEventList", Constants.HCCM, null);
+		nextActivityEventList = new InterfaceEntityListInput<>(Linkable.class, "NextActivityEventList", Constants.HCCM, null);
 		nextActivityEventList.setRequired(true);
 		this.addInput(nextActivityEventList);
 
@@ -356,8 +337,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
 	    EntityContainer participantEntity = (EntityContainer)ent;
 		for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
+			participantEntity.removeEntity(null);
 			participants.add((ActiveEntity)de);
 		}
+		participantEntity.kill();
 		
 		finish(participants);
 	}
