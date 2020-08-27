@@ -51,9 +51,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	         exampleList = {"ProtoEntity1"})
 	protected final EntityListInput<ActiveEntity> participantList;
 
-	@Keyword(description = "The activities/events that each of the entities goes to from this activity.",
+	@Keyword(description = "The activities/events/JaamSim objects that each of the entities goes to from this activity.",
 	         exampleList = {"Activity1"})
-	protected final InterfaceEntityListInput<Linkable> nextActivityEventList;
+	protected final InterfaceEntityListInput<Linkable> nextAEJList;
 
 	@Keyword(description = "A list of attribute assignments that are triggered when an entity starts the activity.\n\n" +
 			"The attributes for various entities can be used in an assignment expression:\n" +
@@ -196,9 +196,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		public void happens(List<ActiveEntity> ents) {
 			assigns();
 						
-			if (nextActivityEventList.getValue().size() == 1) {
+			if (nextAELList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
-			    Linkable nextCmpt = nextActivityEventList.getValue().get(0);				
+			    Linkable nextCmpt = nextAELList.getValue().get(0);				
 				for (int i=0; i<ents.size(); i++) {
 				  ActiveEntity ent = ents.get(i);
 				  ActiveEntity proto = ent.getEntityType();
@@ -218,7 +218,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
 					System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
 					System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
-					Linkable nextCmpt = nextActivityEventList.getValue().get(index);
+					Linkable nextCmpt = nextAEJList.getValue().get(index);
 					if (nextCmpt instanceof Activity)
 						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
 					Constants.nextComponent(nextCmpt, ent);
@@ -284,9 +284,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		startTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(startTriggerChoice);
 
-		nextActivityEventList = new InterfaceEntityListInput<>(Linkable.class, "NextActivityEventList", Constants.HCCM, null);
-		nextActivityEventList.setRequired(true);
-		this.addInput(nextActivityEventList);
+		nextAEJList = new InterfaceEntityListInput<>(Linkable.class, "NextAEJList", Constants.HCCM, null);
+		nextAEJList.setRequired(true);
+		this.addInput(nextAEJList);
 
 		finishAssignmentList = new AssignmentListInput("FinishAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(finishAssignmentList);

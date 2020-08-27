@@ -27,12 +27,12 @@ import hccm.entities.Entity;
  */
 public class ArriveEvent extends EntityGenerator implements Event {
 	
-	@Keyword(description = "The activity/event that the arriving entity goes to from this activity.",
+	@Keyword(description = "The activity/event/JaamSim object that the arriving entity goes to from this activity.",
 	         exampleList = {"Activity1", "Event1"})
 	/**
 	 * 
 	 */
-	protected final InterfaceEntityInput<Linkable> nextActivityEvent;
+	protected final InterfaceEntityInput<Linkable> nextAEJobject;
 
 	@Keyword(description = "The triggers that may be executed when this event occurs.",
 	         exampleList = {"Trigger1"})
@@ -47,9 +47,9 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		nextComponent.setRequired(false);
 		nextComponent.setHidden(true);
 		
-		nextActivityEvent = new InterfaceEntityInput<>(Linkable.class, "NextActivityEvent", Constants.HCCM, null);
-		nextActivityEvent.setRequired(true);
-		this.addInput(nextActivityEvent);
+		nextAEJobject = new InterfaceEntityInput<>(Linkable.class, "NextAEJObject", Constants.HCCM, null);
+		nextAEJobject.setRequired(true);
+		this.addInput(nextAEJobject);
 
 		triggerList = new EntityListInput<>(Trigger.class, "TriggerList", Constants.HCCM,
 				new ArrayList<Trigger>());
@@ -96,7 +96,7 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		}
 
 		// Send this entity to the next activity or event
-		Linkable nextCmpt = nextActivityEvent.getValue();
+		Linkable nextCmpt = nextAEJobject.getValue();
 		Constants.nextComponent(nextCmpt, ents);
 	}
 
