@@ -7,7 +7,6 @@ Define ObjectType {
 	WaitActivity
 	ControlUnit
 	CustomClock
-	LogEvent
 }
 
 AssembleIconModel ImageFile { '<res>/images/Assemble-256.png' }  Transparent { TRUE }
@@ -21,4 +20,3 @@ ProcessActivity JavaClass { hccm.activities.ProcessActivity }  Palette { 'HCCM' 
 WaitActivity JavaClass { hccm.activities.WaitActivity }  Palette { 'HCCM' } DefaultDisplayModel { Triangle }  IconFile { '<res>/images/Queue-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 ControlUnit JavaClass { hccm.controlunits.ControlUnit }  Palette { 'HCCM' } DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 CustomClock JavaClass { hccm.CustomClock }  Palette { 'HCCM' } DefaultDisplayModel { TextModelDefault }  IconFile { '<res>/images/Controller-24.png' } DefaultSize { 0.5 0.5 0.5 m }
-LogEvent JavaClass { hccm.events.LogEvent }  Palette { 'HCCM' }  DefaultDisplayModel { EntityLoggerIconModel } IconFile { '<res>/images/EntityLogger-24.png' } DefaultSize { 0.5 0.5 0.5 m }

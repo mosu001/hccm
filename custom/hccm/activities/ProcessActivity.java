@@ -196,9 +196,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		public void happens(List<ActiveEntity> ents) {
 			assigns();
 						
-			if (nextAELList.getValue().size() == 1) {
+			if (nextAEJList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
-			    Linkable nextCmpt = nextAELList.getValue().get(0);				
+			    Linkable nextCmpt = nextAEJList.getValue().get(0);				
 				for (int i=0; i<ents.size(); i++) {
 				  ActiveEntity ent = ents.get(i);
 				  ActiveEntity proto = ent.getEntityType();
