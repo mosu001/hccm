@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jaamsim.EntityProviders.EntityProvConstant;
-import com.jaamsim.EntityProviders.EntityProvInput;
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityGenerator;
+import com.jaamsim.ProcessFlow.Linkable;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.Keyword;
 
-import hccm.ActivityOrEventOrJaamSim;
 import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
@@ -28,12 +27,12 @@ import hccm.entities.Entity;
  */
 public class ArriveEvent extends EntityGenerator implements Event {
 	
-	@Keyword(description = "The activity/event that the arriving entity goes to from this activity.",
+	@Keyword(description = "The activity/event/JaamSim object that the arriving entity goes to from this activity.",
 	         exampleList = {"Activity1", "Event1"})
 	/**
 	 * 
 	 */
-	protected final InterfaceEntityInput<ActivityOrEventOrJaamSim> nextActivityEvent;
+	protected final InterfaceEntityInput<Linkable> nextAEJobject;
 
 	@Keyword(description = "The triggers that may be executed when this event occurs.",
 	         exampleList = {"Trigger1"})
@@ -48,9 +47,9 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		nextComponent.setRequired(false);
 		nextComponent.setHidden(true);
 		
-		nextActivityEvent = new InterfaceEntityInput<>(ActivityOrEventOrJaamSim.class, "NextActivityEvent", Constants.HCCM, null);
-		nextActivityEvent.setRequired(true);
-		this.addInput(nextActivityEvent);
+		nextAEJobject = new InterfaceEntityInput<>(Linkable.class, "NextAEJObject", Constants.HCCM, null);
+		nextAEJobject.setRequired(true);
+		this.addInput(nextAEJobject);
 
 		triggerList = new EntityListInput<>(Trigger.class, "TriggerList", Constants.HCCM,
 				new ArrayList<Trigger>());
@@ -97,8 +96,8 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		}
 
 		// Send this entity to the next activity or event
-		ActivityOrEventOrJaamSim actEvt = nextActivityEvent.getValue();
-		ActivityOrEventOrJaamSim.execute(actEvt, ents);
+		Linkable nextCmpt = nextAEJobject.getValue();
+		Constants.nextComponent(nextCmpt, ents);
 	}
 
 	@Override

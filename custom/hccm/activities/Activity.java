@@ -2,9 +2,7 @@ package hccm.activities;
 
 import java.util.List;
 
-import hccm.ActivityOrEventOrJaamSim;
 import hccm.entities.ActiveEntity;
-import hccm.entities.Entity;
 import hccm.events.ActivityEvent;
 
 /**
@@ -12,7 +10,7 @@ import hccm.events.ActivityEvent;
  * @version 0.0.1
  * @since 0.0.1
  */
-public interface Activity extends ActivityOrEventOrJaamSim {
+public interface Activity {
 	/**
 	 * 
 	 * @return
