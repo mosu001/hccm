@@ -3,6 +3,7 @@ package hccm.activities;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.lang.Exception;
 //import java.util.stream.StreamSupport;
 
 import com.jaamsim.Graphics.DisplayEntity;
@@ -23,6 +24,7 @@ import com.jaamsim.input.ExpEvaluator;
 import com.jaamsim.input.ExpParser;
 import com.jaamsim.input.InterfaceEntityListInput;
 import com.jaamsim.input.Keyword;
+import static com.jaamsim.ui.GUIFrame.getJaamSimModel;
 //import com.jaamsim.units.DimensionlessUnit;
 import com.jaamsim.units.DimensionlessUnit;
 
@@ -340,11 +342,26 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	@Override
 	public void sendToNextComponent(DisplayEntity ent) {
 		assert(nextComponent.getValue() == null); // Moving components is achieved using events, so this should be null as it is hidden
-		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
-	    EntityContainer participantEntity = (EntityContainer)ent;
-		for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
-			participants.add((ActiveEntity)de);
-		}
+		EntityContainer participantEntity = getJaamSimModel().createInstance(EntityContainer.class,
+					"participantEntity", null, false, true, false, false);
+                ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
+                if (EntityContainer.class.isInstance(ent)) {
+                    //Unpack
+                    for (DisplayEntity e : ((EntityContainer)ent).getEntityList(getSimTime())) {
+                        participantEntity.addEntity(e);
+                        participants.add((ActiveEntity)e);
+                    }
+                }
+                else {
+                    participantEntity.addEntity(ent);
+                    participants.add((ActiveEntity)ent);
+                }
+                //ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
+                //EntityContainer participantEntity = (EntityContainer)ent;    
+                //participantEntity.addEntity(ent);
+		//for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
+		//	participants.add((ActiveEntity)de);
+		//}
 		leavingContainer = participantEntity;
 		
 		finish(participants);
