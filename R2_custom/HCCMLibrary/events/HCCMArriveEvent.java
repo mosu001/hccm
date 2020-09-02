@@ -198,7 +198,8 @@ public class HCCMArriveEvent extends LinkedService {
 			ent.earlyInit();
 
 			// Set the obj output to the assembled part
-			this.registerEntity(ent);
+                        //this.registerEntity(ent)
+			this.receiveEntity(ent);
 
 			// Added
 			if (EventSignalList.getValue() != null) {

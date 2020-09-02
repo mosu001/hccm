@@ -95,7 +95,7 @@ public abstract class LinkedService extends LinkedDevice implements QueueUser {
 	 */
 	protected DisplayEntity getNextEntityForMatch(String m) {
 		DisplayEntity ent = waitQueue.getValue().removeFirstForMatch(m);
-		this.registerEntity(ent);
+		this.receiveEntity(ent);
 		return ent;
 	}
 
