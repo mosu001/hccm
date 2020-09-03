@@ -274,10 +274,20 @@ public class WaitActivity extends Queue implements Activity {
 	@Override
 	public void start(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
-		addEntity((DisplayEntity)ents.get(0));
+		super.addEntity((DisplayEntity)ents.get(0));
 		startEvent.happens(ents);
 	}
 	
+	/**
+	 * Overrides Queue function, starts the wait activity
+	 * @param ent, a DisplayEntity
+	 */
+	@Override
+	public void addEntity(DisplayEntity ent) {
+		ActiveEntity participant = (ActiveEntity)ent;
+		start(participant.asList());
+	}
+
 	/**
 	 * Overrides parent function, finishes the wait activity
 	 * @param ents, a list of ActiveEntity objects
