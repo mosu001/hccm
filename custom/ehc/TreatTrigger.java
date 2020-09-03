@@ -1,5 +1,6 @@
 package ehc;
 
+import hccm.activities.WaitActivity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,88 +46,64 @@ public class TreatTrigger extends Trigger {
              * is unavailable, otherwise we will waste doctor 1s time. Since doctor 2 is more flexible, it is 
              * better to have him available and assign doctor 1 first.
              */
-
-            // Look for a scheduled patient and doctor 2 request
+            
+            // Doctor 2 sees scheduled patient
             for (Request r: requests) {
-                System.out.println(r);
-                if ( (creq == null) && (r.getRequester().getName().startsWith("ScheduledPatient")) )
-                        creq = r;
-                if ( (sreq == null) && (r.getRequester().getName().startsWith("Doctor2")) && (r.getRequested().getName().equals("TreatScheduled")) )
-                        sreq = r;
-                if ( (creq != null) & (sreq != null) ) {
-                    // Remove doctor 2 walkup request to prevent doubling up
-                    for (Request req: requests) {
-                        if ((req.getRequester().getName().startsWith("Doctor2")) && req.getRequested().getName().equals("TreatWalkUp2")) {
-                            requests.remove(req);
-                            break;
-                        }
-                    }
+                if (r.getRequester().getName().startsWith("ScheduledPatient") && r.getRequested().getName().equals("TreatScheduled")) {
+                    creq = r;
                     break;
                 }
             }
-
-            // If previous not found
-            if ( (creq == null) || (sreq == null) ) {
-                // Look for a walk up patient and doctor 1 request
-                creq = null;
-                sreq = null;
+            
+            if (creq != null && !((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).getEntities().isEmpty() ) {
+                ActiveEntity cust = creq.getRequester();
+                ActiveEntity doctor2 = ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).getEntities().get(0);
+                ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, doctor2));
+                requests.remove(creq);
+                creq.getWaiting().finish(cust.asList());
+                ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).finish(doctor2.asList());
+                creq.getRequested().start(participants);
+            }
+            
+            // Doctor 1 sees walkup patient
+            if (creq == null) {
                 for (Request r: requests) {
-                    System.out.println(r);
-                    if ( (creq == null) && (r.getRequester().getName().startsWith("WalkUpPatient")) && (r.getRequested().getName().equals("TreatWalkUp")) )
-                            creq = r;
-                    if ( (sreq == null) && (r.getRequester().getName().startsWith("Doctor1")) )
-                            sreq = r;
-                    if ( (creq != null) & (sreq != null) ) {
-                        // Remove treatwalkup2 walkup request to prevent doubling up
-                        for (Request req: requests) {
-                            if ((req.getRequester().getName().startsWith("WalkUpPatient")) && req.getRequested().getName().equals("TreatWalkUp2")) {
-                                requests.remove(req);
-                                break;
-                            }
-                        }
+                    if (r.getRequester().getName().startsWith("WalkUpPatient") && r.getRequested().getName().equals("TreatWalkUp")) {
+                        creq = r;
                         break;
                     }
                 }
-            }
 
-         // If previous not found
-            if ( (creq == null) || (sreq == null) ) {
-                // Look for a walkup patient and doctor2 request
-                creq = null;
-                sreq = null;
-                // Loop over the requests until one customer request and one server request are found
-                for (Request r: requests) {
-                    System.out.println(r);
-                    if ( (creq == null) && (r.getRequester().getName().startsWith("WalkUpPatient")) && (r.getRequested().getName().equals("TreatWalkUp2")) )
-                            creq = r;
-                    if ( (sreq == null) && (r.getRequester().getName().startsWith("Doctor2")) && (r.getRequested().getName().equals("TreatWalkUp2")) )
-                            sreq = r;
-                    if ( (creq != null) & (sreq != null) ) {
-                        // Remove treatwalkup walkup request and treatscheduled doctor2 request to prevent doubling up
-                        for (Request req: requests) {
-                            if ((req.getRequester().getName().startsWith("WalkUpPatient")) && req.getRequested().getName().equals("TreatWalkUp2")) {
-                                requests.remove(req);
-                            }
-                            else if ((req.getRequester().getName().startsWith("Doctor2")) && req.getRequested().getName().equals("TreatScheduled")) {
-                                requests.remove(req);
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-
-            // Both a customer and a server have been found waiting
-            if ( (creq != null) & (sreq != null) ) {
-                    ActiveEntity cust = creq.getRequester(), serv = sreq.getRequester();
-                    ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, serv));
+                if (creq != null && !((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatWalkUp")).getEntities().isEmpty()) {
+                    ActiveEntity cust = creq.getRequester();
+                    ActiveEntity doctor2 = ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatWalkUp")).getEntities().get(0);
+                    ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, doctor2));
                     requests.remove(creq);
-                    requests.remove(sreq);
                     creq.getWaiting().finish(cust.asList());
-                    sreq.getWaiting().finish(serv.asList());
-                    assert(creq.getRequested().getName().equals(sreq.getRequested().getName()));
+                    ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatWalkUp")).finish(doctor2.asList());
                     creq.getRequested().start(participants);
+                }
             }
-        }
+            
+            // Doctor 2 sees walkup patient
+            if (creq == null) {
+                for (Request r: requests) {
+                    if (r.getRequester().getName().startsWith("WalkUpPatient") && r.getRequested().getName().equals("TreatWalkUp2")) {
+                        creq = r;
+                        break;
+                    }
+                }
+
+                if (creq != null && !((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).getEntities().isEmpty()) {
+                    ActiveEntity cust = creq.getRequester();
+                    ActiveEntity doctor2 = ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).getEntities().get(0);
+                    ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, doctor2));
+                    requests.remove(creq);
+                    creq.getWaiting().finish(cust.asList());
+                    ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).finish(doctor2.asList());
+                    creq.getRequested().start(participants);
+                }
+            }
+        }    
     }
 }

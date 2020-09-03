@@ -1,5 +1,6 @@
 package ehc;
 
+import hccm.activities.WaitActivity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,29 +34,24 @@ public class TriageTrigger extends Trigger {
         List<Request> requests = cu.getRequestList();
         if (requests.size() > 1) {
             Collections.sort(requests, RequestUtils::compareWhenRequested);
-            // Loop over the requests until one customer request and one server request are found
-            Request creq = null, sreq = null;
+            // Loop over the requests until a walkup request is found
+            Request creq = null;
             for (Request r: requests) {
-                    System.out.println(r);
-                    if ( (creq == null) && (r.getRequester().getName().startsWith("WalkUpPatient")) )
-                            creq = r;
-                    if ( (sreq == null) && (r.getRequester().getName().startsWith("TriageNurse")) )
-                            sreq = r;
-                    if ( (creq != null) & (sreq != null) )
-                            break;
+                if (r.getRequester().getName().startsWith("WalkUpPatient") && r.getRequested().getName().equals("Triage")) {
+                    creq = r;
+                    break;
+                }
             }
-            // Both a customer and a server have been found waiting
-            if ( (creq != null) & (sreq != null) ) {
-                ActiveEntity cust = creq.getRequester(), serv = sreq.getRequester();
-                ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, serv));
+            // Check if triage nurse is free, if so then start triage
+            if (creq != null && !((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTriage")).getEntities().isEmpty() ) {
+                ActiveEntity cust = creq.getRequester();
+                ActiveEntity nurse = ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTriage")).getEntities().get(0);
+                ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, nurse));
                 requests.remove(creq);
-                requests.remove(sreq);
                 creq.getWaiting().finish(cust.asList());
-                sreq.getWaiting().finish(serv.asList());
-                assert(creq.getRequested().getName().equals(sreq.getRequested().getName()));
+                ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTriage")).finish(nurse.asList());
                 creq.getRequested().start(participants);
             }
         }
     }
-
 }
