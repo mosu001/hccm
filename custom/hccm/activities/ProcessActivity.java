@@ -116,23 +116,22 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		 */
 		public void happens(List<ActiveEntity> ents) {			
 			JaamSimModel model = getJaamSimModel();
-			EntityDelay ed = (EntityDelay)owner;
+			ProcessActivity act = (ProcessActivity)owner;
 			int numCons = 0;
 			for (@SuppressWarnings("unused") EntityContainer ent : model.getClonesOfIterator(EntityContainer.class))
 				numCons++;
 			EntityContainer participantEntity = model.createInstance(EntityContainer.class,
-					ed.getName() + "_" + (numCons + 1), null, false, true, false, false);
+					act.getName() + "_" + (numCons + 1), null, false, true, false, false);
 			participantEntity.setDisplayModelList(null);
 			participantEntity.setShow(true);
 			for (Entity ent : ents) {
 				DisplayEntity de = (DisplayEntity)ent;
 				participantEntity.addEntity(de);
 			}
-			ed.addEntity(participantEntity);
+			act.addEntityAsEntityDelay(participantEntity);
 			
 			assigns();
 			
-			ProcessActivity act = (ProcessActivity)owner;
 			double simTime = getSimTime();			
 
 			// Choose the trigger for this entity
@@ -310,6 +309,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		startEvent = new ProcessStart(this);
 		finishEvent = new ProcessFinish(this);
 	}
+
 	/**
 	 * Overrides parent ActivityEvent method, getter method for startEvent
 	 * @return startEvent
@@ -334,7 +334,23 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	}
 	
 	/**
-	 * Overrides parent ActivityEvent method, sends an entity to the next component in its process?
+	 * Overrides parent EntityDelay method, adds an entity to the process activity.
+	 * Note that this assumes only a single entity participates in the process, otherwise
+	 * a wait would be needed to join the entities before the process starts
+	 * @param ent, a DisplayEntity
+	 */
+	@Override
+	public void addEntity(DisplayEntity ent) {
+		ActiveEntity participant = (ActiveEntity)ent;
+		start(participant.asList());
+	}
+
+	public void addEntityAsEntityDelay(DisplayEntity ent) {
+		super.addEntity(ent);
+	}
+
+	/**
+	 * Overrides parent EntityDelay method, sends an entity to the next component in its process?
 	 * @param ent, a DisplayEntity
 	 */
 	@Override
