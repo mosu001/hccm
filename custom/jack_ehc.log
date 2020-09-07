@@ -8,7 +8,7 @@ Define  ActiveEntity  {  Doctor1  Doctor2  ScheduledPatient  TestNurse  TriageNu
 Define  ArriveEvent  {  Doctor1ArriveEvent  Doctor2ArriveEvent  ScheduledPatientArrive  TestNurseArriveEvent  TriageNurseArriveEvent  WalkUpPatientArriveEvent  }
 Define  ControlUnit  {  ControlUnit1  }
 Define  LeaveEvent  {  DoctorLeave  ScheduledPatientLeaveEvent  WalkUpPatientLeaveEvent  }
-Define  ProcessActivity  {  MoveToLeave  MoveToLeave2  MoveToLeave3  MoveToLeave4  MoveToTest  MoveToTreat  MoveToTreat2  MoveToTreat3  MoveToTriage  Test  TreatScheduled  TreatWalkUp  TreatWalkUp2  Triage  }
+Define  ProcessActivity  {  MoveToLeave  MoveToLeave2  MoveToLeave3  MoveToLeave4  MoveToTest  MoveToTreat  MoveToTreat2  MoveToTreat3  MoveToTriage  Test  TreatScheduled  TreatWalkUp  TreatWalkUp2  Triage  TriageNurseToWait  }
 Define  WaitActivity  {  WaitForTest  WaitForTreat  WaitForTriage  WaitToTest  WaitToTreatScheduled  WaitToTreatWalkUp  WaitToTriage  }
 Define  BooleanSelector  {  NeedsTestDist  }
 Define  NonStatExponentialDist  {  WalkUpDist  }
@@ -19,7 +19,7 @@ Define  Statistics  {  Doctor1Utilization  Doctor2Utilization  ScheduledWaitForT
 Define  ColladaModel  {  Axis  Grid100x100  }
 Define  ImageModel  {  doctor-female-model  doctor-female-model1  doctor-male-model  doctor-male-model1  nurse-model  nurse-model1  nurse2-model  nurse2-model1  patient-female-model  patient-female-model1  patient-male-model  patient-male-model1  }
 Define  DisplayEntity  {  XY-Grid  XYZ-Axis  }
-Define  EntityLabel  {  AppointmentArrivalDist_Label  AppointmentTimes_Label  AppointmentTreatDist_Label  ControlUnit1_Label  Doctor1ArriveEvent_Label  Doctor1Utilization_Label  Doctor1_Label  Doctor2ArriveEvent_Label  Doctor2Utilization_Label  Doctor2_Label  DoctorLeave_Label  MoveToLeave2_Label  MoveToLeave3_Label  MoveToLeave4_Label  MoveToLeave_Label  MoveToTest_Label  MoveToTreat2_Label  MoveToTreat3_Label  MoveToTreat_Label  MoveToTriage_Label  NeedsTestDist_Label  PatientOrNurseBranch1_Label  PatientOrNurseBranch2_Label  ScheduledPatientArrive_Label  ScheduledPatientLeaveEvent_Label  ScheduledPatient_Label  ScheduledWaitForTreat_Label  TestDist_Label  TestNurseArriveEvent_Label  TestNurse_Label  TestTrigger1_Label  Test_Label  TreatScheduled_Label  TreatTrigger1_Label  TreatWalkUp2_Label  TreatWalkUp_Label  TriageDist_Label  TriageNurseArriveEvent_Label  TriageNurse_Label  TriageTrigger1_Label  Triage_Label  WaitForTest_Label  WaitForTreat_Label  WaitForTriage_Label  WaitToTest_Label  WaitToTreatScheduled_Label  WaitToTreatWalkUp_Label  WaitToTriage_Label  WalkUpBranch_Label  WalkUpDist_Label  WalkUpPatientArriveEvent_Label  WalkUpPatientLeaveEvent_Label  WalkUpPatient_Label  WalkUpRates_Label  WalkUpTreatDist_Label  WalkUpWaitForTest_Label  WalkUpWaitForTreat_Label  WalkUpWaitForTriage_Label  }
+Define  EntityLabel  {  AppointmentArrivalDist_Label  AppointmentTimes_Label  AppointmentTreatDist_Label  ControlUnit1_Label  Doctor1ArriveEvent_Label  Doctor1Utilization_Label  Doctor1_Label  Doctor2ArriveEvent_Label  Doctor2Utilization_Label  Doctor2_Label  DoctorLeave_Label  MoveToLeave2_Label  MoveToLeave3_Label  MoveToLeave4_Label  MoveToLeave_Label  MoveToTest_Label  MoveToTreat2_Label  MoveToTreat3_Label  MoveToTreat_Label  MoveToTriage_Label  NeedsTestDist_Label  PatientOrNurseBranch1_Label  PatientOrNurseBranch2_Label  ScheduledPatientArrive_Label  ScheduledPatientLeaveEvent_Label  ScheduledPatient_Label  ScheduledWaitForTreat_Label  TestDist_Label  TestNurseArriveEvent_Label  TestNurse_Label  TestTrigger1_Label  Test_Label  TreatScheduled_Label  TreatTrigger1_Label  TreatWalkUp2_Label  TreatWalkUp_Label  TriageDist_Label  TriageNurseArriveEvent_Label  TriageNurseToWait_Label  TriageNurse_Label  TriageTrigger1_Label  Triage_Label  WaitForTest_Label  WaitForTreat_Label  WaitForTriage_Label  WaitToTest_Label  WaitToTreatScheduled_Label  WaitToTreatWalkUp_Label  WaitToTriage_Label  WalkUpBranch_Label  WalkUpDist_Label  WalkUpPatientArriveEvent_Label  WalkUpPatientLeaveEvent_Label  WalkUpPatient_Label  WalkUpRates_Label  WalkUpTreatDist_Label  WalkUpWaitForTest_Label  WalkUpWaitForTreat_Label  WalkUpWaitForTriage_Label  }
 Define  OverlayClock  {  Clock  }
 Define  OverlayText  {  Title  }
 Define  View  {  View1  }
@@ -45,7 +45,7 @@ WalkUpPatientArriveEvent  AttributeDefinitionList  {  {  needsTest  [NeedsTestDi
 Simulation  Description  {  Simulation run control inputs  }
 AppointmentTimes  TimeList  {  15  30  60  75  90  105  135  150  165  195  210  240  255  270  285  300  315  330  360  375  405  420  435  495  510  525  555  570  585  615  630  645  660  690  705  720  735  765  795  810  825  840  870  885  930  945  975  990  1005  1035  1065  1080  1095  1110  1125  1140  1155  1200  1215  1230  1245  1260  1290  1320  1335  1350  1365  1380  1395  1410  1425  min  }
 AppointmentTimes  CycleTime  {  24  h  }
-WalkUpRates  Value  {  {  0  h  0  }  {  8  h  80  }  {  17  h  440  }  {  24  h  580  }  }
+WalkUpRates  Value  {  {  0  h  0  }  {  8  h  40  }  {  17  h  220  }  {  24  h  290  }  }
 WalkUpRates  CycleTime  {  24  h  }
 TestTrigger1  ControlUnit  {  ControlUnit1  }
 TreatTrigger1  ControlUnit  {  ControlUnit1  }
@@ -121,7 +121,7 @@ MoveToTreat2  Duration  {  2  min  }
 MoveToTreat2  ParticipantList  {  WalkUpPatient  }
 MoveToTreat2  NextAEJList  {  WaitForTreat  }
 MoveToTreat3  StateAssignment  {  Move  }
-MoveToTreat3  Duration  {  2  min  }
+MoveToTreat3  Duration  {  2000  min  }
 MoveToTreat3  ParticipantList  {  ScheduledPatient  }
 MoveToTreat3  NextAEJList  {  WaitForTreat  }
 MoveToTriage  Duration  {  2  min  }
@@ -148,6 +148,10 @@ Triage  ControlUnit  {  ControlUnit1  }
 Triage  ParticipantList  {  WalkUpPatient  TriageNurse  }
 Triage  NextAEJList  {  PatientOrNurseBranch1  }
 Triage  FinishTriggerChoice  {  1  }
+TriageNurseToWait  Duration  {  1  s  }
+TriageNurseToWait  ControlUnit  {  ControlUnit1  }
+TriageNurseToWait  ParticipantList  {  TriageNurse  }
+TriageNurseToWait  NextAEJList  {  WaitToTriage  }
 WaitForTest  StateAssignment  {  WaitForTest  }
 WaitForTest  StartTriggerList  {  TestTrigger1  }
 WaitForTest  StartTriggerChoice  {  1  }
@@ -175,8 +179,6 @@ WaitToTreatWalkUp  StartTriggerChoice  {  1  }
 WaitToTriage  StateAssignment  {  Idle  }
 WaitToTriage  StartTriggerList  {  TriageTrigger1  }
 WaitToTriage  StartTriggerChoice  {  1  }
-WaitToTriage  RequestActivityList  {  }
-WaitToTriage  RequestActivityChoice  {  }
 NeedsTestDist  RandomSeed  {  4  }
 NeedsTestDist  TrueProbability  {  0.3  }
 WalkUpDist  RandomSeed  {  6  }
@@ -201,7 +203,7 @@ WalkUpTreatDist  RandomSeed  {  2  }
 WalkUpTreatDist  MinValue  {  5  min  }
 WalkUpTreatDist  MaxValue  {  30  min  }
 WalkUpTreatDist  Mode  {  10  min  }
-PatientOrNurseBranch1  NextComponentList  {  WalkUpBranch  WaitToTriage  }
+PatientOrNurseBranch1  NextComponentList  {  WalkUpBranch  TriageNurseToWait  }
 PatientOrNurseBranch1  Choice  {  this.obj.Match == "WalkUp" ? 1 : 2  }
 PatientOrNurseBranch2  NextComponentList  {  WalkUpWaitForTest  WalkUpWaitForTreat  }
 PatientOrNurseBranch2  Choice  {  this.obj.needsTest ? 1 : 2  }
@@ -221,7 +223,7 @@ WalkUpWaitForTriage  NextComponent  {  PatientOrNurseBranch2  }
 WalkUpWaitForTriage  SampleValue  {  this.obj.StateTimes("WaitForTriage")  }
 Simulation  RealTime  {  TRUE  }
 Simulation  SnapToGrid  {  TRUE  }
-Simulation  RealTimeFactor  {  256  }
+Simulation  RealTimeFactor  {  128  }
 Simulation  ShowLabels  {  TRUE  }
 Simulation  ShowSubModels  {  TRUE  }
 Simulation  ShowEntityFlow  {  TRUE  }
@@ -298,6 +300,8 @@ TreatWalkUp2  Position  {  0.4  -0.8  0.0  m  }
 TreatWalkUp2  Points  {  {  0.0  -0.8  0.0  m  }  {  2.0  -0.8  0.0  m  }  }
 Triage  Position  {  1.0  5.5  0.0  m  }
 Triage  Points  {  {  0.0  5.5  0.0  m  }  {  2.0  5.5  0.0  m  }  }
+TriageNurseToWait  Position  {  1.7  7.0  0.0  m  }
+TriageNurseToWait  Points  {  {  1.7  6.9  0.0  m  }  {  -1.6  6.9  0.0  m  }  }
 WaitForTest  Position  {  -2.5  3.5  0.0  m  }
 WaitForTreat  Position  {  -2.5  -0.4  0.0  m  }
 WaitForTriage  Position  {  -2.5  5.6  0.0  m  }
@@ -530,6 +534,11 @@ TriageNurseArriveEvent_Label  Size  {  2.582015  0.3  0.0  m  }
 TriageNurseArriveEvent_Label  RelativeEntity  {  TriageNurseArriveEvent  }
 TriageNurseArriveEvent_Label  Show  {  FALSE  }
 TriageNurseArriveEvent_Label  TargetEntity  {  TriageNurseArriveEvent  }
+TriageNurseToWait_Label  Position  {  -1.7  -0.3  0.0  m  }
+TriageNurseToWait_Label  Size  {  2.099003  0.3  0.0  m  }
+TriageNurseToWait_Label  RelativeEntity  {  TriageNurseToWait  }
+TriageNurseToWait_Label  Show  {  FALSE  }
+TriageNurseToWait_Label  TargetEntity  {  TriageNurseToWait  }
 TriageNurse_Label  Position  {  0.0  -0.4  0.0  m  }
 TriageNurse_Label  Size  {  1.387999  0.3  0.0  m  }
 TriageNurse_Label  RelativeEntity  {  TriageNurse  }
@@ -650,19 +659,3 @@ View1  ShowWindow  {  TRUE  }
 View1  Lock2D  {  TRUE  }
 View1  SkyboxImage  {  <res>/images/sky_map_2048x1024.jpg  }
 Input Error: 1 input errors and 0 warnings found
-EXCEPTION AT TIME: 2893.215765 s
-null
-Thrown exception call stack:
-ehc.TreatTrigger.executeLogic(TreatTrigger.java:52)
-hccm.controlunits.ControlUnit.triggerLogic(ControlUnit.java:147)
-hccm.activities.WaitActivity$WaitStart.happens(WaitActivity.java:146)
-hccm.activities.WaitActivity.start(WaitActivity.java:278)
-hccm.Constants.nextComponent(Constants.java:26)
-hccm.activities.ProcessActivity$ProcessFinish.happens(ProcessActivity.java:216)
-hccm.activities.ProcessActivity.finish(ProcessActivity.java:378)
-hccm.activities.ProcessActivity.sendToNextComponent(ProcessActivity.java:366)
-com.jaamsim.ProcessFlow.EntityDelay.removeDisplayEntity(EntityDelay.java:218)
-com.jaamsim.ProcessFlow.EntityDelay$RemoveDisplayEntityTarget.process(EntityDelay.java:207)
-com.jaamsim.events.EventManager.executeTarget(EventManager.java:172)
-com.jaamsim.events.EventManager.execute(EventManager.java:257)
-com.jaamsim.events.Process.run(Process.java:101)

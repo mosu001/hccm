@@ -32,9 +32,9 @@ public class TreatTrigger extends Trigger {
         ControlUnit cu = getControlUnit();
         // If there are any requests, then sort them by time
         List<Request> requests = cu.getRequestList();
-        if (requests.size() > 1) {
-                Collections.sort(requests, RequestUtils::compareWhenRequested);
-                Request creq = null, sreq = null;
+        if (requests.size() > 0) {
+            Collections.sort(requests, RequestUtils::compareWhenRequested);
+            Request creq = null, sreq = null;
 
             /*
              * There are three possible actions this trigger can control:
@@ -64,6 +64,9 @@ public class TreatTrigger extends Trigger {
                 ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).finish(doctor2.asList());
                 creq.getRequested().start(participants);
             }
+            else {
+                creq = null;
+            }
             
             // Doctor 1 sees walkup patient
             if (creq == null) {
@@ -79,9 +82,22 @@ public class TreatTrigger extends Trigger {
                     ActiveEntity doctor2 = ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatWalkUp")).getEntities().get(0);
                     ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, doctor2));
                     requests.remove(creq);
+                    Request rreq = null;
+                    for (Request r: requests) {
+                        if (r.getRequester().getName().equals(creq.getRequester().getName()) && r.getRequested().getName().equals("TreatWalkUp2")) {
+                            rreq = r;
+                            break;
+                        }
+                    }
+                    if (rreq != null) {
+                        requests.remove(rreq);
+                    }
                     creq.getWaiting().finish(cust.asList());
                     ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatWalkUp")).finish(doctor2.asList());
                     creq.getRequested().start(participants);
+                }
+                else {
+                    creq = null;
                 }
             }
             
@@ -99,6 +115,16 @@ public class TreatTrigger extends Trigger {
                     ActiveEntity doctor2 = ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).getEntities().get(0);
                     ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>(Arrays.asList(cust, doctor2));
                     requests.remove(creq);
+                    Request rreq = null;
+                    for (Request r: requests) {
+                        if (r.getRequester().getName().equals(creq.getRequester().getName()) && r.getRequested().getName().equals("TreatWalkUp")) {
+                            rreq = r;
+                            break;
+                        }
+                    }
+                    if (rreq != null) {
+                        requests.remove(rreq);
+                    }
                     creq.getWaiting().finish(cust.asList());
                     ((WaitActivity)this.getJaamSimModel().getNamedEntity("WaitToTreatScheduled")).finish(doctor2.asList());
                     creq.getRequested().start(participants);

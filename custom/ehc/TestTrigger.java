@@ -32,7 +32,7 @@ public class TestTrigger extends Trigger {
             ControlUnit cu = getControlUnit();
         // If there are any requests, then sort them by time
         List<Request> requests = cu.getRequestList();
-        if (requests.size() > 1) {
+        if (requests.size() > 0) {
             Collections.sort(requests, RequestUtils::compareWhenRequested);
             // Loop over the requests until a walkup request is found
             Request creq = null;
