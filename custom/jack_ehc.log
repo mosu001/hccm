@@ -56,13 +56,13 @@ Doctor1  DefaultStateList  {  Idle  Working  }
 Doctor1  InitialState  {  Idle  }
 Doctor2  DefaultStateList  {  Idle  Working  }
 Doctor2  InitialState  {  Idle  }
-ScheduledPatient  DefaultStateList  {  Arrive  Move  WaitForTreat  Leave  }
-ScheduledPatient  InitialState  {  Arrive  }
+ScheduledPatient  DefaultStateList  {  Move  WaitForTreat  Treat  Leave  }
+ScheduledPatient  InitialState  {  Move  }
 TestNurse  DefaultStateList  {  Idle  Working  }
 TestNurse  InitialState  {  Idle  }
 TriageNurse  DefaultStateList  {  Idle  Working  }
 TriageNurse  InitialState  {  Idle  }
-WalkUpPatient  DefaultStateList  {  Move  WaitForTriage  WaitForTest  WaitForTreat  Leave  }
+WalkUpPatient  DefaultStateList  {  Move  WaitForTriage  Triage  WaitForTest  Test  WaitForTreat  Treat  Leave  }
 WalkUpPatient  InitialState  {  Move  }
 Doctor1ArriveEvent  FirstArrivalTime  {  0  h  }
 Doctor1ArriveEvent  InterArrivalTime  {  192  h  }
@@ -129,22 +129,27 @@ MoveToTreat3  NextAEJList  {  WaitForTreat  }
 MoveToTriage  Duration  {  2  min  }
 MoveToTriage  ParticipantList  {  WalkUpPatient  }
 MoveToTriage  NextAEJList  {  WaitForTriage  }
+Test  StateAssignment  {  Test  }
 Test  Duration  {  10  min  }
 Test  ControlUnit  {  ControlUnit1  }
 Test  ParticipantList  {  WalkUpPatient  TestNurse  }
 Test  NextAEJList  {  MoveToTreat2  WaitToTest  }
+TreatScheduled  StateAssignment  {  Treat  }
 TreatScheduled  Duration  {  AppointmentTreatDist  }
 TreatScheduled  ControlUnit  {  ControlUnit1  }
 TreatScheduled  ParticipantList  {  ScheduledPatient  Doctor2  }
 TreatScheduled  NextAEJList  {  MoveToLeave2  WaitToTreatScheduled  }
+TreatWalkUp  StateAssignment  {  Treat  }
 TreatWalkUp  Duration  {  WalkUpTreatDist  }
 TreatWalkUp  ControlUnit  {  ControlUnit1  }
 TreatWalkUp  ParticipantList  {  WalkUpPatient  Doctor1  }
 TreatWalkUp  NextAEJList  {  MoveToLeave  WaitToTreatWalkUp  }
+TreatWalkUp2  StateAssignment  {  Treat  }
 TreatWalkUp2  Duration  {  WalkUpTreatDist  }
 TreatWalkUp2  ControlUnit  {  ControlUnit1  }
 TreatWalkUp2  ParticipantList  {  WalkUpPatient  Doctor2  }
 TreatWalkUp2  NextAEJList  {  MoveToLeave  WaitToTreatScheduled  }
+Triage  StateAssignment  {  Triage  }
 Triage  Duration  {  TriageDist  }
 Triage  ControlUnit  {  ControlUnit1  }
 Triage  ParticipantList  {  WalkUpPatient  TriageNurse  }
@@ -226,7 +231,7 @@ WalkUpWaitForTreat  NextComponent  {  WalkUpPatientLeaveEvent  }
 WalkUpWaitForTreat  SampleValue  {  this.obj.StateTimes("WaitForTreat")  }
 WalkUpWaitForTriage  NextComponent  {  TestBranch  }
 WalkUpWaitForTriage  SampleValue  {  this.obj.StateTimes("WaitForTriage")  }
-Simulation  RealTime  {  TRUE  }
+Simulation  RealTime  {  FALSE  }
 Simulation  SnapToGrid  {  TRUE  }
 Simulation  RealTimeFactor  {  2048  }
 Simulation  ShowLabels  {  TRUE  }
@@ -666,8 +671,8 @@ Title  TextHeight  {  18  }
 Title  FontColour  {  150  23  46  }
 Title  FontStyle  {  BOLD  }
 View1  Description  {  Default view window  }
-View1  ViewCenter  {  0.012219  1.268454  17.477977  m  }
-View1  ViewPosition  {  0.012219  1.268454  34.79848  m  }
+View1  ViewCenter  {  0.012219  1.251277  17.477977  m  }
+View1  ViewPosition  {  0.012219  1.251277  34.79848  m  }
 View1  ShowWindow  {  TRUE  }
 View1  Lock2D  {  TRUE  }
 View1  SkyboxImage  {  <res>/images/sky_map_2048x1024.jpg  }

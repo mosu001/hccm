@@ -1,2 +1,2 @@
-[WalkUpWaitForTriage].SampleAverage	[WalkUpWaitForTest].SampleAverage	[WalkUpWaitForTreat].SampleAverage	[ScheduledWaitForTreat].SampleAverage	[Doctor1Utilization].SampleAverage	[Doctor2Utilization].SampleAverage
-0.06647561672184872[h]	0.006036985449510219[h]	0.2092289801728854[h]	0.13170424531762712[h]	NaN	NaN
+[WalkUpTimeInSystem].SampleAverage	[WalkUpWaitForTriage].SampleAverage	[WalkUpWaitForTest].SampleAverage	[WalkUpWaitForTreat].SampleAverage	[ScheduledTimeInSystem].SampleAverage	[ScheduledWaitForTreat].SampleAverage	[Doctor1Utilization].Value	[Doctor2Utilization].Value	[TriageNurseUtilization].Value	[TestNurseUtilization].Value
+0.8255186577048373[h]	0.06647561672184872[h]	0.006036985449510219[h]	0.2092289801728854[h]	0.447792014404863[h]	0.13170424531762712[h]	0.5058224118162734	0.8347086989449518	0.33459137308457	0.119558599695586
