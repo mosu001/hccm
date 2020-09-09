@@ -121,7 +121,7 @@ MoveToTreat2  Duration  {  2  min  }
 MoveToTreat2  ParticipantList  {  WalkUpPatient  }
 MoveToTreat2  NextAEJList  {  WaitForTreat  }
 MoveToTreat3  StateAssignment  {  Move  }
-MoveToTreat3  Duration  {  2000  min  }
+MoveToTreat3  Duration  {  2  min  }
 MoveToTreat3  ParticipantList  {  ScheduledPatient  }
 MoveToTreat3  NextAEJList  {  WaitForTreat  }
 MoveToTriage  Duration  {  2  min  }
@@ -203,7 +203,7 @@ WalkUpTreatDist  RandomSeed  {  2  }
 WalkUpTreatDist  MinValue  {  5  min  }
 WalkUpTreatDist  MaxValue  {  30  min  }
 WalkUpTreatDist  Mode  {  10  min  }
-PatientOrNurseBranch1  NextComponentList  {  WalkUpBranch  TriageNurseToWait  }
+PatientOrNurseBranch1  NextComponentList  {  WalkUpBranch  WaitToTriage  }
 PatientOrNurseBranch1  Choice  {  this.obj.Match == "WalkUp" ? 1 : 2  }
 PatientOrNurseBranch2  NextComponentList  {  WalkUpWaitForTest  WalkUpWaitForTreat  }
 PatientOrNurseBranch2  Choice  {  this.obj.needsTest ? 1 : 2  }
