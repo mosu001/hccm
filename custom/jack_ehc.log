@@ -11,19 +11,22 @@ Define  LeaveEvent  {  DoctorLeave  ScheduledPatientLeaveEvent  WalkUpPatientLea
 Define  ProcessActivity  {  MoveToLeave  MoveToLeave2  MoveToLeave3  MoveToLeave4  MoveToTest  MoveToTreat  MoveToTreat2  MoveToTreat3  MoveToTriage  Test  TreatScheduled  TreatWalkUp  TreatWalkUp2  Triage  TriageNurseToWait  }
 Define  WaitActivity  {  WaitForTest  WaitForTreat  WaitForTriage  WaitToTest  WaitToTreatScheduled  WaitToTreatWalkUp  WaitToTriage  }
 Define  BooleanSelector  {  NeedsTestDist  }
+Define  DiscreteDistribution  {  DiscreteDistribution1  }
 Define  NonStatExponentialDist  {  WalkUpDist  }
 Define  NormalDistribution  {  AppointmentArrivalDist  }
 Define  TriangularDistribution  {  AppointmentTreatDist  TestDist  TriageDist  WalkUpTreatDist  }
-Define  Branch  {  PatientOrNurseBranch1  PatientOrNurseBranch2  WalkUpBranch  }
+Define  Assign  {  AssignNeedsTest  }
+Define  Branch  {  PatientOrNurseBranch1  TestBranch  WalkUpBranch  }
 Define  Statistics  {  Doctor1Utilization  Doctor2Utilization  ScheduledWaitForTreat  WalkUpWaitForTest  WalkUpWaitForTreat  WalkUpWaitForTriage  }
 Define  ColladaModel  {  Axis  Grid100x100  }
 Define  ImageModel  {  doctor-female-model  doctor-female-model1  doctor-male-model  doctor-male-model1  nurse-model  nurse-model1  nurse2-model  nurse2-model1  patient-female-model  patient-female-model1  patient-male-model  patient-male-model1  }
 Define  DisplayEntity  {  XY-Grid  XYZ-Axis  }
-Define  EntityLabel  {  AppointmentArrivalDist_Label  AppointmentTimes_Label  AppointmentTreatDist_Label  ControlUnit1_Label  Doctor1ArriveEvent_Label  Doctor1Utilization_Label  Doctor1_Label  Doctor2ArriveEvent_Label  Doctor2Utilization_Label  Doctor2_Label  DoctorLeave_Label  MoveToLeave2_Label  MoveToLeave3_Label  MoveToLeave4_Label  MoveToLeave_Label  MoveToTest_Label  MoveToTreat2_Label  MoveToTreat3_Label  MoveToTreat_Label  MoveToTriage_Label  NeedsTestDist_Label  PatientOrNurseBranch1_Label  PatientOrNurseBranch2_Label  ScheduledPatientArrive_Label  ScheduledPatientLeaveEvent_Label  ScheduledPatient_Label  ScheduledWaitForTreat_Label  TestDist_Label  TestNurseArriveEvent_Label  TestNurse_Label  TestTrigger1_Label  Test_Label  TreatScheduled_Label  TreatTrigger1_Label  TreatWalkUp2_Label  TreatWalkUp_Label  TriageDist_Label  TriageNurseArriveEvent_Label  TriageNurseToWait_Label  TriageNurse_Label  TriageTrigger1_Label  Triage_Label  WaitForTest_Label  WaitForTreat_Label  WaitForTriage_Label  WaitToTest_Label  WaitToTreatScheduled_Label  WaitToTreatWalkUp_Label  WaitToTriage_Label  WalkUpBranch_Label  WalkUpDist_Label  WalkUpPatientArriveEvent_Label  WalkUpPatientLeaveEvent_Label  WalkUpPatient_Label  WalkUpRates_Label  WalkUpTreatDist_Label  WalkUpWaitForTest_Label  WalkUpWaitForTreat_Label  WalkUpWaitForTriage_Label  }
+Define  EntityLabel  {  AppointmentArrivalDist_Label  AppointmentTimes_Label  AppointmentTreatDist_Label  AssignNeedsTest_Label  ControlUnit1_Label  DiscreteDistribution1_Label  Doctor1ArriveEvent_Label  Doctor1Utilization_Label  Doctor1_Label  Doctor2ArriveEvent_Label  Doctor2Utilization_Label  Doctor2_Label  DoctorLeave_Label  MoveToLeave2_Label  MoveToLeave3_Label  MoveToLeave4_Label  MoveToLeave_Label  MoveToTest_Label  MoveToTreat2_Label  MoveToTreat3_Label  MoveToTreat_Label  MoveToTriage_Label  NeedsTestDist_Label  PatientOrNurseBranch1_Label  ScheduledPatientArrive_Label  ScheduledPatientLeaveEvent_Label  ScheduledPatient_Label  ScheduledWaitForTreat_Label  TestBranch_Label  TestDist_Label  TestNurseArriveEvent_Label  TestNurse_Label  TestTrigger1_Label  Test_Label  TreatScheduled_Label  TreatTrigger1_Label  TreatWalkUp2_Label  TreatWalkUp_Label  TriageDist_Label  TriageNurseArriveEvent_Label  TriageNurseToWait_Label  TriageNurse_Label  TriageTrigger1_Label  Triage_Label  WaitForTest_Label  WaitForTreat_Label  WaitForTriage_Label  WaitToTest_Label  WaitToTreatScheduled_Label  WaitToTreatWalkUp_Label  WaitToTriage_Label  WalkUpBranch_Label  WalkUpDist_Label  WalkUpPatientArriveEvent_Label  WalkUpPatientLeaveEvent_Label  WalkUpPatient_Label  WalkUpRates_Label  WalkUpTreatDist_Label  WalkUpWaitForTest_Label  WalkUpWaitForTreat_Label  WalkUpWaitForTriage_Label  }
 Define  OverlayClock  {  Clock  }
 Define  OverlayText  {  Title  }
 Define  View  {  View1  }
 WalkUpRates  UnitType  {  DimensionlessUnit  }
+DiscreteDistribution1  UnitType  {  DimensionlessUnit  }
 AppointmentArrivalDist  UnitType  {  TimeUnit  }
 AppointmentTreatDist  UnitType  {  TimeUnit  }
 TestDist  UnitType  {  TimeUnit  }
@@ -40,12 +43,12 @@ Doctor2  AttributeDefinitionList  {  {  isDoctor2  1  }  }
 ScheduledPatient  AttributeDefinitionList  {  {  isScheduled  1  }  {  Match  "Scheduled"  }  }
 TestNurse  AttributeDefinitionList  {  {  Match  "TestNurse"  }  }
 TriageNurse  AttributeDefinitionList  {  {  Match  "TriageNurse"  }  }
-WalkUpPatient  AttributeDefinitionList  {  {  isScheduled  0  }  {  Match  "WalkUp"  }  {  needsTest  "FALSE"  }  }
-WalkUpPatientArriveEvent  AttributeDefinitionList  {  {  needsTest  [NeedsTestDist].Value  }  }
+WalkUpPatient  AttributeDefinitionList  {  {  isScheduled  0  }  {  Match  "WalkUp"  }  {  needsTest  0  }  }
 Simulation  Description  {  Simulation run control inputs  }
+Simulation  RunOutputList  {  {  [WalkUpWaitForTriage].SampleAverage  }  {  [WalkUpWaitForTest].SampleAverage  }  {  [WalkUpWaitForTreat].SampleAverage  }  {  [ScheduledWaitForTreat].SampleAverage  }  {  [Doctor1Utilization].SampleAverage  }  {  [Doctor2Utilization].SampleAverage  }  }
 AppointmentTimes  TimeList  {  15  30  60  75  90  105  135  150  165  195  210  240  255  270  285  300  315  330  360  375  405  420  435  495  510  525  555  570  585  615  630  645  660  690  705  720  735  765  795  810  825  840  870  885  930  945  975  990  1005  1035  1065  1080  1095  1110  1125  1140  1155  1200  1215  1230  1245  1260  1290  1320  1335  1350  1365  1380  1395  1410  1425  min  }
 AppointmentTimes  CycleTime  {  24  h  }
-WalkUpRates  Value  {  {  0  h  0  }  {  8  h  40  }  {  17  h  220  }  {  24  h  290  }  }
+WalkUpRates  Value  {  {  0  h  0  }  {  8  h  8  }  {  17  h  44  }  {  24  h  58  }  }
 WalkUpRates  CycleTime  {  24  h  }
 TestTrigger1  ControlUnit  {  ControlUnit1  }
 TreatTrigger1  ControlUnit  {  ControlUnit1  }
@@ -91,7 +94,7 @@ WalkUpPatientArriveEvent  FirstArrivalTime  {  [WalkUpDist].Value  }
 WalkUpPatientArriveEvent  InterArrivalTime  {  [WalkUpDist].Value  }
 WalkUpPatientArriveEvent  PrototypeEntity  {  WalkUpPatient  }
 WalkUpPatientArriveEvent  BaseName  {  WalkUpPatient  }
-WalkUpPatientArriveEvent  NextAEJObject  {  MoveToTriage  }
+WalkUpPatientArriveEvent  NextAEJObject  {  AssignNeedsTest  }
 MoveToLeave  StateAssignment  {  Leave  }
 MoveToLeave  Duration  {  2  min  }
 MoveToLeave  ParticipantList  {  WalkUpPatient  }
@@ -127,10 +130,10 @@ MoveToTreat3  NextAEJList  {  WaitForTreat  }
 MoveToTriage  Duration  {  2  min  }
 MoveToTriage  ParticipantList  {  WalkUpPatient  }
 MoveToTriage  NextAEJList  {  WaitForTriage  }
-Test  Duration  {  TestDist  }
+Test  Duration  {  10  min  }
 Test  ControlUnit  {  ControlUnit1  }
 Test  ParticipantList  {  WalkUpPatient  TestNurse  }
-Test  NextAEJList  {  MoveToTreat2  }
+Test  NextAEJList  {  MoveToTreat2  WaitToTest  }
 TreatScheduled  Duration  {  AppointmentTreatDist  }
 TreatScheduled  ControlUnit  {  ControlUnit1  }
 TreatScheduled  ParticipantList  {  ScheduledPatient  Doctor2  }
@@ -181,6 +184,9 @@ WaitToTriage  StartTriggerList  {  TriageTrigger1  }
 WaitToTriage  StartTriggerChoice  {  1  }
 NeedsTestDist  RandomSeed  {  4  }
 NeedsTestDist  TrueProbability  {  0.3  }
+DiscreteDistribution1  RandomSeed  {  8  }
+DiscreteDistribution1  ValueList  {  0  1  }
+DiscreteDistribution1  ProbabilityList  {  0.7  0.3  }
 WalkUpDist  RandomSeed  {  6  }
 WalkUpDist  ExpectedArrivals  {  WalkUpRates  }
 AppointmentArrivalDist  RandomSeed  {  5  }
@@ -203,12 +209,14 @@ WalkUpTreatDist  RandomSeed  {  2  }
 WalkUpTreatDist  MinValue  {  5  min  }
 WalkUpTreatDist  MaxValue  {  30  min  }
 WalkUpTreatDist  Mode  {  10  min  }
-PatientOrNurseBranch1  NextComponentList  {  WalkUpBranch  WaitToTriage  }
+AssignNeedsTest  NextComponent  {  MoveToTriage  }
+AssignNeedsTest  AttributeAssignmentList  {  {  this.obj.needsTest = [DiscreteDistribution1].Value  }  }
+PatientOrNurseBranch1  NextComponentList  {  WalkUpBranch  TriageNurseToWait  }
 PatientOrNurseBranch1  Choice  {  this.obj.Match == "WalkUp" ? 1 : 2  }
-PatientOrNurseBranch2  NextComponentList  {  WalkUpWaitForTest  WalkUpWaitForTreat  }
-PatientOrNurseBranch2  Choice  {  this.obj.needsTest ? 1 : 2  }
+TestBranch  NextComponentList  {  WalkUpWaitForTest  WalkUpWaitForTreat  }
+TestBranch  Choice  {  this.obj.needsTest ? 1 : 2  }
 WalkUpBranch  NextComponentList  {  MoveToTest  MoveToTreat  }
-WalkUpBranch  Choice  {  this.obj.needsTest ? 1 : 2  }
+WalkUpBranch  Choice  {  this.obj.needsTest == 1 ? 1 : 2  }
 Doctor1Utilization  NextComponent  {  DoctorLeave  }
 Doctor1Utilization  SampleValue  {  this.obj.StateTimes("Working")/this.obj.TotalTime  }
 Doctor2Utilization  NextComponent  {  DoctorLeave  }
@@ -219,11 +227,11 @@ WalkUpWaitForTest  NextComponent  {  WalkUpWaitForTreat  }
 WalkUpWaitForTest  SampleValue  {  this.obj.StateTimes("WaitForTest")  }
 WalkUpWaitForTreat  NextComponent  {  WalkUpPatientLeaveEvent  }
 WalkUpWaitForTreat  SampleValue  {  this.obj.StateTimes("WaitForTreat")  }
-WalkUpWaitForTriage  NextComponent  {  PatientOrNurseBranch2  }
+WalkUpWaitForTriage  NextComponent  {  TestBranch  }
 WalkUpWaitForTriage  SampleValue  {  this.obj.StateTimes("WaitForTriage")  }
 Simulation  RealTime  {  TRUE  }
 Simulation  SnapToGrid  {  TRUE  }
-Simulation  RealTimeFactor  {  128  }
+Simulation  RealTimeFactor  {  2048  }
 Simulation  ShowLabels  {  TRUE  }
 Simulation  ShowSubModels  {  TRUE  }
 Simulation  ShowEntityFlow  {  TRUE  }
@@ -267,7 +275,7 @@ Doctor2ArriveEvent  Position  {  -6.3  -3.4  0.0  m  }
 ScheduledPatientArrive  Position  {  -6.3  -2.4  0.0  m  }
 TestNurseArriveEvent  Position  {  -6.3  4.6  0.0  m  }
 TriageNurseArriveEvent  Position  {  -6.3  5.6  0.0  m  }
-WalkUpPatientArriveEvent  Position  {  -6.3  2.6  0.0  m  }
+WalkUpPatientArriveEvent  Position  {  -6.6  2.6  0.0  m  }
 ControlUnit1  Position  {  -6.8  7.6  0.0  m  }
 DoctorLeave  Position  {  2.5  -4.6  0.0  m  }
 ScheduledPatientLeaveEvent  Position  {  7.5  -1.5  0.0  m  }
@@ -289,7 +297,7 @@ MoveToTreat2  Points  {  {  2.5  2.5  0.0  m  }  {  -2.5  0.0  0.0  m  }  }
 MoveToTreat3  Position  {  -5.0  -3.3  0.0  m  }
 MoveToTreat3  Points  {  {  -5.6  -2.4  0.0  m  }  {  -3.2  -0.4  0.0  m  }  }
 MoveToTriage  Position  {  -1.0  6.5  0.0  m  }
-MoveToTriage  Points  {  {  -5.5  2.5  0.0  m  }  {  -3.3  5.5  0.0  m  }  }
+MoveToTriage  Points  {  {  -4.7  3.3  0.0  m  }  {  -3.3  5.5  0.0  m  }  }
 Test  Position  {  1.0  2.5  0.0  m  }
 Test  Points  {  {  0.0  2.5  0.0  m  }  {  2.0  2.5  0.0  m  }  }
 TreatScheduled  Position  {  1.0  -1.5  0.0  m  }
@@ -311,14 +319,17 @@ WaitToTreatScheduled  Position  {  -2.5  -2.4  0.0  m  }
 WaitToTreatWalkUp  Position  {  -2.5  -1.4  0.0  m  }
 WaitToTriage  Position  {  -2.5  6.6  0.0  m  }
 NeedsTestDist  Position  {  -10.2  1.1  0.0  m  }
+DiscreteDistribution1  Position  {  -7.7  0.7  0.0  m  }
 WalkUpDist  Position  {  -10.2  2.3  0.0  m  }
 AppointmentArrivalDist  Position  {  -10.8  -1.8  0.0  m  }
 AppointmentTreatDist  Position  {  -2.5  -4.2  0.0  m  }
 TestDist  Position  {  -2.0  8.0  0.0  m  }
 TriageDist  Position  {  -3.0  8.0  0.0  m  }
 WalkUpTreatDist  Position  {  -4.5  -4.2  0.0  m  }
+AssignNeedsTest  Position  {  -4.7  2.6  0.0  m  }
+AssignNeedsTest  Size  {  0.7  0.7  1.0  m  }
 PatientOrNurseBranch1  Position  {  3.5  6.6  0.0  m  }
-PatientOrNurseBranch2  Position  {  5.5  1.5  0.0  m  }
+TestBranch  Position  {  5.5  1.5  0.0  m  }
 WalkUpBranch  Position  {  3.5  4.5  0.0  m  }
 Doctor1Utilization  Position  {  3.5  -3.5  0.0  m  }
 Doctor2Utilization  Position  {  1.9  -3.5  0.0  m  }
@@ -360,11 +371,21 @@ AppointmentTreatDist_Label  Size  {  2.402194  0.3  0.0  m  }
 AppointmentTreatDist_Label  RelativeEntity  {  AppointmentTreatDist  }
 AppointmentTreatDist_Label  Show  {  FALSE  }
 AppointmentTreatDist_Label  TargetEntity  {  AppointmentTreatDist  }
+AssignNeedsTest_Label  Position  {  0.0  -0.5  0.0  m  }
+AssignNeedsTest_Label  Size  {  1.879289  0.3  0.0  m  }
+AssignNeedsTest_Label  RelativeEntity  {  AssignNeedsTest  }
+AssignNeedsTest_Label  Show  {  FALSE  }
+AssignNeedsTest_Label  TargetEntity  {  AssignNeedsTest  }
 ControlUnit1_Label  Position  {  0.0  -0.4  0.0  m  }
 ControlUnit1_Label  Size  {  1.438664  0.3  0.0  m  }
 ControlUnit1_Label  RelativeEntity  {  ControlUnit1  }
 ControlUnit1_Label  Show  {  FALSE  }
 ControlUnit1_Label  TargetEntity  {  ControlUnit1  }
+DiscreteDistribution1_Label  Position  {  0.0  -0.65  0.0  m  }
+DiscreteDistribution1_Label  Size  {  2.306948  0.3  0.0  m  }
+DiscreteDistribution1_Label  RelativeEntity  {  DiscreteDistribution1  }
+DiscreteDistribution1_Label  Show  {  FALSE  }
+DiscreteDistribution1_Label  TargetEntity  {  DiscreteDistribution1  }
 Doctor1ArriveEvent_Label  Position  {  0.0  -0.4  0.0  m  }
 Doctor1ArriveEvent_Label  Size  {  2.153258  0.3  0.0  m  }
 Doctor1ArriveEvent_Label  RelativeEntity  {  Doctor1ArriveEvent  }
@@ -440,7 +461,7 @@ MoveToTreat_Label  Size  {  1.476363  0.3  0.0  m  }
 MoveToTreat_Label  RelativeEntity  {  MoveToTreat  }
 MoveToTreat_Label  Show  {  FALSE  }
 MoveToTreat_Label  TargetEntity  {  MoveToTreat  }
-MoveToTriage_Label  Position  {  -3.9  -3.1  0.0  m  }
+MoveToTriage_Label  Position  {  -2.7  -2.1  0.0  m  }
 MoveToTriage_Label  Size  {  1.579189  0.3  0.0  m  }
 MoveToTriage_Label  RelativeEntity  {  MoveToTriage  }
 MoveToTriage_Label  Show  {  FALSE  }
@@ -454,11 +475,6 @@ PatientOrNurseBranch1_Label  Size  {  2.55369  0.3  0.0  m  }
 PatientOrNurseBranch1_Label  RelativeEntity  {  PatientOrNurseBranch1  }
 PatientOrNurseBranch1_Label  Show  {  FALSE  }
 PatientOrNurseBranch1_Label  TargetEntity  {  PatientOrNurseBranch1  }
-PatientOrNurseBranch2_Label  Position  {  0.0  -0.65  0.0  m  }
-PatientOrNurseBranch2_Label  Size  {  2.55369  0.3  0.0  m  }
-PatientOrNurseBranch2_Label  RelativeEntity  {  PatientOrNurseBranch2  }
-PatientOrNurseBranch2_Label  Show  {  FALSE  }
-PatientOrNurseBranch2_Label  TargetEntity  {  PatientOrNurseBranch2  }
 ScheduledPatientArrive_Label  Position  {  0.0  -0.4  0.0  m  }
 ScheduledPatientArrive_Label  Size  {  2.53484  0.3  0.0  m  }
 ScheduledPatientArrive_Label  RelativeEntity  {  ScheduledPatientArrive  }
@@ -479,6 +495,11 @@ ScheduledWaitForTreat_Label  Size  {  2.536037  0.3  0.0  m  }
 ScheduledWaitForTreat_Label  RelativeEntity  {  ScheduledWaitForTreat  }
 ScheduledWaitForTreat_Label  Show  {  FALSE  }
 ScheduledWaitForTreat_Label  TargetEntity  {  ScheduledWaitForTreat  }
+TestBranch_Label  Position  {  0.0  -0.65  0.0  m  }
+TestBranch_Label  Size  {  1.299235  0.3  0.0  m  }
+TestBranch_Label  RelativeEntity  {  TestBranch  }
+TestBranch_Label  Show  {  FALSE  }
+TestBranch_Label  TargetEntity  {  TestBranch  }
 TestDist_Label  Position  {  0.0  -0.65  0.0  m  }
 TestDist_Label  Size  {  0.984774  0.3  0.0  m  }
 TestDist_Label  RelativeEntity  {  TestDist  }
@@ -499,7 +520,7 @@ TestTrigger1_Label  Size  {  1.446742  0.3  0.0  m  }
 TestTrigger1_Label  RelativeEntity  {  TestTrigger1  }
 TestTrigger1_Label  Show  {  FALSE  }
 TestTrigger1_Label  TargetEntity  {  TestTrigger1  }
-Test_Label  Position  {  0.0  -0.4  0.0  m  }
+Test_Label  Position  {  0.0  -0.2  0.0  m  }
 Test_Label  Size  {  0.584441  0.3  0.0  m  }
 Test_Label  RelativeEntity  {  Test  }
 Test_Label  Show  {  FALSE  }
@@ -549,7 +570,7 @@ TriageTrigger1_Label  Size  {  1.652992  0.3  0.0  m  }
 TriageTrigger1_Label  RelativeEntity  {  TriageTrigger1  }
 TriageTrigger1_Label  Show  {  FALSE  }
 TriageTrigger1_Label  TargetEntity  {  TriageTrigger1  }
-Triage_Label  Position  {  0.0  -0.4  0.0  m  }
+Triage_Label  Position  {  0.0  -0.2  0.0  m  }
 Triage_Label  Size  {  0.790691  0.3  0.0  m  }
 Triage_Label  RelativeEntity  {  Triage  }
 Triage_Label  Show  {  FALSE  }
@@ -653,8 +674,8 @@ Title  TextHeight  {  18  }
 Title  FontColour  {  150  23  46  }
 Title  FontStyle  {  BOLD  }
 View1  Description  {  Default view window  }
-View1  ViewCenter  {  5.019205  1.776514  14.314426  m  }
-View1  ViewPosition  {  5.019205  1.776514  31.63493  m  }
+View1  ViewCenter  {  1.137703  3.695897  2.322331  m  }
+View1  ViewPosition  {  1.137703  3.695897  19.642835  m  }
 View1  ShowWindow  {  TRUE  }
 View1  Lock2D  {  TRUE  }
 View1  SkyboxImage  {  <res>/images/sky_map_2048x1024.jpg  }
