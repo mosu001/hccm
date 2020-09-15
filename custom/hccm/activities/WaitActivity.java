@@ -136,7 +136,7 @@ public class WaitActivity extends Queue implements Activity {
 				for (ProcessActivity req : reqs) {
 					ControlUnit rcu = req.getControlUnit();
 	  			    // Request the activity
-					System.out.println("Requested activity = " + req.getName());
+					//System.out.println("Requested activity = " + req.getName());
 	  			    rcu.requestActivity(req, ent, act, simTime);
 				}
 					

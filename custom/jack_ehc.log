@@ -49,13 +49,13 @@ TestNurse  AttributeDefinitionList  {  {  Match  "TestNurse"  }  }
 TriageNurse  AttributeDefinitionList  {  {  Match  "TriageNurse"  }  }
 WalkUpPatient  AttributeDefinitionList  {  {  isScheduled  0  }  {  Match  "WalkUp"  }  {  needsTest  0  }  }
 Simulation  Description  {  Simulation run control inputs  }
-Simulation  RunDuration  {  192  h  }
+Simulation  RunDuration  {  168  h  }
 Simulation  InitializationDuration  {  24  h  }
 Simulation  GlobalSubstreamSeed  {  [Simulation].RunIndex(2)  }
-Simulation  RunOutputList  {  {  [WalkUpTimeInSystem].SampleAverage  }  {  [WalkUpWaitForTriage].SampleAverage  }  {  [WalkUpWaitForTest].SampleAverage  }  {  [WalkUpWaitForTreat].SampleAverage  }  {  [ScheduledTimeInSystem].SampleAverage  }  {  [ScheduledWaitForTreat].SampleAverage  }  {  [Doctor1Utilization].Value  }  {  [Doctor2Utilization].Value  }  {  [TriageNurseUtilization].Value  }  {  [TestNurseUtilization].Value  }  }
-Simulation  RunIndexDefinitionList  {  4  100  }
+Simulation  RunOutputList  {  {  [WalkUpTimeInSystem].SampleAverage  }  {  [WalkUpWaitForTriage].SampleAverage  }  {  [WalkUpWaitForTest].SampleAverage  }  {  [WalkUpWaitForTreat].SampleAverage  }  {  [ScheduledTimeInSystem].SampleAverage  }  {  [ScheduledWaitForTreat].SampleAverage  }  {  [TriageNurseUtilization].Value  }  {  [TestNurseUtilization].Value  }  {  [Doctor1Utilization].Value  }  {  [Doctor2Utilization].Value  }  }
+Simulation  RunIndexDefinitionList  {  4  1000  }
 Simulation  StartingRunNumber  {  4-1  }
-Simulation  EndingRunNumber  {  4-100  }
+Simulation  EndingRunNumber  {  4-1000  }
 AppointmentTimes  TimeList  {  15  30  60  75  90  105  135  150  165  195  210  240  255  270  285  300  315  330  360  375  405  420  435  495  510  525  555  570  585  615  630  645  660  690  705  720  735  765  795  810  825  840  870  885  930  945  975  990  1005  1035  1065  1080  1095  1110  1125  1140  1155  1200  1215  1230  1245  1260  1290  1320  1335  1350  1365  1380  1395  1410  1425  min  }
 AppointmentTimes  CycleTime  {  24  h  }
 Doctor1Utilization  Expression  {  [TreatWalkUp].WorkingTime/[TreatWalkUp].TotalTime  }
@@ -110,11 +110,11 @@ WalkUpPatientArriveEvent  PrototypeEntity  {  WalkUpPatient  }
 WalkUpPatientArriveEvent  BaseName  {  WalkUpPatient  }
 WalkUpPatientArriveEvent  NextAEJObject  {  AssignNeedsTest  }
 MoveToLeave  StateAssignment  {  Leave  }
-MoveToLeave  Duration  {  2  min  }
+MoveToLeave  Duration  {  2  s  }
 MoveToLeave  ParticipantList  {  WalkUpPatient  }
 MoveToLeave  NextAEJList  {  WalkUpWaitForTriage  }
 MoveToLeave2  StateAssignment  {  Leave  }
-MoveToLeave2  Duration  {  2  min  }
+MoveToLeave2  Duration  {  2  s  }
 MoveToLeave2  ParticipantList  {  ScheduledPatient  }
 MoveToLeave2  NextAEJList  {  ScheduledWaitForTreat  }
 MoveToTest  StateAssignment  {  Move  }
@@ -234,7 +234,7 @@ WalkUpWaitForTreat  NextComponent  {  WalkUpTimeInSystem  }
 WalkUpWaitForTreat  SampleValue  {  this.obj.StateTimes("WaitForTreat")  }
 WalkUpWaitForTriage  NextComponent  {  TestBranch  }
 WalkUpWaitForTriage  SampleValue  {  this.obj.StateTimes("WaitForTriage")  }
-Simulation  RealTime  {  TRUE  }
+Simulation  RealTime  {  FALSE  }
 Simulation  SnapToGrid  {  TRUE  }
 Simulation  RealTimeFactor  {  2048  }
 Simulation  ShowLabels  {  TRUE  }

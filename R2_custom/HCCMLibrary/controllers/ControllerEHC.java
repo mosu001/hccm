@@ -46,6 +46,8 @@ public class ControllerEHC extends HCCMController {
 	DisplayEntity waitingroomtotreat1 = null;
 	DisplayEntity waitingroomtotreat2 = null;
 	DisplayEntity arrivalgate = null;
+        DisplayEntity triagenurseutilization = null;
+        DisplayEntity testnurseutilization = null;
 
 	// Create needed variables
 	Double waitingroomcapacity = null;
@@ -90,6 +92,8 @@ public class ControllerEHC extends HCCMController {
 		waitingroomtotreat1 = getDisplayEntity("WaitingRoomToTreat1");
 		waitingroomtotreat2 = getDisplayEntity("WaitingRoomToTreat2");
 		arrivalgate = getDisplayEntity("ArrivalGate");
+                triagenurseutilization = getDisplayEntity("TriageNurseUtilization");
+                testnurseutilization = getDisplayEntity("TestNurseUtilization");
 		controllerehc = this;
 
 		// Get needed variables
@@ -97,20 +101,23 @@ public class ControllerEHC extends HCCMController {
 		waitingroomopen = 1.0;
 		
 		// Time when WalkUpDoctorShift changes, send signal to controller
-		changeshiftwalkupdoctor = getNextChange("WalkUpDoctorRoster");
-		this.scheduleProcess(changeshiftwalkupdoctor, 5, "sendActivitySignal",controllerehc, walkupdoctorroster, walkupdoctorroster, "ChangeState");
+		//changeshiftwalkupdoctor = getNextChange("WalkUpDoctorRoster");
+		//this.scheduleProcess(changeshiftwalkupdoctor, 5, "sendActivitySignal",controllerehc, walkupdoctorroster, walkupdoctorroster, "ChangeState");
 
 		// Time when AppointmentDoctorShift changes, send signal to controller
-		changeshiftappointmentdoctor = getNextChange("AppointmentDoctorRoster");
-		this.scheduleProcess(changeshiftappointmentdoctor, 5, "sendActivitySignal",controllerehc, appointmentdoctorroster, appointmentdoctorroster, "ChangeState");
+		//changeshiftappointmentdoctor = getNextChange("AppointmentDoctorRoster");
+		//this.scheduleProcess(changeshiftappointmentdoctor, 5, "sendActivitySignal",controllerehc, appointmentdoctorroster, appointmentdoctorroster, "ChangeState");
 		
 		// End of day (uncomment to implement)
 		//this.scheduleProcess(daystart + lengthofday - wrapuptime, 5, "sendActivitySignal", controllerehc, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor"), (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")), "WrapUpDay");
 		//this.scheduleProcess(daystart + lengthofday, 5, "sendActivitySignal", controllerehc, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor"), (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")), "EndDay");
 		
 		// End of run 192h (168+24h setup)
-		this.scheduleProcess(691200 - wrapuptime - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "WrapUpDay");
-		this.scheduleProcess(691200 - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");		
+		//this.scheduleProcess(691200 - wrapuptime - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "WrapUpDay");
+		//this.scheduleProcess(691200 - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");	
+                
+                // End of run 192h no wrapup
+                this.scheduleProcess(691199,5,"sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");
 		
 		// Clear data Maps (utilisationTimes for this example)
 		utilisationTimes.clear();
@@ -491,8 +498,8 @@ public class ControllerEHC extends HCCMController {
 		
 		// End of Day
 		else if (happens(activeEntity, activity, state, "WaitingRoom", "WaitingRoom", "EndDay")) {
-			moveEntFromTo(((HCCMControlActivity)triageroom).getFirstForMatch("TriageNurse"), triageroom, triagenurseleave);
-			moveEntFromTo(((HCCMControlActivity)testroom).getFirstForMatch("TestNurse"), testroom, testnurseleave);
+			moveEntFromTo(((HCCMControlActivity)triageroom).getFirstForMatch("TriageNurse"), triageroom, triagenurseutilization);
+			moveEntFromTo(((HCCMControlActivity)testroom).getFirstForMatch("TestNurse"), testroom, testnurseutilization);
 			moveEntFromTo(((HCCMControlActivity)treatmentroom1).getFirstForMatch("WalkUpDoctor"), treatmentroom1, doctor1utilization);
 			moveEntFromTo(((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"), treatmentroom2, doctor2utilization);
 		}

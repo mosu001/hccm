@@ -208,11 +208,11 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				for (int i=0; i<ents.size(); i++) {
 				  ActiveEntity ent = ents.get(i);
 				  ActiveEntity proto = ent.getEntityType();
-				  System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
-				  System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
-				  if (nextCmpt instanceof Activity)
-					  System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
-				}
+				  //System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+				  //System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+                                    //if (nextCmpt instanceof Activity)
+					  //System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+                                }
 				Constants.nextComponent(nextCmpt, ents);
 			} else {
 				// Send each entity to its next activity or event
@@ -220,13 +220,13 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					ActiveEntity ent = ents.get(i);
 					ActiveEntity proto = ent.getEntityType();
 					int index = participantList.getValue().indexOf(proto);
-					System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
-					System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
-					System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
-					System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
+					//System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+					//System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+					//System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
+					//System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
 					Linkable nextCmpt = nextAEJList.getValue().get(index);
 					if (nextCmpt instanceof Activity)
-						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+						//System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
 					Constants.nextComponent(nextCmpt, ent);
 				}
 			}

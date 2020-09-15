@@ -143,7 +143,7 @@ public class ControlUnit extends DisplayEntity {
 		List<String> entStrs = ents.stream().map(ActiveEntity::getName)
                                             .collect(Collectors.toList());
 		String entsAsString = String.join(",", entStrs);
-		System.out.println(this.getName() +": Triggered by " + entsAsString);
+		//System.out.println(this.getName() +": Triggered by " + entsAsString);
 		trg.executeLogic(ents, simTime);
 	}
 	
