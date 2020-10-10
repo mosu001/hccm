@@ -38,9 +38,9 @@ public class TreatTrigger extends Trigger {
 
             /*
              * There are three possible actions this trigger can control:
-             * 1. Doctor 2 sees scheduled patient (if there are requests from a scheduled patient and doctor2)
-             * 2. Doctor 1 sees walkup patient (if there are requests from a walk up patient and doctor1)
-             * 3. Doctor 2 sees walkup patient (if there are requests from a walk up patient and doctor2)
+             * 1. Doctor 2 sees scheduled patient (if there are requests from a scheduled patient and doctor2 is free)
+             * 2. Doctor 1 sees walkup patient (if there are requests from a walk up patient and doctor1 is free)
+             * 3. Doctor 2 sees walkup patient (if there are requests from a walk up patient and doctor2 is free)
              * 
              * We need to check in this order, because we only want doctor 2 to see walkup patients if doctor1
              * is unavailable, otherwise we will waste doctor 1s time. Since doctor 2 is more flexible, it is 
