@@ -17,6 +17,7 @@ import com.jaamsim.units.DimensionlessUnit;
 
 import HCCMLibrary.controlactivity.HCCMControlActivity;
 import HCCMLibrary.entities.HCCMActiveEntity;
+import com.jaamsim.events.EventManager;
 
 public class EXTControllerEHC extends HCCMController {
 
@@ -115,11 +116,11 @@ public class EXTControllerEHC extends HCCMController {
 		//this.scheduleProcess(daystart + lengthofday, 5, "sendActivitySignal", controllerehc, (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor"), (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")), "EndDay");
 		
 		// End of run 192h (168+24h setup)
-		//this.scheduleProcess(691200 - wrapuptime - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "WrapUpDay");
-		//this.scheduleProcess(691200 - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");	
+		this.scheduleProcess(691200 - wrapuptime - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "WrapUpDay");
+		this.scheduleProcess(691200 - 5, 5, "sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");	
                 
                 // End of run 192h no wrapup
-                this.scheduleProcess(691199,5,"sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");
+                //this.scheduleProcess(691199,5,"sendActivitySignal", controllerehc, waitingroom, waitingroom, "EndDay");
 		
 		// Clear data Maps (utilisationTimes for this example)
 		utilisationTimes.clear();
@@ -157,29 +158,100 @@ public class EXTControllerEHC extends HCCMController {
                 else if (happens(activeEntity, activity, state, "TriageNurse", "LunchRoom", "EndActivity")) {
                     DisplayEntity triagenurse = activeEntity;
                     makeServerAvailable(triagenurse);
-                    ((HCCMActiveEntity)triagenurse).setPresentState("Lunch");
                     moveEntFromTo(triagenurse, lunchroom, triageroom);
+                    // Check waiting room for waiting patient, grab the one that has been waiting longest
+                    ((HCCMActiveEntity)triagenurse).setPresentState("Idle");
+                    if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+                        for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+                                if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0)) < 0.01) {
+                                    moveEntFromTo(ent, waitingroom, waitingroomtotriage);
+                                    makeServerUnavailable((DisplayEntity)((HCCMControlActivity)triageroom).getFirstForMatch("TriageNurse"));
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 else if (happens(activeEntity, activity, state, "TestNurse", "LunchRoom", "EndActivity")) {
                     DisplayEntity testnurse = activeEntity;
                     makeServerAvailable(testnurse);
-                    ((HCCMActiveEntity)testnurse).setPresentState("Lunch");
                     moveEntFromTo(testnurse, lunchroom, testroom);
+                    // Check waiting room for waiting patient, grab the one that has been waiting longest
+                    ((HCCMActiveEntity)testnurse).setPresentState("Idle");
+                    if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+                        for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+                                if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.01) {
+                                    moveEntFromTo(ent, waitingroom, waitingroomtotest);
+                                    makeServerUnavailable((DisplayEntity)((HCCMControlActivity)testroom).getFirstForMatch("TestNurse"));
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 else if (happens(activeEntity, activity, state, "WalkUpDoctor", "LunchRoom", "EndActivity")) {
                     DisplayEntity walkupdoctor = activeEntity;
                     makeServerAvailable(walkupdoctor);
-                    ((HCCMActiveEntity)walkupdoctor).setPresentState("Lunch");
                     moveEntFromTo(walkupdoctor, lunchroom, treatmentroom1);
+                    
+                    // Check waiting room for waiting patient, grab the one that has been waiting longest
+                    ((HCCMActiveEntity)walkupdoctor).setPresentState("Idle");
+                    if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+                        for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+                                if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && serverAvailable("WalkUpDoctor", treatmentroom1) && serverAvailable("AppointmentDoctor", treatmentroom2) && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                    DisplayEntity appointmentdoctor = ((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor");;
+                                    moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
+                                    moveEntFromTo(appointmentdoctor, treatmentroom2, treatmentroom1);
+                                    makeServerUnavailable(walkupdoctor);
+                                    makeServerUnavailable(appointmentdoctor);
+                                    break;
+                                }
+                                else if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0)) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                    moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
+                                    makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom1).getFirstForMatch("WalkUpDoctor"));
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 else if (happens(activeEntity, activity, state, "AppointmentDoctor", "LunchRoom", "EndActivity")) {
                     DisplayEntity appointmentdoctor = activeEntity;
                     makeServerAvailable(appointmentdoctor);
-                    ((HCCMActiveEntity)appointmentdoctor).setPresentState("Lunch");
                     moveEntFromTo(appointmentdoctor, lunchroom, treatmentroom2);
+                    // Check waiting room for scheduled patient where the current time is >= their appointment time
+                    ((HCCMActiveEntity)appointmentdoctor).setPresentState("Idle");
+                    boolean moved = false;
+                    if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+                        for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient")) {
+                                if (ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime()) {
+                                    moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                    makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                    moved = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    // If no scheduled patients, check for a walkup patient ready to be treated
+                    if (moved == false) {
+                        for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+                                if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0)) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                    moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                    makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }                       
                 
 		// WalkUp Patient start Activity at WaitingRoom
@@ -210,8 +282,14 @@ public class EXTControllerEHC extends HCCMController {
 			else if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) < 0.01 && Math.abs(walkuppatient.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && serverAvailable("TestNurse",testroom)) {
 				sendActivitySignalToList(walkuppatient, waitingroom, "EndActivity");
 			}
-			// Finally, if ready for treatment (ie. triaged and either test completed or didnt need test)
-			else if (Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && serverAvailable("WalkUpDoctor",treatmentroom1) && (Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 || Math.abs(walkuppatient.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01)) {
+                        // Else if dual consult patient and both doctors available
+                        else if (Math.abs(walkuppatient.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0) - 1.0) < 0.01 && (serverAvailable("WalkUpDoctor", treatmentroom1) && serverAvailable("AppointmentDoctor", treatmentroom2))) {
+                            //makeServerUnavailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor"));
+                            //makeServerUnavailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor"));
+                            sendActivitySignalToList(walkuppatient, waitingroom, "EndActivity");
+                        }
+			// Finally, if ready for treatment (ie. triaged and either test completed or didnt need test) and doctor available
+			else if (Math.abs(walkuppatient.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0)) < 0.01 && Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (serverAvailable("WalkUpDoctor",treatmentroom1) || serverAvailable("AppointmentDoctor", treatmentroom2)) && (Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 || Math.abs(walkuppatient.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01)) {
 				sendActivitySignalToList(walkuppatient, waitingroom, "EndActivity");
 			}
 		}
@@ -232,6 +310,14 @@ public class EXTControllerEHC extends HCCMController {
 				moveEntFromTo(walkuppatient,waitingroom,waitingroomtotest);
 			}
 			
+                        // Dual consult patient and both doctors available
+                        else if ((Math.abs(walkuppatient.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0) - 1.0) < 0.01) && serverAvailable("WalkUpDoctor", treatmentroom1) && serverAvailable("AppointmentDoctor", treatmentroom2) && Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(walkuppatient.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                            makeServerUnavailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor"));
+                            makeServerUnavailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor"));
+                            moveEntFromTo(walkuppatient, waitingroom, waitingroomtotreat1);
+                            moveEntFromTo((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor"), treatmentroom2, treatmentroom1);
+                        }
+                        
 			// WalkUp Doctor is available, patient has been triaged and either doesn't need a test or has completed it
 			else if (serverAvailable("WalkUpDoctor",treatmentroom1) && Math.abs(walkuppatient.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(walkuppatient.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(walkuppatient.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
 				makeServerUnavailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor"));
@@ -361,21 +447,37 @@ public class EXTControllerEHC extends HCCMController {
 		
 		// WalkUp Patient starts Activity at TreatmentRoom1
 		else if (happens(activeEntity, activity, state, "WalkUpPatient", "TreatmentRoom1", "StartActivity")) {
-			DisplayEntity walkuppatient = activeEntity;
-			DisplayEntity walkupdoctor = ((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor");
-			makeServerUnavailable(walkupdoctor);
+                    DisplayEntity walkuppatient = activeEntity;
+                    if (Math.abs(walkuppatient.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0) - 1.0) < 0.01) {
+                        DisplayEntity walkupdoctor = ((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor");
+                        DisplayEntity appointmentdoctor = ((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor");
+                        makeServerUnavailable(walkupdoctor);
+                        makeServerUnavailable(appointmentdoctor);
+                        ((HCCMActiveEntity)walkuppatient).setPresentState("Treat");
+                        ((HCCMActiveEntity)walkupdoctor).setPresentState("Working");
+                        ((HCCMActiveEntity)appointmentdoctor).setPresentState("Working");
+                        
+                        double treatmenttime = getDistributionValue("WalkupTreatDist");
+                        this.scheduleProcess(treatmenttime, 5, "sendActivitySignalToList", walkuppatient, treatmentroom1, "EndActivity");
+			this.scheduleProcess(treatmenttime, 5, "sendActivitySignalToList", walkupdoctor, treatmentroom1, "EndActivity");
+                        this.scheduleProcess(treatmenttime, 5, "sendActivitySignalToList", appointmentdoctor, treatmentroom1, "EndActivity");
+                    }
+                    else {
+                        DisplayEntity walkupdoctor = ((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor");
+                        makeServerUnavailable(walkupdoctor);
 
-			((HCCMActiveEntity)walkuppatient).setPresentState("Treat");
-			((HCCMActiveEntity)walkupdoctor).setPresentState("Working");
+                        ((HCCMActiveEntity)walkuppatient).setPresentState("Treat");
+                        ((HCCMActiveEntity)walkupdoctor).setPresentState("Working");
 
-			if (simindex == 1 || simindex == 2) {
-				double treatmenttime = 15*60;
-				startScheduledActvitity (walkuppatient, walkupdoctor, treatmentroom1, treatmenttime);
-			}
-			else if (simindex == 3 || simindex == 4) {
-				double treatmenttime = getDistributionValue("WalkupTreatDist");
-				startScheduledActvitity (walkuppatient, walkupdoctor, treatmentroom1, treatmenttime);
-			}
+                        if (simindex == 1 || simindex == 2) {
+                                double treatmenttime = 15*60;
+                                startScheduledActvitity (walkuppatient, walkupdoctor, treatmentroom1, treatmenttime);
+                        }
+                        else if (simindex == 3 || simindex == 4) {
+                                double treatmenttime = getDistributionValue("WalkupTreatDist");
+                                startScheduledActvitity (walkuppatient, walkupdoctor, treatmentroom1, treatmenttime);
+                        }
+                    }
 		}
 		
 		// WalkUp Patient starts Activity at TreatmentRoom2
@@ -404,7 +506,15 @@ public class EXTControllerEHC extends HCCMController {
 			moveEntFromTo(walkuppatient,treatmentroom1,treat1finished);
 			makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor"));
 			DisplayEntity walkupdoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("WalkUpDoctor");
-			((HCCMActiveEntity)walkupdoctor).setPresentState("Idle");
+                        DisplayEntity appointmentdoctor;
+                        if (Math.abs(walkuppatient.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0) - 1.0) < 0.01) {
+                            appointmentdoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor");   
+                            makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom1")).getFirstForMatch("AppointmentDoctor"));
+                        }
+                        else {
+                            appointmentdoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor");
+                        }
+                        ((HCCMActiveEntity)walkupdoctor).setPresentState("Idle");
 			
                         // Check for doctor lunch
                         double simTime = getSimTime();
@@ -412,13 +522,121 @@ public class EXTControllerEHC extends HCCMController {
                             makeServerUnavailable(walkupdoctor);
                             ((HCCMActiveEntity)walkupdoctor).setPresentState("Lunch");
                             moveEntFromTo(walkupdoctor, treatmentroom1, lunchroom);
+                            if (Math.abs(walkuppatient.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0) - 1.0) < 0.01) {
+                                makeServerUnavailable(appointmentdoctor);
+                                ((HCCMActiveEntity)appointmentdoctor).setPresentState("Lunch");
+                                moveEntFromTo(appointmentdoctor, treatmentroom1, lunchroom);
+                            }
                         }
-                        
+                        // If dual consult patient, send appointment doctor back to treatment room 2
+                        else if (Math.abs(walkuppatient.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0) - 1.0) < 0.01) {
+                            if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
+                                
+                                // Check if new dual consult patient
+                                for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                    if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient") && Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0) - 1.0) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) - 1.0 < 0.01)) {
+                                        moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
+                                        makeServerUnavailable(walkupdoctor);
+                                        makeServerUnavailable(appointmentdoctor);
+                                        break;
+                                    }
+                                }
+                                
+                                // Otherwise check for new patient for scheduled doctor
+                                if (serverAvailable("AppointmentDoctor", treatmentroom1)) {
+                                    for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                        if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient") && ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime()) {
+                                            moveEntFromTo(appointmentdoctor, treatmentroom1, treatmentroom2);
+                                            moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                            makeServerUnavailable(appointmentdoctor);
+                                            break;
+                                        }
+                                    }
+                                    if (serverAvailable("AppointmentDoctor", treatmentroom1)) {
+                                        for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient") && Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0)) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) - 1.0 < 0.01)) {
+                                                moveEntFromTo(appointmentdoctor, treatmentroom1, treatmentroom2);
+                                                moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                                makeServerUnavailable(appointmentdoctor);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                // Otherwise, check for new patient for walkup doctor
+                                if (serverAvailable("WalkUpDoctor", treatmentroom1)) {
+                                    for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                        if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient") && Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 0.0)) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0)) - 1.0 < 0.01)) {
+                                            moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
+                                            makeServerUnavailable(walkupdoctor);
+                                            break;
+                                        }
+                                    }
+                                }
+                                else {
+                                    ;
+                                }
+                            }
+                            else {    
+                                moveEntFromTo(appointmentdoctor, treatmentroom1, treatmentroom2);
+                                makeServerAvailable(appointmentdoctor);
+                            }
+                                /*
+                                // New patient for walk up doctor
+                                for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                        if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient")) {
+                                                if (ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime())
+                                                        moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                                        makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                                        moved = true;
+                                                        break;
+                                        }
+                                }
+                                
+                                // New patient for scheduled doctor
+                                for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                        if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient")) {
+                                                if (ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime())
+                                                        moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                                        makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                                        moved = true;
+                                                        break;
+                                        }
+                                }
+                                
+                                // If no scheduled patients, check for a walkup patient ready to be treated
+                                if (moved == false) {
+                                        for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                                if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+                                                        if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                                                moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                                                makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                                                break;
+                                                        }
+                                                }
+                                        }
+                                }
+                            }
+                            else {
+                                moveEntFromTo(appointmentdoctor, treatmentroom1, treatmentroom2);
+                                makeServerAvailable(appointmentdoctor);
+                            }
+                            */
+                            
+                        }
 			// Else, check waiting room for waiting patient, grab the one that has been waiting longest
                         else if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
 				for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
 					if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
-						if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                                if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && serverAvailable("WalkUpDoctor", treatmentroom1) && serverAvailable("AppointmentDoctor", treatmentroom2) && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                                    moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
+                                                    moveEntFromTo(appointmentdoctor, treatmentroom2, treatmentroom1);
+                                                    makeServerUnavailable(walkupdoctor);
+                                                    makeServerUnavailable(appointmentdoctor);
+                                                    break;
+                                                }
+                                                else if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0)) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
 							moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
 							makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom1).getFirstForMatch("WalkUpDoctor"));
 							break;
@@ -434,12 +652,11 @@ public class EXTControllerEHC extends HCCMController {
 			DisplayEntity walkuppatient = activeEntity;
 			moveEntFromTo(walkuppatient,treatmentroom2,treat2finished);
 			makeServerAvailable((DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor"));
-			DisplayEntity appointmendoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor");
-			((HCCMActiveEntity)appointmendoctor).setPresentState("Idle");
+			DisplayEntity appointmentdoctor = (DisplayEntity)((HCCMControlActivity)getDisplayEntity("TreatmentRoom2")).getFirstForMatch("AppointmentDoctor");
+			((HCCMActiveEntity)appointmentdoctor).setPresentState("Idle");
                         
                         // Check for doctor lunch
-                        double simTime = getSimTime();
-                        DisplayEntity appointmentdoctor = activeEntity;              
+                        double simTime = getSimTime();       
                         if (simTime % 86400 > 43200 && simTime % 86400 < 45120) {
                             makeServerUnavailable(appointmentdoctor);
                             ((HCCMActiveEntity)appointmentdoctor).setPresentState("Lunch");
@@ -449,27 +666,28 @@ public class EXTControllerEHC extends HCCMController {
                             // Else, check waiting room for scheduled patient where the current time is >= their appointment time
                             boolean moved = false;
                             if (((HCCMControlActivity)waitingroom).getQueueLength(getSimTime()) > 0) {
-                                    for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
-                                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient")) {
-                                                    if (ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime())
-                                                            moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
-                                                            makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
-                                                            moved = true;
-                                                            break;
-                                            }
+                                for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                    if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("ScheduledPatient")) {
+                                        if (ent.getOutputHandle("AppointmentTime").getValueAsDouble(getSimTime(), 0.0)*3600 > getSimTime()) {
+                                            moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                            makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                            moved = true;
+                                            break;
+                                        }
                                     }
+                                }
                             }
                             // If no scheduled patients, check for a walkup patient ready to be treated
                             if (moved == false) {
-                                    for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
-                                            if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
-                                                    if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
-                                                            moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
-                                                            makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
-                                                            break;
-                                                    }
-                                            }
+                                for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                    if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+                                        if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0)) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                            moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
+                                            makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                            break;
+                                        }
                                     }
+                                }
                             }
                         }
 		}
@@ -549,13 +767,27 @@ public class EXTControllerEHC extends HCCMController {
                             if (moved == false) {
                                     for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
                                             if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
-                                                    if (Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                                    if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0)) < 0.01 && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
                                                             moveEntFromTo(ent, waitingroom, waitingroomtotreat2);
                                                             makeServerUnavailable((DisplayEntity)((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"));
+                                                            moved = true;
                                                             break;
                                                     }
                                             }
                                     }
+                            }
+                            if (moved == false) {
+                                for (DisplayEntity ent : ((HCCMControlActivity)waitingroom).getQueueList(getSimTime())) {
+                                    if (ent.getOutputHandle("Match").getValue(getSimTime(), String.class).equals("WalkUpPatient")) {
+                                            if (Math.abs(ent.getOutputHandle("needsDualConsult").getValueAsDouble(getSimTime(), 1.0)) - 1.0 < 0.01 && serverAvailable("WalkUpDoctor", treatmentroom1) && Math.abs(ent.getOutputHandle("hasBeenTriaged").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01 && (Math.abs(ent.getOutputHandle("NeedsTest").getValueAsDouble(getSimTime(), 1.0)) < 0.01 || Math.abs(ent.getOutputHandle("hasBeenTested").getValueAsDouble(getSimTime(), 1.0) - 1.0) < 0.01)) {
+                                                makeServerUnavailable(appointmentdoctor);
+                                                moveEntFromTo(appointmentdoctor, treatmentroom2, treatmentroom1);
+                                                moveEntFromTo(ent, waitingroom, waitingroomtotreat1);
+                                                moved = true;
+                                                break;
+                                            }
+                                    }
+                                }
                             }
                         }
 
@@ -606,6 +838,7 @@ public class EXTControllerEHC extends HCCMController {
 			moveEntFromTo(((HCCMControlActivity)testroom).getFirstForMatch("TestNurse"), testroom, testnurseutilization);
 			moveEntFromTo(((HCCMControlActivity)treatmentroom1).getFirstForMatch("WalkUpDoctor"), treatmentroom1, doctor1utilization);
 			moveEntFromTo(((HCCMControlActivity)treatmentroom2).getFirstForMatch("AppointmentDoctor"), treatmentroom2, doctor2utilization);
+                        getJaamSimModel().getEventManager().clear();
 		}
 	}
 	
