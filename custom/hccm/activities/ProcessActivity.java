@@ -208,11 +208,13 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				for (int i=0; i<ents.size(); i++) {
 				  ActiveEntity ent = ents.get(i);
 				  ActiveEntity proto = ent.getEntityType();
-				  //System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
-				  //System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
-                                    //if (nextCmpt instanceof Activity)
-					  //System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
-                                }
+				  System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+				  System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+                  if (nextCmpt instanceof Activity)					  
+                	  System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+                  else
+                	  System.out.println("After ProcessActivity " + owner.getName() + ", Component:" + nextCmpt.toString());
+                }
 				Constants.nextComponent(nextCmpt, ents);
 			} else {
 				// Send each entity to its next activity or event
@@ -220,13 +222,15 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					ActiveEntity ent = ents.get(i);
 					ActiveEntity proto = ent.getEntityType();
 					int index = participantList.getValue().indexOf(proto);
-					//System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
-					//System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
-					//System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
-					//System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
+					System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+					System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+					System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
+					System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
 					Linkable nextCmpt = nextAEJList.getValue().get(index);
 					if (nextCmpt instanceof Activity)
-						//System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+					else if (nextCmpt instanceof DisplayEntity)
+						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((DisplayEntity)nextCmpt).getName());
 					Constants.nextComponent(nextCmpt, ent);
 				}
 			}
@@ -363,6 +367,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		}
 		leavingContainer = participantEntity;
 		
+		for (ActiveEntity pent : participants) {
+			System.out.println("Finishing " + this.getName() + " with " + pent.getName());
+		}
 		finish(participants);
 		super.sendToNextComponent(participantEntity);
 		participantEntity.kill();
@@ -405,6 +412,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	public void finishAssignments(double simTime) {
 		for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
 			try {
+				System.out.println("Finish assignment is " + ass.toString());
 				ExpEvaluator.evaluateExpression(ass, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
