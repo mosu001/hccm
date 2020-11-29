@@ -1,7 +1,6 @@
 package hccm.activities;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 //import java.util.stream.StreamSupport;
 
@@ -9,7 +8,6 @@ import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityContainer;
 import com.jaamsim.ProcessFlow.EntityDelay;
 import com.jaamsim.ProcessFlow.Linkable;
-import com.jaamsim.ProcessFlow.LinkedComponent;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.ErrorException;
 //import com.jaamsim.Samples.SampleInput;
@@ -193,15 +191,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		 */
 		@Override
 		public void happens(List<ActiveEntity> ents) {
-			assigns();
-						
-			// Now finishing assignments are complete, remove the entity container
-			ProcessActivity act = (ProcessActivity)owner;
-			EntityContainer ec = act.leavingContainer;
+			ProcessActivity act = (ProcessActivity)this.owner;
 			double simTime = act.getSimTime();
-			for (DisplayEntity de : ec.getEntityList(simTime))
-				ec.removeEntity(null);
-			
+			assigns();
+									
 			if (nextAEJList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
 			    Linkable nextCmpt = nextAEJList.getValue().get(0);				
@@ -266,7 +259,6 @@ public class ProcessActivity extends EntityDelay implements Activity {
 
 	ProcessStart startEvent;
 	ProcessFinish finishEvent;
-	EntityContainer leavingContainer;
 	
 	/**
 	 * 
@@ -358,26 +350,19 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * @param ent, a DisplayEntity
 	 */
 	@Override
-	public void sendToNextComponent(DisplayEntity ent) {
-		assert(nextComponent.getValue() == null); // Moving components is achieved using events, so this should be null as it is hidden
+	public void removeDisplayEntity(DisplayEntity ent) {
+		System.out.println("In ProcessActivity::removeDisplayEntity..." + this.getEntityList(this.getSimTime()));
 		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
 	    EntityContainer participantEntity = (EntityContainer)ent;
 		for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
 			participants.add((ActiveEntity)de);
 		}
-		leavingContainer = participantEntity;
-		
-		for (ActiveEntity pent : participants) {
-			System.out.println("Finishing " + this.getName() + " with " + pent.getName());
-		}
 		finish(participants);
-		super.sendToNextComponent(participantEntity);
-		participantEntity.kill();
-		leavingContainer = null;
-	}
+		super.removeDisplayEntity(ent);
+	}	
 
 	/**
-	 * Overrides parent ActivityEvent method, executes the finish event by calling .happens()
+	 * Overrides parent ActivityEvent method, executes the finish event by calling .()
 	 * @param participants, a list of ActiveEntity objects that participate in the start event
 	 */
 	@Override
@@ -413,6 +398,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
 			try {
 				System.out.println("Finish assignment is " + ass.toString());
+				System.out.println(this.getEntityList(simTime));
 				ExpEvaluator.evaluateExpression(ass, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
