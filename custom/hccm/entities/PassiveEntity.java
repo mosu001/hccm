@@ -1,11 +1,6 @@
 package hccm.entities;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.jaamsim.Graphics.DisplayEntity;
-
-import hccm.activities.Activity;
 
 /**
  * 

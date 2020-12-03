@@ -5,6 +5,7 @@ import java.util.List;
 //import java.util.stream.StreamSupport;
 
 import com.jaamsim.Graphics.DisplayEntity;
+import com.jaamsim.ProcessFlow.Assign;
 import com.jaamsim.ProcessFlow.EntityContainer;
 import com.jaamsim.ProcessFlow.EntityDelay;
 import com.jaamsim.ProcessFlow.Linkable;
@@ -31,8 +32,6 @@ import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
 import hccm.entities.Entity;
 import hccm.events.ActivityEvent;
-import hccm.events.Event;
-
 
 /**
  * @author Michael O'Sullivan
@@ -104,9 +103,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			super(act);
 		}
 
-		public void assigns() {
+		public void assigns(List<ActiveEntity> ents) {
 			double simTime = getSimTime();
-			startAssignments(simTime);
+			startAssignments(ents, simTime);
 		}
 		
 		/**
@@ -128,8 +127,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			}
 			act.addEntityAsEntityDelay(participantEntity);
 			
-			assigns();
-			
+			currentContainer = participantEntity;
+			assigns(ents);
+			currentContainer = null;
+
 			double simTime = getSimTime();			
 
 			// Choose the trigger for this entity
@@ -180,9 +181,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			super(act);
 		}
 
-		public void assigns() {
+		public void assigns(List<ActiveEntity> ents) {
 			double simTime = getSimTime();
-			finishAssignments(simTime);
+			finishAssignments(ents, simTime);
 		}
 
 		/**
@@ -193,8 +194,15 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		public void happens(List<ActiveEntity> ents) {
 			ProcessActivity act = (ProcessActivity)this.owner;
 			double simTime = act.getSimTime();
-			assigns();
-									
+			assigns(ents);
+			
+			// Remove entities from the entity container
+			while (currentContainer.getCount(simTime) > 0) {
+				currentContainer.removeEntity(null);
+			}
+			// Entities removed, so don't need to keep track of container any longer
+			currentContainer = null;
+	
 			if (nextAEJList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
 			    Linkable nextCmpt = nextAEJList.getValue().get(0);				
@@ -208,7 +216,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
                   else
                 	  System.out.println("After ProcessActivity " + owner.getName() + ", Component:" + nextCmpt.toString());
                 }
-				Constants.nextComponent(nextCmpt, ents);
+				Constants.nextComponent(act, nextCmpt, ents);
 			} else {
 				// Send each entity to its next activity or event
 				for (int i=0; i<ents.size(); i++) {
@@ -224,10 +232,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
 					else if (nextCmpt instanceof DisplayEntity)
 						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((DisplayEntity)nextCmpt).getName());
-					Constants.nextComponent(nextCmpt, ent);
+					Constants.nextComponent(act, nextCmpt, ent.asList());
 				}
 			}
-			
+
 			// Choose the trigger for this entity
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
@@ -259,7 +267,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 
 	ProcessStart startEvent;
 	ProcessFinish finishEvent;
-	
+
+	EntityContainer currentContainer;
+
 	/**
 	 * 
 	 */
@@ -326,6 +336,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 */
 	@Override
 	public void start(List<ActiveEntity> participants) {
+//		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
+//		updateGraphics(getSimTime());
 		startEvent.happens(participants);
 	}
 	
@@ -354,9 +366,14 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		System.out.println("In ProcessActivity::removeDisplayEntity..." + this.getEntityList(this.getSimTime()));
 		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
 	    EntityContainer participantEntity = (EntityContainer)ent;
-		for (DisplayEntity de : participantEntity.getEntityList(this.getSimTime())) {
+		double simTime = this.getSimTime();
+		for (DisplayEntity de : participantEntity.getEntityList(simTime)) {
 			participants.add((ActiveEntity)de);
 		}
+
+		// Need to keep track on container to remove entities after assignments
+		currentContainer = participantEntity;
+
 		finish(participants);
 		super.removeDisplayEntity(ent);
 	}	
@@ -368,6 +385,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	@Override
 	public void finish(List<ActiveEntity> participants) {
 		finishEvent.happens(participants);
+//		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
+//		updateGraphics(getSimTime());
 	}
 	
 	/**
@@ -380,10 +399,21 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * Overrides parent function for the startAssignments
 	 */
 	@Override
-	public void startAssignments(double simTime) {
+	public void startAssignments(List<ActiveEntity> ents, double simTime) {
 		for (ExpParser.Assignment ass : startAssignmentList.getValue()) {
 			try {
-				ExpEvaluator.evaluateExpression(ass, simTime);
+				String expString = ass.toString();
+				int index = getEntityList(simTime).indexOf(currentContainer);
+				expString = expString.replace("this.obj", "this.EntityList(" + (index+1) + ")");
+				// expString = expString.replace("this.obj", "[" + currentContainer.getName() + "]");
+				// for (int i=0; i<ents.size(); i++)
+				//   expString = expString.replace("this.obj.EntityList(" + (i+1) + ")",
+				//                                 "[" + ents.get(i).getName() + "]");
+				// System.out.println(this.getEntityList(simTime));
+				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(this, expString);
+				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
+				System.out.println("Start assignment is " + mod.toString());
+				ExpEvaluator.evaluateExpression(mod, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}
@@ -394,12 +424,21 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * Overrides parent function for the finishAssignments
 	 */
 	@Override
-	public void finishAssignments(double simTime) {
+	public void finishAssignments(List<ActiveEntity> ents, double simTime) {
 		for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
 			try {
-				System.out.println("Finish assignment is " + ass.toString());
-				System.out.println(this.getEntityList(simTime));
-				ExpEvaluator.evaluateExpression(ass, simTime);
+				String expString = ass.toString();
+				int index = getEntityList(simTime).indexOf(currentContainer);
+				expString = expString.replace("this.obj", "this.EntityList(" + (index+1) + ")");
+				// expString = expString.replace("this.obj", "[" + currentContainer.getName() + "]");
+				// for (int i=0; i<ents.size(); i++)
+				//   expString = expString.replace("this.obj.EntityList(" + (i+1) + ")",
+				//                                 "[" + ents.get(i).getName() + "]");
+				// System.out.println(this.getEntityList(simTime));
+				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(this, expString);
+				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
+				System.out.println("Finish assignment is " + mod.toString());
+				ExpEvaluator.evaluateExpression(mod, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}

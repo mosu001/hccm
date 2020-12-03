@@ -24,8 +24,8 @@ public interface Activity {
 	void start(List<ActiveEntity> participants);
 	void finish(List<ActiveEntity> participants);
 	
-	void startAssignments(double simTime);
-	void finishAssignments(double simTime);
+	void startAssignments(List<ActiveEntity> participants, double simTime);
+	void finishAssignments(List<ActiveEntity> participants, double simTime);
 
 	List<ActiveEntity> getEntities();
 	

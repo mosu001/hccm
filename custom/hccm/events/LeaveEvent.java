@@ -44,7 +44,7 @@ public class LeaveEvent extends EntitySink implements Event {
 	/**
 	 * Executes the LeaveEvent assignments
 	 */
-	public void assigns() { // What changes when this event happens
+	public void assigns(List<ActiveEntity> ents) { // What changes when this event happens
 	}
 
 	/**
@@ -57,6 +57,8 @@ public class LeaveEvent extends EntitySink implements Event {
 			DisplayEntity de = (DisplayEntity)ent;
 			addEntity(de);
 		}
+//		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
+//      updateGraphics(getSimTime());
 	}
 	
 	@Override

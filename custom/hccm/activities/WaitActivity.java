@@ -20,7 +20,6 @@ import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
-import hccm.entities.Entity;
 import hccm.events.ActivityEvent;
 
 
@@ -96,9 +95,9 @@ public class WaitActivity extends Queue implements Activity {
 			super(act);
 		}
 
-		public void assigns() {
+		public void assigns(List<ActiveEntity> ents) {
 			double simTime = getSimTime();
-			startAssignments(simTime);
+			startAssignments(ents, simTime);
 		}
 		
 		/**
@@ -107,7 +106,7 @@ public class WaitActivity extends Queue implements Activity {
 		 * @exception ErrorException throws errors related to evaluating the assignment expressions
 		 */
 		public void happens(List<ActiveEntity> ents) {
-            assigns();
+            assigns(ents);
             
 			WaitActivity act = (WaitActivity)owner;
 			double simTime = getSimTime();			
@@ -125,7 +124,7 @@ public class WaitActivity extends Queue implements Activity {
 				reqs = requestActivityList.getValue().get(i-1);
 			}
 			
-			// Choose the trigger for this entity
+	        // Choose the trigger for this entity
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
 			
@@ -136,7 +135,7 @@ public class WaitActivity extends Queue implements Activity {
 				for (ProcessActivity req : reqs) {
 					ControlUnit rcu = req.getControlUnit();
 	  			    // Request the activity
-                                    //System.out.println("Requested activity = " + req.getName());
+                    //System.out.println("Requested activity = " + req.getName());
 	  			    rcu.requestActivity(req, ent, act, simTime);
 				}
 					
@@ -178,9 +177,9 @@ public class WaitActivity extends Queue implements Activity {
 			super(act);
 		}
 
-		public void assigns() {
+		public void assigns(List<ActiveEntity> ents) {
 			double simTime = getSimTime();
-			finishAssignments(simTime);
+			finishAssignments(ents, simTime);
 		}
 
 		/**
@@ -188,11 +187,11 @@ public class WaitActivity extends Queue implements Activity {
 		 * @param ents, a list of ActiveEntity objects
 		 */
 		public void happens(List<ActiveEntity> ents) {
-			assigns();
+			assigns(ents);
 			
 			double simTime = getSimTime();
 			
-			// Choose the trigger for this entity
+	        // Choose the trigger for this entity
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
 											
@@ -274,7 +273,10 @@ public class WaitActivity extends Queue implements Activity {
 	@Override
 	public void start(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
+		System.out.println("In WaitActivity::start " + ents.get(0).getName() + " added to " + getName());
 		super.addEntity((DisplayEntity)ents.get(0));
+//		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
+//      updateGraphics(getSimTime());
 		startEvent.happens(ents);
 	}
 	
@@ -297,6 +299,7 @@ public class WaitActivity extends Queue implements Activity {
 		assert(ents.size() == 1);
 		finishEvent.happens(ents);
 		removeEntity((DisplayEntity)ents.get(0));
+		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
         updateGraphics(getSimTime());
 	}
 	
@@ -322,7 +325,7 @@ public class WaitActivity extends Queue implements Activity {
 	 * Overrides parent function for the startAssignments
 	 */
 	@Override
-	public void startAssignments(double simTime) {
+	public void startAssignments(List<ActiveEntity> ents, double simTime) {
 		for (ExpParser.Assignment ass : startAssignmentList.getValue()) {
 			try {
 				ExpEvaluator.evaluateExpression(ass, simTime);
@@ -336,7 +339,7 @@ public class WaitActivity extends Queue implements Activity {
 	 * Overrides parent function for the finishAssignments
 	 */
 	@Override
-	public void finishAssignments(double simTime) {
+	public void finishAssignments(List<ActiveEntity> ents, double simTime) {
 		for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
 			try {
 				ExpEvaluator.evaluateExpression(ass, simTime);

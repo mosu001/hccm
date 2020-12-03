@@ -2,7 +2,6 @@ package hccm.controlunits;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.jaamsim.Graphics.DisplayEntity;
 
@@ -140,10 +139,10 @@ public class ControlUnit extends DisplayEntity {
 	 * @param simTime, the sim time
 	 */
 	public void triggerLogic(Trigger trg, List<ActiveEntity> ents, double simTime) {
-		List<String> entStrs = ents.stream().map(ActiveEntity::getName)
-                                            .collect(Collectors.toList());
-		String entsAsString = String.join(",", entStrs);
-		//System.out.println(this.getName() +": Triggered by " + entsAsString);
+//		List<String> entStrs = ents.stream().map(ActiveEntity::getName)
+//                                            .collect(Collectors.toList());
+//		String entsAsString = String.join(",", entStrs);
+//		System.out.println(this.getName() +": Triggered by " + entsAsString);
 		trg.executeLogic(ents, simTime);
 	}
 	

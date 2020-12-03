@@ -20,7 +20,7 @@ public interface Event {
 
 	// Assignments that occur before an event happens, particularly useful
 	// for passive entities' attributes within activities
-	public abstract void assigns();
+	public abstract void assigns(List<ActiveEntity> ents);
 	
 	// What occurs when this event happens, manages active entities only,
 	// passive entities' attributes dealt with via assignments in activities

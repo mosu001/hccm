@@ -20,29 +20,19 @@ public abstract class Constants {
 	 */
 	public static final String HCCM = "HCCM";
 
-	public static void nextComponent(Linkable nextCmpt, List<ActiveEntity> ents) {
-	  if (nextCmpt instanceof Activity) {
-		  Activity act = (Activity)nextCmpt;
-		  act.start(ents);
-	  } else if (nextCmpt instanceof Event) {
-		  Event evt = (Event)nextCmpt;
-		  evt.happens(ents);
-	  } else { // nextCmpt instanceof LinkedComponent
-		for (ActiveEntity ent : ents)
-			nextCmpt.addEntity((DisplayEntity)ent);
-	  }
-	}
+	public static void nextComponent(Linkable currCmpt, Linkable nextCmpt, List<ActiveEntity> ents) {
+		System.out.println("From " + currCmpt.toString() + " to " + nextCmpt.toString() + " with " + ents.toString());
 
-	public static void nextComponent(Linkable nextCmpt, ActiveEntity ent) {
-	  if (nextCmpt instanceof Activity) {
-		  Activity act = (Activity)nextCmpt;
-		  act.start(ent.asList());
-	  } else if (nextCmpt instanceof Event) {
-		  Event evt = (Event)nextCmpt;
-		  evt.happens(ent.asList());
-	  } else { // nextCmpt instanceof LinkedComponent
-		  nextCmpt.addEntity((DisplayEntity)ent);
-	  }
+		if (nextCmpt instanceof Activity) {
+			Activity act = (Activity)nextCmpt;
+			act.start(ents);
+		} else if (nextCmpt instanceof Event) {
+			Event evt = (Event)nextCmpt;
+			evt.happens(ents);
+		} else { // nextCmpt instanceof LinkedComponent
+			for (ActiveEntity ent : ents)
+				nextCmpt.addEntity((DisplayEntity)ent);
+		}
 	}
 
 }

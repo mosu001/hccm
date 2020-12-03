@@ -16,7 +16,6 @@ import hccm.Constants;
 import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
-import hccm.entities.Entity;
 
 /**
  * 
@@ -77,7 +76,7 @@ public class ArriveEvent extends EntityGenerator implements Event {
 	/**
 	 * Executes the ArriveEvent assignments
 	 */
-	public void assigns() { // What changes when this event happens
+	public void assigns(List<ActiveEntity> ents) { // What changes when this event happens
 	}
 	
 	/**
@@ -85,7 +84,7 @@ public class ArriveEvent extends EntityGenerator implements Event {
 	 * @param ents, a list of ActiveEntity objects
 	 */
 	public void happens(List<ActiveEntity> ents) { // What occurs when this event happens
-		assigns();
+		assigns(ents);
 		// Generate a trigger if there is one for this event
 		if (triggerList.getValue().size() > 0) {
 			double simTime = getSimTime();
@@ -97,7 +96,9 @@ public class ArriveEvent extends EntityGenerator implements Event {
 
 		// Send this entity to the next activity or event
 		Linkable nextCmpt = nextAEJobject.getValue();
-		Constants.nextComponent(nextCmpt, ents);
+		Constants.nextComponent(this, nextCmpt, ents);
+//		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
+//      updateGraphics(getSimTime());
 	}
 
 	@Override

@@ -1,8 +1,5 @@
 package hccm.entities;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * 
  * @author Michael O'Sullivan
