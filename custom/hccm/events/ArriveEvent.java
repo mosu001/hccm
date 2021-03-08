@@ -8,7 +8,12 @@ import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntityGenerator;
 import com.jaamsim.ProcessFlow.Linkable;
 import com.jaamsim.Samples.SampleInput;
+import com.jaamsim.basicsim.ErrorException;
+import com.jaamsim.input.AssignmentListInput;
 import com.jaamsim.input.EntityListInput;
+import com.jaamsim.input.ExpError;
+import com.jaamsim.input.ExpEvaluator;
+import com.jaamsim.input.ExpParser;
 import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.Keyword;
 
@@ -26,6 +31,15 @@ import hccm.entities.ActiveEntity;
  */
 public class ArriveEvent extends EntityGenerator implements Event {
 	
+	@Keyword(description = "A list of attribute assignments that are triggered when an entity arrives.\n\n" +
+			"The attributes for various entities can be used in an assignment expression:\n" +
+			"- this entity -- this.AttributeName\n" +
+			"- entity received -- this.obj.AttributeName\n" +
+			"- another entity -- [EntityName].AttributeName",
+	         exampleList = {"{ 'this.A = 1' } { 'this.obj.B = 1' } { '[Ent1].C = 1' }",
+	                        "{ 'this.D = 1[s] + 0.5*this.SimTime' }"})
+	private final AssignmentListInput assignmentList;
+
 	@Keyword(description = "The activity/event/JaamSim object that the arriving entity goes to from this activity.",
 	         exampleList = {"Activity1", "Event1"})
 	/**
@@ -43,6 +57,9 @@ public class ArriveEvent extends EntityGenerator implements Event {
 	private final SampleInput triggerChoice;
 
 	{
+		assignmentList = new AssignmentListInput("AssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
+		this.addInput(assignmentList);
+
 		nextComponent.setRequired(false);
 		nextComponent.setHidden(true);
 		
@@ -77,6 +94,14 @@ public class ArriveEvent extends EntityGenerator implements Event {
 	 * Executes the ArriveEvent assignments
 	 */
 	public void assigns(List<ActiveEntity> ents) { // What changes when this event happens
+		double simTime = getSimTime();
+		for (ExpParser.Assignment ass : assignmentList.getValue()) {
+			try {
+				ExpEvaluator.evaluateExpression(ass, simTime);
+			} catch (ExpError err) {
+				throw new ErrorException(this, err);
+			}
+		}
 	}
 	
 	/**

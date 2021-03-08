@@ -20,6 +20,8 @@ import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpEvaluator;
 import com.jaamsim.input.ExpParser;
+import com.jaamsim.input.InputAgent;
+import com.jaamsim.input.ExpParser.Assignment;
 import com.jaamsim.input.InterfaceEntityListInput;
 import com.jaamsim.input.Keyword;
 //import com.jaamsim.units.DimensionlessUnit;
@@ -125,12 +127,15 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				DisplayEntity de = (DisplayEntity)ent;
 				participantEntity.addEntity(de);
 			}
-			act.addEntityAsEntityDelay(participantEntity);
-			
+						
 			currentContainer = participantEntity;
 			assigns(ents);
 			currentContainer = null;
+			
+			act.addEntityAsEntityDelay(participantEntity);
 
+			act.setPresentState();
+			
 			double simTime = getSimTime();			
 
 			// Choose the trigger for this entity
@@ -264,7 +269,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			return trg;
 		}
 	}
-
+	
 	ProcessStart startEvent;
 	ProcessFinish finishEvent;
 
@@ -311,11 +316,11 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		finishTriggerChoice.setUnitType(DimensionlessUnit.class);
 		finishTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(finishTriggerChoice);
-		
+
 		startEvent = new ProcessStart(this);
 		finishEvent = new ProcessFinish(this);
 	}
-
+	
 	/**
 	 * Overrides parent ActivityEvent method, getter method for startEvent
 	 * @return startEvent
@@ -399,25 +404,20 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * Overrides parent function for the startAssignments
 	 */
 	@Override
-	public void startAssignments(List<ActiveEntity> ents, double simTime) {
+	public void startAssignments(List<ActiveEntity> ents, double simTime) {		
 		for (ExpParser.Assignment ass : startAssignmentList.getValue()) {
 			try {
 				String expString = ass.toString();
-				int index = getEntityList(simTime).indexOf(currentContainer);
-				expString = expString.replace("this.obj", "this.EntityList(" + (index+1) + ")");
-				// expString = expString.replace("this.obj", "[" + currentContainer.getName() + "]");
-				// for (int i=0; i<ents.size(); i++)
-				//   expString = expString.replace("this.obj.EntityList(" + (i+1) + ")",
-				//                                 "[" + ents.get(i).getName() + "]");
-				// System.out.println(this.getEntityList(simTime));
-				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(this, expString);
+				expString = expString.replace("this.obj", "this");
+				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(currentContainer, expString);
 				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
-				System.out.println("Start assignment is " + mod.toString());
+				System.out.println("Start assignment is " + expString);
 				ExpEvaluator.evaluateExpression(mod, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}
 		}
+		
 	}
 
 	/**
