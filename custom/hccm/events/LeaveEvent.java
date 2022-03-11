@@ -8,6 +8,7 @@ import com.jaamsim.ProcessFlow.EntitySink;
 import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.Keyword;
+import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.Constants;
 import hccm.controlunits.Trigger;
@@ -37,6 +38,7 @@ public class LeaveEvent extends EntitySink implements Event {
 		this.addInput(triggerList);
 		
 		triggerChoice = new SampleInput("TriggerChoice", Constants.HCCM, null);
+		triggerChoice.setUnitType(DimensionlessUnit.class);
 		triggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(triggerChoice);
 	}

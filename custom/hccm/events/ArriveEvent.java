@@ -16,6 +16,7 @@ import com.jaamsim.input.ExpEvaluator;
 import com.jaamsim.input.ExpParser;
 import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.Keyword;
+import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.Constants;
 import hccm.controlunits.ControlUnit;
@@ -72,6 +73,7 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		this.addInput(triggerList);
 		
 		triggerChoice = new SampleInput("TriggerChoice", Constants.HCCM, null);
+		triggerChoice.setUnitType(DimensionlessUnit.class);
 		triggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(triggerChoice);
 	}
