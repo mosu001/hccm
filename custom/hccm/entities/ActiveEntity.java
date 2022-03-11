@@ -30,6 +30,13 @@ public class ActiveEntity extends SimEntity implements Entity {
 		setCurrentActivity(null);
 	}
 	
+	@Output(name = "EntityType" ,
+			unitType = DimensionlessUnit.class ,
+			description = "The type of entity that this entity is")
+	public String getEntityType(double simTime) {
+		return getEntityType().getName();
+	}
+	
 	@Output(name = "CurrentActivity" ,
 			unitType = DimensionlessUnit.class ,
 			description = "Current activity this entity is participating in")
