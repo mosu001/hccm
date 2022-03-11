@@ -2,8 +2,11 @@ package hccm.controlunits;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Comparator;
 
 import com.jaamsim.Graphics.DisplayEntity;
+import com.jaamsim.basicsim.Entity;
+import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.activities.ProcessActivity;
 import hccm.activities.WaitActivity;
@@ -100,6 +103,27 @@ public class ControlUnit extends DisplayEntity {
 
 	}
 	
+	public class AttributeCompare implements Comparator<ActiveEntity> {
+		
+		private String attributeName;
+		
+		public AttributeCompare(String attributeName) {
+			this.attributeName = attributeName;
+		}
+
+		@Override
+		public int compare(ActiveEntity ae1, ActiveEntity ae2) {
+			double simTime = getSimTime();
+			
+			double val1 = ae1.getOutputHandle(attributeName).getValueAsDouble(simTime, -1);
+			double val2 = ae2.getOutputHandle(attributeName).getValueAsDouble(simTime, -1);
+			
+			int ret = Double.compare(val1, val2);
+			
+			return ret; 
+		}		
+	}
+	
 	/**
 	 * requestList, protected, an array of Request objects
 	 */
@@ -144,6 +168,40 @@ public class ControlUnit extends DisplayEntity {
 //		String entsAsString = String.join(",", entStrs);
 //		System.out.println(this.getName() +": Triggered by " + entsAsString);
 		trg.executeLogic(ents, simTime);
+	}
+	
+	public ArrayList<ActiveEntity> getEntitiesInState(String entityName, String stateName, double simTime) {
+		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
+		for (ActiveEntity ent : getJaamSimModel().getClonesOfIterator(ActiveEntity.class)) {
+			if (ent.getEntityType() != null) {
+				String eT = ent.getEntityType().getLocalName();
+				String entState = ent.getPresentState(simTime);
+				if (entityName.equals(eT) && stateName.equals(entState)) {
+					String parName = this.getParent().getLocalName();
+					if ("Simulation".equals(parName)) {
+						ents.add(ent);
+					} else {
+						String entSubName = ent.getOutputHandle("Submodel").getValue(simTime, String.class);
+						if (entSubName.equals(parName)) {
+							ents.add(ent);
+						}
+					}
+					
+				}
+			}
+		}
+		return ents;
+	}
+	
+	public Entity getSubmodelEntity(String entityName) {
+		Entity ent;
+		String parName = this.getParent().getLocalName();
+		if ("Simulation".equals(parName)) {
+			ent = this.getJaamSimModel().getNamedEntity(entityName);
+		} else {
+			ent = this.getJaamSimModel().getNamedEntity(parName + "." + entityName);
+		}
+		return ent;
 	}
 	
 	/**
