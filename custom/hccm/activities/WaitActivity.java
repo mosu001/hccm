@@ -14,6 +14,7 @@ import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpEvaluator;
 import com.jaamsim.input.ExpParser;
 import com.jaamsim.input.Keyword;
+import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.Constants;
@@ -224,7 +225,7 @@ public class WaitActivity extends Queue implements Activity {
 	
 	WaitStart startEvent;
 	WaitFinish finishEvent;
-	
+	ArrayList<ActiveEntity> finishEnts;
 	/**
 	 * ?
 	 */
@@ -264,6 +265,7 @@ public class WaitActivity extends Queue implements Activity {
 
 		startEvent = new WaitStart(this);
 		finishEvent = new WaitFinish(this);
+		finishEnts = new ArrayList<ActiveEntity>();
 	}
 	
 	/**
@@ -297,6 +299,7 @@ public class WaitActivity extends Queue implements Activity {
 	@Override
 	public void finish(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
+		finishEnts = new ArrayList<ActiveEntity>(ents);
 		finishEvent.happens(ents);
 		removeEntity((DisplayEntity)ents.get(0));
 		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
@@ -359,5 +362,13 @@ public class WaitActivity extends Queue implements Activity {
 		for (DisplayEntity de : getQueueList(getSimTime()))
 			ents.add((ActiveEntity)de);
 		return ents;
+	}
+	
+	@Output(name = "FinishingEntities",
+	 description = "The entities that are finishing the activity.",
+	    unitType = DimensionlessUnit.class,
+	    sequence = 4)
+	public ArrayList<ActiveEntity> getFinishingEntities(double simTime) {
+		return finishEnts;
 	}
 }
