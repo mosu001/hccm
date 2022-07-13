@@ -24,10 +24,12 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 */
 	private ActiveEntity entityType;
 	private Activity currentActivity;
+	private double currentActivityStart;
 	
 	{
 		setEntityType(null);
 		setCurrentActivity(null);
+		setCurrentActivityStart(0.0);
 	}
 	
 	@Output(name = "EntityType" ,
@@ -42,6 +44,13 @@ public class ActiveEntity extends SimEntity implements Entity {
 			description = "Current activity this entity is participating in")
 	public String getCurrentActivity(double simTime) {
 		return getCurrentActivity().getName();
+	}
+	
+	@Output(name = "CurrentActivityStart" ,
+			unitType = DimensionlessUnit.class ,
+			description = "Start time of the current activity this entity is participating in")
+	public double getCurrentActivityStart(double simTime) {
+		return getCurrentActivityStart();
 	}
 
 	
@@ -83,6 +92,22 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 */
 	public void setCurrentActivity(Activity currentActivity) {
 		this.currentActivity = currentActivity;
+	}
+	
+	/**
+	 * Getter function for currentActivityStart
+	 * @return currentActivityStart
+	 */
+	public double getCurrentActivityStart() {
+		return currentActivityStart;
+	}
+	
+	/**
+	 * Setter function for currentActivityStart
+	 * @param simTime
+	 */
+	public void setCurrentActivityStart(double simTime) {
+		this.currentActivityStart = simTime;
 	}
 	
 	

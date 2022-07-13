@@ -142,8 +142,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
 			
-			for (ActiveEntity ent : ents)
+			for (ActiveEntity ent : ents) {
 			  ent.setCurrentActivity(act);
+			  ent.setCurrentActivityStart(simTime);
+			}
 								
 			if (trg != null) {
 				// Trigger the logic

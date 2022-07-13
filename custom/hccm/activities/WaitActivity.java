@@ -131,6 +131,7 @@ public class WaitActivity extends Queue implements Activity {
 			
 			ActiveEntity ent = (ActiveEntity)ents.get(0);
 			ent.setCurrentActivity(act);
+			ent.setCurrentActivityStart(simTime);
 			
 			if (reqs != null)
 				for (ProcessActivity req : reqs) {
