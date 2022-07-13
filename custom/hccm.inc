@@ -7,6 +7,7 @@ Define ObjectType {
 	ProcessActivity
 	WaitActivity
 	ControlUnit
+	Trigger
 	CustomClock
 }
 
@@ -21,4 +22,5 @@ LogicEvent JavaClass { hccm.events.LogicEvent }  Palette { 'HCCM' }  DefaultDisp
 ProcessActivity JavaClass { hccm.activities.ProcessActivity }  Palette { 'HCCM' } DefaultDisplayModel { ProcessActivityModel }  IconFile { '<res>/images/Line-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 WaitActivity JavaClass { hccm.activities.WaitActivity }  Palette { 'HCCM' } DefaultDisplayModel { Triangle }  IconFile { '<res>/images/Queue-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 ControlUnit JavaClass { hccm.controlunits.ControlUnit }  Palette { 'HCCM' } DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
+Trigger JavaClass { hccm.controlunits.Trigger }  Palette { 'HCCM' } DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 CustomClock JavaClass { hccm.CustomClock }  Palette { 'HCCM' } DefaultDisplayModel { TextModelDefault }  IconFile { '<res>/images/Controller-24.png' } DefaultSize { 0.5 0.5 0.5 m }

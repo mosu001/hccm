@@ -1,10 +1,13 @@
 package hccm.controlunits;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.input.EntityInput;
 import com.jaamsim.input.Keyword;
+import com.jaamsim.input.StringInput;
 
 import hccm.Constants;
 import hccm.entities.ActiveEntity;
@@ -16,7 +19,7 @@ import hccm.entities.ActiveEntity;
  * @since 0.0.1
  * 
  */
-public abstract class Trigger extends DisplayEntity {
+public class Trigger extends DisplayEntity {
 	/**
 	 * ?
 	 */
@@ -28,10 +31,19 @@ public abstract class Trigger extends DisplayEntity {
 	 */
 	private final EntityInput<ControlUnit> controlUnitInput;
 	
+	@Keyword(description = "Control policy that trigger executes.",
+			 exampleList = {"OnStartWaitToRegsiter"})
+	protected final StringInput controlPolicy;
+	
 	{
 		controlUnitInput = new EntityInput<ControlUnit>(ControlUnit.class, "ControlUnit", Constants.HCCM, null);
 		controlUnitInput.setRequired(true);
 		this.addInput(controlUnitInput);
+		
+		controlPolicy = new StringInput("ControlPolicy", Constants.HCCM, null);
+		//controlPolicy.setUnitType(DimensionlessUnit.class);
+		//controlPolicy.setRequired(true);
+		this.addInput(controlPolicy);
 	}
 
 	/**
@@ -45,5 +57,36 @@ public abstract class Trigger extends DisplayEntity {
 	 * @param ent, an ActiveEntity
 	 * @param simTime, a double
 	 */
-	public abstract void executeLogic(List<ActiveEntity> ents, double simTime);
+	//public abstract void executeLogic(List<ActiveEntity> ents, double simTime);
+	
+	public void executeLogic(List<ActiveEntity> ents, double simTime) {
+		ControlUnit cu = getControlUnit();
+		Class<?> c = cu.getClass();
+		String methodName = controlPolicy.getValue();
+		Class<?>[] paramTypes = {List.class, double.class};
+		Method method = null;
+		try {
+			method = c.getDeclaredMethod(methodName, paramTypes);
+		} catch (NoSuchMethodException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SecurityException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			method.invoke(cu, ents, simTime);
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }
