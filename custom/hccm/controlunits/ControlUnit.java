@@ -103,6 +103,25 @@ public class ControlUnit extends DisplayEntity {
 
 	}
 	
+	public class ActivityStartCompare implements Comparator<ActiveEntity> {
+				
+		public ActivityStartCompare() {
+			
+		}
+
+		@Override
+		public int compare(ActiveEntity ae1, ActiveEntity ae2) {
+			double simTime = getSimTime();
+			
+			double val1 = ae1.getOutputHandle("CurrentActivityStart").getValueAsDouble(simTime, -1);
+			double val2 = ae2.getOutputHandle("CurrentActivityStart").getValueAsDouble(simTime, -1);
+			
+			int ret = Double.compare(val1, val2);
+			
+			return ret; 
+		}		
+	}
+	
 	public class AttributeCompare implements Comparator<ActiveEntity> {
 		
 		private String attributeName;
@@ -177,6 +196,29 @@ public class ControlUnit extends DisplayEntity {
 				String eT = ent.getEntityType().getLocalName();
 				String entState = ent.getPresentState(simTime);
 				if (entityName.equals(eT) && stateName.equals(entState)) {
+					String parName = this.getParent().getLocalName();
+					if ("Simulation".equals(parName)) {
+						ents.add(ent);
+					} else {
+						String entSubName = ent.getOutputHandle("Submodel").getValue(simTime, String.class);
+						if (entSubName.equals(parName)) {
+							ents.add(ent);
+						}
+					}
+					
+				}
+			}
+		}
+		return ents;
+	}
+	
+	public ArrayList<ActiveEntity> getEntitiesInActivity(String entityName, String actName, double simTime) {
+		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
+		for (ActiveEntity ent : getJaamSimModel().getClonesOfIterator(ActiveEntity.class)) {
+			if (ent.getEntityType() != null) {
+				String eT = ent.getEntityType().getLocalName();
+				String entAct = ent.getCurrentActivity(simTime);
+				if (entityName.equals(eT) && actName.equals(entAct)) {
 					String parName = this.getParent().getLocalName();
 					if ("Simulation".equals(parName)) {
 						ents.add(ent);
