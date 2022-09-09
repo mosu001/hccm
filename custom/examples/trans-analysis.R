@@ -1,7 +1,7 @@
 require(ggplot2)
 require(reshape2)
 
-setwd("~/orua/simmod/hccm-code/custom")
+setwd("~/orua/simmod/hccm-code/custom/examples")
 
 df <- read.delim("ssq_abm-TransmissionLogger.log", skip = 11)
 colnames(df) = c("Time", "Num.Transmissions", "Num.Cust.Cus", "Num.Cust.Serv", "Num.Serv.Cust")
