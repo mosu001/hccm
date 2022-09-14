@@ -9,6 +9,7 @@ Define ObjectType {
 	ControlUnit
 	Trigger
 	CustomClock
+	EventLogger
 }
 
 AssembleIconModel ImageFile { '<res>/images/Assemble-256.png' }  Transparent { TRUE }
@@ -24,3 +25,4 @@ WaitActivity JavaClass { hccm.activities.WaitActivity }  Palette { 'HCCM' } Defa
 ControlUnit JavaClass { hccm.controlunits.ControlUnit }  Palette { 'HCCM' } DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 Trigger JavaClass { hccm.controlunits.Trigger }  Palette { 'HCCM' } DefaultDisplayModel { AssembleIconModel }  IconFile { '<res>/images/Assemble-24.png' } DefaultSize { 0.5 0.5 0.5 m }
 CustomClock JavaClass { hccm.CustomClock }  Palette { 'HCCM' } DefaultDisplayModel { TextModelDefault }  IconFile { '<res>/images/Controller-24.png' } DefaultSize { 0.5 0.5 0.5 m }
+EventLogger JavaClass { hccm.events.EventLogger }  Palette { 'HCCM' } DefaultDisplayModel { EntityLoggerIconModel }  IconFile { '<res>/images/EntityLogger-24.png' } DefaultSize { 0.5 0.5 0.5 m }
