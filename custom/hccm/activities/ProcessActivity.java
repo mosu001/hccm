@@ -145,6 +145,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			for (ActiveEntity ent : ents) {
 			  ent.setCurrentActivity(act);
 			  ent.setCurrentActivityStart(simTime);
+			  ent.addActivityStart(act.getName());
+			  ent.addActivityStartTime(simTime);
 			}
 								
 			if (trg != null) {
