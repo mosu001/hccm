@@ -15,6 +15,7 @@ import com.jaamsim.basicsim.ErrorException;
 //import com.jaamsim.basicsim.Entity;
 import com.jaamsim.basicsim.JaamSimModel;
 import com.jaamsim.input.AssignmentListInput;
+import com.jaamsim.input.BooleanInput;
 import com.jaamsim.input.EntityInput;
 import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.ExpError;
@@ -89,6 +90,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
        + "1 = first trigger, 2 = second trigger, etc.",
        exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
 	private final SampleInput finishTriggerChoice;
+	
+	@Keyword(description = "If TRUE, the start event of the activity will be added to the entity's start times list.",
+	         exampleList = {"TRUE"})
+	private final BooleanInput logStart;
 
 	/**
 	 * 
@@ -145,8 +150,11 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			for (ActiveEntity ent : ents) {
 			  ent.setCurrentActivity(act);
 			  ent.setCurrentActivityStart(simTime);
-			  ent.addActivityStart(act.getName());
-			  ent.addActivityStartTime(simTime);
+			  
+			  if (logStart.getValue() == true) {
+					ent.addActivityStart(act.getName());
+					ent.addActivityStartTime(simTime);
+				}
 			}
 								
 			if (trg != null) {
@@ -323,6 +331,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 
 		startEvent = new ProcessStart(this);
 		finishEvent = new ProcessFinish(this);
+		
+		logStart = new BooleanInput("LogStart", Constants.HCCM, true);
+		this.addInput(logStart);
 	}
 	
 	/**
