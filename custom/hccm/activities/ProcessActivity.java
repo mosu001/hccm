@@ -121,9 +121,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		public void happens(List<ActiveEntity> ents) {			
 			JaamSimModel model = getJaamSimModel();
 			ProcessActivity act = (ProcessActivity)owner;
-			int numCons = 0;
-			for (@SuppressWarnings("unused") EntityContainer ent : model.getClonesOfIterator(EntityContainer.class))
-				numCons++;
+			double simTime = getSimTime();
+			int numCons = (int) act.getNumberAdded(simTime);
+//			for (@SuppressWarnings("unused") EntityContainer ent : model.getClonesOfIterator(EntityContainer.class))
+//				numCons++;
 			EntityContainer participantEntity = model.createInstance(EntityContainer.class,
 					act.getName() + "_" + (numCons + 1), null, false, true, false, false);
 			participantEntity.setDisplayModelList(null);
@@ -141,8 +142,6 @@ public class ProcessActivity extends EntityDelay implements Activity {
 
 			act.setPresentState();
 			
-			double simTime = getSimTime();			
-
 			// Choose the trigger for this entity
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
@@ -218,6 +217,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				currentContainer.removeEntity(null);
 			}
 			// Entities removed, so don't need to keep track of container any longer
+			// Kill the container
+			if (currentContainer.isGenerated()) {
+				currentContainer.kill();
+			}
 			currentContainer = null;
 	
 			if (nextAEJList.getValue().size() == 1) {
