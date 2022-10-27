@@ -233,24 +233,14 @@ public class ControlUnit extends DisplayEntity {
 		return ents;
 	}
 	
+	public ArrayList<ActiveEntity> getEntitiesInSubmodelActivities(String entityName, double simTime, String... actNames) {
 		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
-		for (ActiveEntity ent : getJaamSimModel().getClonesOfIterator(ActiveEntity.class)) {
-			if (ent.getEntityType() != null) {
-				String eT = ent.getEntityType().getLocalName();
-				String entAct = ent.getCurrentActivity(simTime);
-				if (entityName.equals(eT) && actName.equals(entAct)) {
-					String parName = this.getParent().getLocalName();
-					if ("Simulation".equals(parName)) {
-						ents.add(ent);
-					} else {
-						String entSubName = ent.getOutputHandle("Submodel").getValue(simTime, String.class);
-						if (entSubName.equals(parName)) {
-							ents.add(ent);
-						}
-					}
-					
-				}
+		for (String act: actNames) {
+			String parName = this.getParent().getLocalName();
+			if (!"Simulation".equals(parName)) {
+				act = parName + "." + act;
 			}
+			ents.addAll(getEntitiesInActivity(entityName, act, simTime));
 		}
 		return ents;
 	}
