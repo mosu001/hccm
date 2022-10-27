@@ -5,8 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.jaamsim.ProcessFlow.SimEntity;
+import com.jaamsim.basicsim.ErrorException;
+import com.jaamsim.input.ExpError;
+import com.jaamsim.input.ExpResult;
 import com.jaamsim.input.Output;
+import com.jaamsim.input.OutputHandle;
 import com.jaamsim.units.DimensionlessUnit;
+import com.jaamsim.units.Unit;
 
 import hccm.activities.Activity;
 
@@ -179,6 +184,80 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 */
 	public void addActivityStartTime(double actStartTime) {
 		activityStartTimes.add(actStartTime);
+	}
+	
+	/**
+	 * Getter function for numeric attribute
+	 * @return currentActivityStart
+	 */
+	public double getNumAttribute(String outputName, double simTime, double def) {
+		OutputHandle output = this.getOutputHandle(outputName);
+		if (output == null) {
+			String msg = "Could not find output '%s' on entity of type '%s'\n"
+				+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			throw new ErrorException(msg, outputName, this.getEntityType().getLocalName(),
+					Thread.currentThread().getStackTrace()[2].getFileName(),
+					Thread.currentThread().getStackTrace()[2].getMethodName(),
+					Thread.currentThread().getStackTrace()[2].getLineNumber());
+		} else {
+			return output.getValueAsDouble(simTime, def);
+		}
+	}
+	
+	/**
+	 * Setter function for numeric attribute
+	 * @param simTime
+	 */
+	public void setNumAttribute(String outputName, double val, Class<? extends Unit> ut) {
+		ExpResult eR = ExpResult.makeNumResult(val, ut);
+		try {
+			this.setAttribute(outputName, null, eR);
+        } catch (ExpError e) {
+        	String newMsg = e.getMessage() + "\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			newMsg = String.format(newMsg, Thread.currentThread().getStackTrace()[2].getFileName(),
+					Thread.currentThread().getStackTrace()[2].getMethodName(),
+					Thread.currentThread().getStackTrace()[2].getLineNumber());
+			throw new ErrorException(this, newMsg);
+//        	throw new ErrorException(this, e);
+		}
+	}
+	
+	/**
+	 * Getter function for string attribute
+	 * @return currentActivityStart
+	 */
+	public String getStringAttribute(String outputName, double simTime) {
+		OutputHandle output = this.getOutputHandle(outputName);
+		if (output == null) {
+			String msg = "Could not find output: '%s' on entity of type '%s'\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			throw new ErrorException(msg, outputName, this.getEntityType().getLocalName(),
+					Thread.currentThread().getStackTrace()[2].getFileName(),
+					Thread.currentThread().getStackTrace()[2].getMethodName(),
+					Thread.currentThread().getStackTrace()[2].getLineNumber());
+		} else {
+			return this.getOutputHandle(outputName).getValue(simTime, String.class);
+		}
+	}
+	
+	/**
+	 * Setter function for string attribute
+	 * @param simTime
+	 */
+	public void setStringAttribute(String outputName, String val) {
+		ExpResult eR = ExpResult.makeStringResult(val);
+		try {
+			this.setAttribute(outputName, null, eR);
+        } catch (ExpError e) {
+        	String newMsg = e.getMessage() + "\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			newMsg = String.format(newMsg, Thread.currentThread().getStackTrace()[2].getFileName(),
+					Thread.currentThread().getStackTrace()[2].getMethodName(),
+					Thread.currentThread().getStackTrace()[2].getLineNumber());
+			throw new ErrorException(this, newMsg);
+//        	throw new ErrorException(this, e);
+		}
 	}
 	
 }
