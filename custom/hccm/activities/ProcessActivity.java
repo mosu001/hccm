@@ -361,6 +361,22 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	public void start(List<ActiveEntity> participants) {
 //		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
 //		updateGraphics(getSimTime());
+		
+		// Ensure that the participants are the correct types of entities.
+		for (int i=0; i<participants.size(); i++) {
+			ActiveEntity ent = participants.get(i);
+			ActiveEntity proto = ent.getEntityType();
+			ActiveEntity proto2 = participantList.getValue().get(i);
+			if (proto != proto2) {
+				String msg = "The type of the given entity: '%s', does not match the type required: '%s'\n"
+						+ "The error occured in file: '%s', method: '%s', line: '%s'";
+				throw new ErrorException(msg, proto.getLocalName(), proto2.getLocalName(),
+							Thread.currentThread().getStackTrace()[2].getFileName(),
+							Thread.currentThread().getStackTrace()[2].getMethodName(),
+							Thread.currentThread().getStackTrace()[2].getLineNumber());
+			}
+		}
+				
 		startEvent.happens(participants);
 	}
 	
