@@ -245,14 +245,33 @@ public class ControlUnit extends DisplayEntity {
 		return ents;
 	}
 	
+	private Entity getModelEntity(String entityName) throws ExpError {
+		Entity ent = this.getJaamSimModel().getNamedEntity(entityName);
+		if (ent == null) {	
+			String msg = "Could not find model component: '%s'\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			throw new ExpError(null, 0, msg, entityName,
+					Thread.currentThread().getStackTrace()[3].getFileName(),
+					Thread.currentThread().getStackTrace()[3].getMethodName(),
+					Thread.currentThread().getStackTrace()[3].getLineNumber());
+		}
+		
+		return ent;
+	}
+	
 	public Entity getSubmodelEntity(String entityName) {
 		Entity ent;
 		String parName = this.getParent().getLocalName();
-		if ("Simulation".equals(parName)) {
-			ent = this.getJaamSimModel().getNamedEntity(entityName);
-		} else {
-			ent = this.getJaamSimModel().getNamedEntity(parName + "." + entityName);
+		try {
+			if ("Simulation".equals(parName)) {
+				ent = getModelEntity(entityName);
+			} else {
+				ent = getModelEntity(parName + "." + entityName);
+			}
+		} catch (ExpError err) {
+			throw new ErrorException(this, err);
 		}
+				
 		return ent;
 	}
 	
