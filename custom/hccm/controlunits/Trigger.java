@@ -5,7 +5,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.jaamsim.Graphics.DisplayEntity;
+import com.jaamsim.basicsim.ErrorException;
 import com.jaamsim.input.EntityInput;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.input.Keyword;
 import com.jaamsim.input.StringInput;
 
@@ -68,8 +70,11 @@ public class Trigger extends DisplayEntity {
 		try {
 			method = c.getDeclaredMethod(methodName, paramTypes);
 		} catch (NoSuchMethodException e1) {
+			String msg = "Could not find the method '%s', on control unit '%s'\n";
+			msg = String.format(msg, methodName, cu.getLocalName());
+			throw new ErrorException(this, msg);
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+//			e1.printStackTrace();
 		} catch (SecurityException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -85,7 +90,13 @@ public class Trigger extends DisplayEntity {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Throwable targetError = e.getTargetException();
+			if (targetError instanceof ErrorException) {
+				throw (ErrorException) targetError;
+			}
+			else {
+				e.printStackTrace();
+			}
 		}
 	}
 	
