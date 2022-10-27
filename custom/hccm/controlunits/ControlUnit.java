@@ -1,11 +1,14 @@
 package hccm.controlunits;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Comparator;
 
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.basicsim.Entity;
+import com.jaamsim.basicsim.ErrorException;
+import com.jaamsim.input.ExpError;
 import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.activities.Activity;
@@ -273,6 +276,17 @@ public class ControlUnit extends DisplayEntity {
 		}
 				
 		return ent;
+	}
+	
+	public void transitionTo(String entityName, ActiveEntity... ents) {
+		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
+		for (ActiveEntity ent : ents) {
+			ent.getCurrentActivity().finish(ent.asList());
+			participants.add(ent);
+	    }
+		
+		ProcessActivity nextAct = (ProcessActivity) getSubmodelEntity(entityName);
+		nextAct.start(participants);
 	}
 	
 	/**
