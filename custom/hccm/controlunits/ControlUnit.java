@@ -8,6 +8,7 @@ import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.basicsim.Entity;
 import com.jaamsim.units.DimensionlessUnit;
 
+import hccm.activities.Activity;
 import hccm.activities.ProcessActivity;
 import hccm.activities.WaitActivity;
 import hccm.entities.ActiveEntity;
@@ -213,6 +214,25 @@ public class ControlUnit extends DisplayEntity {
 	}
 	
 	public ArrayList<ActiveEntity> getEntitiesInActivity(String entityName, String actName, double simTime) {
+		Activity act;
+		try {
+			act = (Activity) getModelEntity(actName);
+		} catch (ExpError err) {
+			throw new ErrorException(this, err);
+		}
+		ArrayList<ActiveEntity> ents = (ArrayList<ActiveEntity>) act.getEntities();
+		return ents;
+	}
+	
+	public ArrayList<ActiveEntity> getEntitiesInSubmodelActivity(String entityName, String actName, double simTime) {
+		String parName = this.getParent().getLocalName();
+		if (!"Simulation".equals(parName)) {
+			actName = parName + "." + actName;
+		}
+		ArrayList<ActiveEntity> ents = getEntitiesInActivity(entityName, actName, simTime);
+		return ents;
+	}
+	
 		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
 		for (ActiveEntity ent : getJaamSimModel().getClonesOfIterator(ActiveEntity.class)) {
 			if (ent.getEntityType() != null) {
