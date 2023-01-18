@@ -114,7 +114,7 @@ public class LogicEvent extends DisplayEntity implements Event {
 		double simTime = getSimTime();
 		for (ExpParser.Assignment ass : assignmentList.getValue()) {
 			try {
-				ExpEvaluator.evaluateExpression(ass, simTime);
+				ExpEvaluator.evaluateExpression(ass, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}

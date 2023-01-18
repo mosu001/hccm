@@ -345,7 +345,7 @@ public class WaitActivity extends Queue implements Activity {
 	public void startAssignments(List<ActiveEntity> ents, double simTime) {
 		for (ExpParser.Assignment ass : startAssignmentList.getValue()) {
 			try {
-				ExpEvaluator.evaluateExpression(ass, simTime);
+				ExpEvaluator.evaluateExpression(ass, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}
@@ -359,7 +359,7 @@ public class WaitActivity extends Queue implements Activity {
 	public void finishAssignments(List<ActiveEntity> ents, double simTime) {
 		for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
 			try {
-				ExpEvaluator.evaluateExpression(ass, simTime);
+				ExpEvaluator.evaluateExpression(ass, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}

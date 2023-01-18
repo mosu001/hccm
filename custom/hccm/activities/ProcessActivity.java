@@ -446,7 +446,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(currentContainer, expString);
 				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
 				System.out.println("Start assignment is " + expString);
-				ExpEvaluator.evaluateExpression(mod, simTime);
+				ExpEvaluator.evaluateExpression(mod, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}
@@ -472,7 +472,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(this, expString);
 				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
 				System.out.println("Finish assignment is " + mod.toString());
-				ExpEvaluator.evaluateExpression(mod, simTime);
+				ExpEvaluator.evaluateExpression(mod, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}
