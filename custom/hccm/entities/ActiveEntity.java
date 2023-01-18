@@ -10,6 +10,7 @@ import com.jaamsim.input.ExpError;
 import com.jaamsim.input.ExpResult;
 import com.jaamsim.input.Output;
 import com.jaamsim.input.OutputHandle;
+import com.jaamsim.input.ValueHandle;
 import com.jaamsim.units.DimensionlessUnit;
 import com.jaamsim.units.Unit;
 
@@ -191,7 +192,7 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 * @return currentActivityStart
 	 */
 	public double getNumAttribute(String outputName, double simTime, double def) {
-		OutputHandle output = this.getOutputHandle(outputName);
+		ValueHandle output = this.getOutputHandle(outputName);
 		if (output == null) {
 			String msg = "Could not find output '%s' on entity of type '%s'\n"
 				+ "The error occured in file: '%s', method: '%s', line: '%s'";
@@ -228,7 +229,7 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 * @return currentActivityStart
 	 */
 	public String getStringAttribute(String outputName, double simTime) {
-		OutputHandle output = this.getOutputHandle(outputName);
+		ValueHandle output = this.getOutputHandle(outputName);
 		if (output == null) {
 			String msg = "Could not find output: '%s' on entity of type '%s'\n"
 					+ "The error occured in file: '%s', method: '%s', line: '%s'";
