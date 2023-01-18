@@ -1,5 +1,6 @@
 package hccm.events;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import com.jaamsim.Graphics.DisplayEntity;
@@ -19,6 +20,17 @@ import com.jaamsim.units.Unit;
 import hccm.entities.ActiveEntity;
 
 public class EventLogger extends DisplayEntity {
+	
+	@Keyword(description = "If TRUE, an individual .log file will be created for each simulation "
+            + "run and the suffix '-sNrM' will be added to each .log file name, "
+            + "where N and M are the scenario and replication numbers for the run. "
+            + "If FALSE, a single .log file will be created that contains the "
+            + "outputs for all the simulation runs. "
+            + "This input is ignored if multiple runs are to be executed and the "
+            + "NumberOfThreads input is greater than one, in which case individual "
+            + ".log files will be created.",
+            exampleList = { "FALSE" })
+	private final BooleanInput separateFiles;
 
 	@Keyword(description = "If TRUE, log entries are recorded during the initialization period.",
 	         exampleList = { "FALSE" })
@@ -37,6 +49,9 @@ public class EventLogger extends DisplayEntity {
 
 	{
 		active.setHidden(false);
+		
+		separateFiles = new BooleanInput("SeparateFiles", KEY_INPUTS, false);
+		this.addInput(separateFiles);
 
 		includeInitialization = new BooleanInput("IncludeInitialization", KEY_INPUTS, true);
 		this.addInput(includeInitialization);
@@ -75,11 +90,20 @@ public class EventLogger extends DisplayEntity {
 
 		// Create the report file
 		if (file == null) {
-			StringBuilder tmp = new StringBuilder(
-					simModel.getReportFileName(simModel.getRunName()));
-			tmp.append("-").append(this.getName());
-			tmp.append(".log");
-			file = new FileEntity(tmp.toString());
+			StringBuilder sb = new StringBuilder();
+			sb.append("-").append(this.getName());
+			if (isSeparateFiles()) {
+				sb.append("-s").append(simModel.getScenarioNumber());
+				sb.append("r").append(simModel.getReplicationNumber());
+			}
+			sb.append(".log");
+			String fileName = simModel.getReportFileName(sb.toString());
+			if (fileName == null)
+				return;
+			File f = new File(fileName);
+			if (f.exists() && !f.delete())
+				error("Cannot delete the existing log file %s", f);
+			file = new FileEntity(f);
 		}
 
 		// Print the detailed run information to the file
@@ -96,7 +120,7 @@ public class EventLogger extends DisplayEntity {
 
 		// Print the title for each column
 		// (a) Simulation time
-		String unit = Unit.getDisplayedUnit(TimeUnit.class);
+		String unit = getJaamSimModel().getDisplayedUnit(TimeUnit.class);
 		file.format("%nthis.SimTime/1[%s]", unit);
 
 		// (b) Print at titles for any additional columns
@@ -115,6 +139,11 @@ public class EventLogger extends DisplayEntity {
 
 		// Empty the output buffer
 		file.flush();
+	}
+	
+	protected boolean isSeparateFiles() {
+		int numThreads = getJaamSimModel().getSimulation().getNumberOfThreads();
+		return separateFiles.getValue() || numThreads > 1;
 	}
 	
 	public void recordEntityEvents(DisplayEntity ent) {
@@ -153,7 +182,7 @@ public class EventLogger extends DisplayEntity {
 		
 		// Write a new line for each event
 		for (int i=0; i<eventStarts.size(); i++) {
-			double factor = Unit.getDisplayedUnitFactor(TimeUnit.class);
+			double factor = getJaamSimModel().getDisplayedUnitFactor(TimeUnit.class);
 			file.format("%n%s", simTime/factor);
 
 			// Write any additional columns for the log entry
@@ -169,6 +198,8 @@ public class EventLogger extends DisplayEntity {
 		// Write the time for the log entry
 		//double factor = Unit.getDisplayedUnitFactor(TimeUnit.class);
 		//file.format("%n%s", simTime/factor);
+//		double factor = getJaamSimModel().getDisplayedUnitFactor(TimeUnit.class);
+//		file.format("%n%s", simTime/factor);
 
 		// Write any additional columns for the log entry
 		//this.recordEntry(file, simTime);
