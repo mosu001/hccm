@@ -9,7 +9,10 @@ import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.basicsim.Entity;
 import com.jaamsim.basicsim.ErrorException;
 import com.jaamsim.input.ExpError;
+import com.jaamsim.input.ExpResult;
+import com.jaamsim.input.ValueHandle;
 import com.jaamsim.units.DimensionlessUnit;
+import com.jaamsim.units.Unit;
 
 import hccm.activities.Activity;
 import hccm.activities.ProcessActivity;
@@ -117,8 +120,8 @@ public class ControlUnit extends DisplayEntity {
 		public int compare(ActiveEntity ae1, ActiveEntity ae2) {
 			double simTime = getSimTime();
 			
-			double val1 = ae1.getOutputHandle("CurrentActivityStart").getValueAsDouble(simTime, -1);
-			double val2 = ae2.getOutputHandle("CurrentActivityStart").getValueAsDouble(simTime, -1);
+			double val1 = getNumAttribute(ae1, "CurrentActivityStart", simTime, -1);
+			double val2 = getNumAttribute(ae2, "CurrentActivityStart", simTime, -1);
 			
 			int ret = Double.compare(val1, val2);
 			
@@ -137,9 +140,9 @@ public class ControlUnit extends DisplayEntity {
 		@Override
 		public int compare(ActiveEntity ae1, ActiveEntity ae2) {
 			double simTime = getSimTime();
-			
-			double val1 = ae1.getOutputHandle(attributeName).getValueAsDouble(simTime, -1);
-			double val2 = ae2.getOutputHandle(attributeName).getValueAsDouble(simTime, -1);
+						
+			double val1 = getNumAttribute(ae1, attributeName, simTime, -1);
+			double val2 = getNumAttribute(ae2, attributeName, simTime, -1);
 			
 			int ret = Double.compare(val1, val2);
 			
@@ -227,6 +230,14 @@ public class ControlUnit extends DisplayEntity {
 		return ents;
 	}
 	
+	public ArrayList<ActiveEntity> getEntitiesInActivities(String entityName, double simTime, String... actNames) {
+		ArrayList<ActiveEntity> ents = new ArrayList<ActiveEntity>();
+		for (String act: actNames) {
+			ents.addAll(getEntitiesInActivity(entityName, act, simTime));
+		}
+		return ents;
+	}
+	
 	public ArrayList<ActiveEntity> getEntitiesInSubmodelActivity(String entityName, String actName, double simTime) {
 		String parName = this.getParent().getLocalName();
 		if (!"Simulation".equals(parName)) {
@@ -287,6 +298,81 @@ public class ControlUnit extends DisplayEntity {
 		
 		ProcessActivity nextAct = (ProcessActivity) getSubmodelEntity(entityName);
 		nextAct.start(participants);
+	}
+	
+	/**
+	 * Getter function for numeric attribute
+	 */
+	public double getNumAttribute(Entity ent, String outputName, double simTime, double def) {
+		ValueHandle output = ent.getOutputHandle(outputName);
+		if (output == null) {
+			String msg = "Invalid attribute name for '%s': '%s'\n"
+				+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			
+			int traceInd = 2;
+			String fileName = Thread.currentThread().getStackTrace()[traceInd].getFileName();
+			if (fileName.equals("ControlUnit.java")) {
+				traceInd = traceInd + 7;
+			}
+			
+			throw new ErrorException(msg, ent.getName(), outputName,
+					Thread.currentThread().getStackTrace()[traceInd].getFileName(),
+					Thread.currentThread().getStackTrace()[traceInd].getMethodName(),
+					Thread.currentThread().getStackTrace()[traceInd].getLineNumber());
+		} else {
+			return output.getValueAsDouble(simTime, def);
+		}
+	}
+	
+	/**
+	 * Setter function for numeric attribute
+	 */
+	public void setNumAttribute(Entity ent, String outputName, double val, Class<? extends Unit> ut) {
+		ExpResult eR = ExpResult.makeNumResult(val, ut);
+		try {
+			ent.setAttribute(outputName, null, eR);
+        } catch (ExpError e) {
+        	String newMsg = e.getMessage() + "\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			newMsg = String.format(newMsg, Thread.currentThread().getStackTrace()[2].getFileName(),
+					Thread.currentThread().getStackTrace()[2].getMethodName(),
+					Thread.currentThread().getStackTrace()[2].getLineNumber());
+			throw new ErrorException(this, newMsg);
+		}
+	}
+	
+	/**
+	 * Getter function for string attribute
+	 */
+	public String getStringAttribute(Entity ent, String outputName, double simTime) {
+		ValueHandle output = ent.getOutputHandle(outputName);
+		if (output == null) {
+			String msg = "Could not find output: '%s' on entity of type '%s'\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			throw new ErrorException(msg, outputName, "None",
+					Thread.currentThread().getStackTrace()[2].getFileName(),
+					Thread.currentThread().getStackTrace()[2].getMethodName(),
+					Thread.currentThread().getStackTrace()[2].getLineNumber());
+		} else {
+			return output.getValue(simTime, String.class);
+		}
+	}
+	
+	/**
+	 * Setter function for string attribute
+	 */
+	public void setStringAttribute(Entity ent, String outputName, String val) {
+		ExpResult eR = ExpResult.makeStringResult(val);
+		try {
+			ent.setAttribute(outputName, null, eR);
+        } catch (ExpError e) {
+        	String newMsg = e.getMessage() + "\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			newMsg = String.format(newMsg, Thread.currentThread().getStackTrace()[2].getFileName(),
+					Thread.currentThread().getStackTrace()[2].getMethodName(),
+					Thread.currentThread().getStackTrace()[2].getLineNumber());
+			throw new ErrorException(this, newMsg);
+		}
 	}
 	
 	/**
