@@ -296,7 +296,7 @@ public class ControlUnit extends DisplayEntity {
 			participants.add(ent);
 	    }
 		
-		ProcessActivity nextAct = (ProcessActivity) getSubmodelEntity(entityName);
+		Activity nextAct = (Activity) getSubmodelEntity(entityName);
 		nextAct.start(participants);
 	}
 	
