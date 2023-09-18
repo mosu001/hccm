@@ -9,6 +9,7 @@ import com.jaamsim.Samples.SampleInput;
 import com.jaamsim.basicsim.ErrorException;
 import com.jaamsim.input.AssignmentListInput;
 import com.jaamsim.input.BooleanInput;
+import com.jaamsim.input.EntityInput;
 import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.EntityListListInput;
 import com.jaamsim.input.ExpError;
@@ -23,6 +24,7 @@ import hccm.controlunits.ControlUnit;
 import hccm.controlunits.Trigger;
 import hccm.entities.ActiveEntity;
 import hccm.events.ActivityEvent;
+import hccm.events.EventLogger;
 
 
 /**
@@ -85,6 +87,14 @@ public class WaitActivity extends Queue implements Activity {
 	@Keyword(description = "If TRUE, the start event of the activity will be added to the entity's start times list.",
 	         exampleList = {"TRUE"})
 	private final BooleanInput logStart;
+	
+	@Keyword(description = "Event logger to log start event times when an entity leaves.",
+			 exampleList = {"Unit1"})
+	private final EntityInput<EventLogger> eventLoggerInput;
+	
+	@Keyword(description = "If TRUE, a trace of the entities and their next activities will be printed to the console.",
+	         exampleList = {"TRUE"})
+	private final BooleanInput printTrace;
 
 	/**
 	 * 
@@ -141,6 +151,14 @@ public class WaitActivity extends Queue implements Activity {
 			if (logStart.getValue() == true) {
 				ent.addActivityStart(act.getName());
 				ent.addActivityStartTime(simTime);
+			}
+			
+			EventLogger eventLogger = eventLoggerInput.getValue();
+			
+			if (eventLogger != null) {
+				eventLogger.recordEntityEvents(ent);
+				ent.initActivityStarts();
+				ent.initActivityStartTimes();
 			}
 			
 			if (reqs != null)
@@ -280,6 +298,12 @@ public class WaitActivity extends Queue implements Activity {
 		
 		logStart = new BooleanInput("LogStart", Constants.HCCM, true);
 		this.addInput(logStart);
+		
+		eventLoggerInput = new EntityInput<EventLogger>(EventLogger.class, "EventLogger", Constants.HCCM, null);
+		this.addInput(eventLoggerInput);
+		
+		printTrace = new BooleanInput("PrintTrace", Constants.HCCM, false);
+		this.addInput(printTrace);
 	}
 	
 	/**
@@ -289,7 +313,9 @@ public class WaitActivity extends Queue implements Activity {
 	@Override
 	public void start(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
-		System.out.println("In WaitActivity::start " + ents.get(0).getName() + " added to " + getName());
+		if (printTrace.getValue() == true) {
+			System.out.println("In WaitActivity::start " + ents.get(0).getName() + " added to " + getName());
+		}
 		super.addEntity((DisplayEntity)ents.get(0));
 //		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
 //      updateGraphics(getSimTime());
@@ -316,7 +342,9 @@ public class WaitActivity extends Queue implements Activity {
 		finishEnts = new ArrayList<ActiveEntity>(ents);
 		finishEvent.happens(ents);
 		removeEntity((DisplayEntity)ents.get(0));
-		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
+		if (printTrace.getValue() == true) {
+			System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
+		}
         updateGraphics(getSimTime());
 	}
 	

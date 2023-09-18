@@ -76,14 +76,18 @@ public class LeaveEvent extends EntitySink implements Event {
 	 */
 	public void happens(List<ActiveEntity> ents) { // What occurs when this event happens
 		
+		double simTime = getSimTime();	
 		EventLogger eventLogger = eventLoggerInput.getValue();
 		
 		// All entities involved in this event leave
 		for (ActiveEntity ent : ents) {			
-			DisplayEntity de = (DisplayEntity)ent;
+			ent.addActivityStart(this.getName());
+			ent.addActivityStartTime(simTime);
+			
 			if (eventLogger != null) {
-				eventLogger.recordEntityEvents(de);
+				eventLogger.recordEntityEvents(ent);
 			}
+			DisplayEntity de = (DisplayEntity)ent;
 			super.addEntity(de);
 		}
 //		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());

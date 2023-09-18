@@ -94,6 +94,10 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	@Keyword(description = "If TRUE, the start event of the activity will be added to the entity's start times list.",
 	         exampleList = {"TRUE"})
 	private final BooleanInput logStart;
+	
+	@Keyword(description = "If TRUE, a trace of the entities and their next activities will be printed to the console.",
+	         exampleList = {"TRUE"})
+	private final BooleanInput printTrace;
 
 	/**
 	 * 
@@ -225,17 +229,19 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	
 			if (nextAEJList.getValue().size() == 1) {
 				// Send all entities to the next activity or event together
-			    Linkable nextCmpt = nextAEJList.getValue().get(0);				
-				for (int i=0; i<ents.size(); i++) {
-				  ActiveEntity ent = ents.get(i);
-				  ActiveEntity proto = ent.getEntityType();
-				  System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
-				  System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
-                  if (nextCmpt instanceof Activity)					  
-                	  System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
-                  else
-                	  System.out.println("After ProcessActivity " + owner.getName() + ", Component:" + nextCmpt.toString());
-                }
+			    Linkable nextCmpt = nextAEJList.getValue().get(0);
+			    if (printTrace.getValue() == true) {
+					for (int i=0; i<ents.size(); i++) {
+					  ActiveEntity ent = ents.get(i);
+					  ActiveEntity proto = ent.getEntityType();
+					  System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+					  System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+	                  if (nextCmpt instanceof Activity)					  
+	                	  System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+	                  else
+	                	  System.out.println("After ProcessActivity " + owner.getName() + ", Component:" + nextCmpt.toString());
+	                }
+			    }
 				Constants.nextComponent(act, nextCmpt, ents);
 			} else {
 				// Send each entity to its next activity or event
@@ -243,15 +249,18 @@ public class ProcessActivity extends EntityDelay implements Activity {
 					ActiveEntity ent = ents.get(i);
 					ActiveEntity proto = ent.getEntityType();
 					int index = participantList.getValue().indexOf(proto);
-					System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
-					System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
-					System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
-					System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
 					Linkable nextCmpt = nextAEJList.getValue().get(index);
-					if (nextCmpt instanceof Activity)
-						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
-					else if (nextCmpt instanceof DisplayEntity)
-						System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((DisplayEntity)nextCmpt).getName());
+					if (printTrace.getValue() == true) {
+						System.out.println("After ProcessActivity " + owner.getName() + ", Entity:" + ent.getName());
+						System.out.println("After ProcessActivity " + owner.getName() + ", proto:" + proto.getName());
+						System.out.println("After ProcessActivity " + owner.getName() + ", proto index:" + index);
+						System.out.println("After ProcessActivity " + owner.getName() + ", participant list:" + participantList.getValue());
+						
+						if (nextCmpt instanceof Activity)
+							System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((Activity)nextCmpt).getName());
+						else if (nextCmpt instanceof DisplayEntity)
+							System.out.println("After ProcessActivity " + owner.getName() + ", Activity:" + ((DisplayEntity)nextCmpt).getName());
+					}
 					Constants.nextComponent(act, nextCmpt, ent.asList());
 				}
 			}
@@ -338,6 +347,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 		
 		logStart = new BooleanInput("LogStart", Constants.HCCM, true);
 		this.addInput(logStart);
+		
+		printTrace = new BooleanInput("PrintTrace", Constants.HCCM, false);
+		this.addInput(printTrace);
 	}
 	
 	/**
@@ -403,7 +415,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 */
 	@Override
 	public void removeDisplayEntity(DisplayEntity ent) {
-		System.out.println("In ProcessActivity::removeDisplayEntity..." + this.getEntityList(this.getSimTime()));
+		if (printTrace.getValue() == true) {
+			System.out.println("In ProcessActivity::removeDisplayEntity..." + this.getEntityList(this.getSimTime()));
+		}
 		ArrayList<ActiveEntity> participants = new ArrayList<ActiveEntity>();
 	    EntityContainer participantEntity = (EntityContainer)ent;
 		double simTime = this.getSimTime();
@@ -446,7 +460,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				expString = expString.replace("this.obj", "this");
 				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(currentContainer, expString);
 				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
-				System.out.println("Start assignment is " + expString);
+				if (printTrace.getValue() == true) {
+					System.out.println("Start assignment is " + expString);
+				}
 				ExpEvaluator.evaluateExpression(mod, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
@@ -472,7 +488,9 @@ public class ProcessActivity extends EntityDelay implements Activity {
 				// System.out.println(this.getEntityList(simTime));
 				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(this, expString);
 				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
-				System.out.println("Finish assignment is " + mod.toString());
+				if (printTrace.getValue() == true) {
+					System.out.println("Finish assignment is " + mod.toString());
+				}
 				ExpEvaluator.evaluateExpression(mod, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);

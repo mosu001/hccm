@@ -176,6 +176,10 @@ public class EventLogger extends DisplayEntity {
 
 		// Record the time for the log entry
 		logTime = simTime;
+		
+		JaamSimModel simModel = getJaamSimModel();
+		String scenarioCode = simModel.getScenarioCode();
+		int replication = simModel.getReplicationNumber();
 
 		ArrayList<String> eventStarts = ((ActiveEntity) receivedEntity).getActivityStarts(simTime);
 		ArrayList<Double> eventStartTimes = ((ActiveEntity) receivedEntity).getActivityStartTimes(simTime);
@@ -184,13 +188,15 @@ public class EventLogger extends DisplayEntity {
 		for (int i=0; i<eventStarts.size(); i++) {
 			double factor = getJaamSimModel().getDisplayedUnitFactor(TimeUnit.class);
 			file.format("%n%s", simTime/factor);
+			file.format("\t%s", scenarioCode);
+			file.format("\t%s", replication);
 
 			// Write any additional columns for the log entry
 			this.recordEntry(file, simTime);
 			String str;
 			str = eventStarts.get(i);
 			file.format("\t%s", str);
-			str = eventStartTimes.get(i).toString();
+			str = Double.toString((eventStartTimes.get(i)/factor));
 			file.format("\t%s", str);
 		
 		}
@@ -235,6 +241,8 @@ public class EventLogger extends DisplayEntity {
 	}
 
 	protected void printColumnTitles(FileEntity file) {
+		file.format("\t%s", "Scenario");
+		file.format("\t%s", "Replication");
 		file.format("\t%s", "this.obj");
 	}
 

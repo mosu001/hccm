@@ -21,7 +21,7 @@ public abstract class Constants {
 	public static final String HCCM = "HCCM";
 
 	public static void nextComponent(Linkable currCmpt, Linkable nextCmpt, List<ActiveEntity> ents) {
-		System.out.println("From " + currCmpt.toString() + " to " + nextCmpt.toString() + " with " + ents.toString());
+		//System.out.println("From " + currCmpt.toString() + " to " + nextCmpt.toString() + " with " + ents.toString());
 
 		if (nextCmpt instanceof Activity) {
 			Activity act = (Activity)nextCmpt;
