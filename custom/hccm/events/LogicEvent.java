@@ -28,6 +28,10 @@ import hccm.entities.ActiveEntity;
 
 public class LogicEvent extends DisplayEntity implements Event {
 	
+	@Keyword(description = "The (prototype) entities that participate in this activity.",
+	         exampleList = {"ProtoEntity1"})
+	protected final EntityListInput<ActiveEntity> participantList;
+	
 	@Keyword(description = "A list of attribute assignments that are triggered when this event occurs.\n\n" +
 			"The attributes for various entities can be used in an assignment expression:\n" +
 			"- this entity -- this.AttributeName\n" +
@@ -50,6 +54,11 @@ public class LogicEvent extends DisplayEntity implements Event {
 	private ArrayList<ScheduledEvent> schedEvents;
 	
 	{
+		participantList = new EntityListInput<>(ActiveEntity.class, "ParticipantList", Constants.HCCM, null);
+		participantList.setRequired(true);
+		participantList.setUnique(false);
+		this.addInput(participantList);	
+		
 		assignmentList = new AssignmentListInput("AssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(assignmentList);
 
@@ -97,14 +106,30 @@ public class LogicEvent extends DisplayEntity implements Event {
 	
 	private static class LogicEventTarget extends EntityTarget<LogicEvent> {
 		private final List<ActiveEntity> participatingEnts;
+		private final ArrayList<ActiveEntity> le_participantList;
 
 		public LogicEventTarget(LogicEvent le, List<ActiveEntity> ents) {
 			super(le, "happens");
 			participatingEnts = ents;
+			this.le_participantList = le.participantList.getValue();
 		}
 
 		@Override
 		public void process() {
+			// Ensure that the participants are the correct types of entities.
+			for (int i=0; i<participatingEnts.size(); i++) {
+				ActiveEntity ent = participatingEnts.get(i);
+				ActiveEntity proto = ent.getEntityType();
+				ActiveEntity proto2 = le_participantList.get(i);
+				if (proto != proto2) {
+					String msg = "The type of the given entity: '%s', does not match the type required: '%s'\n"
+							+ "The error occured in file: '%s', method: '%s', line: '%s'";
+					throw new ErrorException(msg, proto.getLocalName(), proto2.getLocalName(),
+								Thread.currentThread().getStackTrace()[2].getFileName(),
+								Thread.currentThread().getStackTrace()[2].getMethodName(),
+								Thread.currentThread().getStackTrace()[2].getLineNumber());
+				}
+			}
 			ent.happens(participatingEnts);
 		}
 	}

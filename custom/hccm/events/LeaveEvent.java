@@ -6,6 +6,7 @@ import java.util.List;
 import com.jaamsim.Graphics.DisplayEntity;
 import com.jaamsim.ProcessFlow.EntitySink;
 import com.jaamsim.Samples.SampleInput;
+import com.jaamsim.basicsim.ErrorException;
 import com.jaamsim.input.EntityInput;
 import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.Keyword;
@@ -24,6 +25,10 @@ import hccm.entities.ActiveEntity;
  * 
  */
 public class LeaveEvent extends EntitySink implements Event {
+	
+	@Keyword(description = "The (prototype) entities that participate in this activity.",
+	         exampleList = {"ProtoEntity1"})
+	protected final EntityInput<ActiveEntity> participant;
 
 	@Keyword(description = "The triggers that may be executed when this event occurs.",
 	         exampleList = {"Trigger1"})
@@ -39,6 +44,11 @@ public class LeaveEvent extends EntitySink implements Event {
 	private final EntityInput<EventLogger> eventLoggerInput;
 
 	{
+		participant = new EntityInput<>(ActiveEntity.class, "Participant", Constants.HCCM, null);
+		participant.setRequired(true);
+//		participantList.setUnique(false);
+		this.addInput(participant);	
+		
 		triggerList = new EntityListInput<>(Trigger.class, "TriggerList", Constants.HCCM,
 				new ArrayList<Trigger>());
 		this.addInput(triggerList);
@@ -66,8 +76,21 @@ public class LeaveEvent extends EntitySink implements Event {
 	 */
 	@Override
 	public void addEntity(DisplayEntity ent) {
-		ActiveEntity participant = (ActiveEntity)ent;
-		happens(participant.asList());
+		ActiveEntity act_ent = (ActiveEntity)ent;
+		
+		// Ensure that the participant is the correct type of entity.
+		ActiveEntity proto = act_ent.getEntityType();
+		ActiveEntity proto2 = participant.getValue();
+		if (proto != proto2) {
+			String msg = "The type of the given entity: '%s', does not match the type required: '%s'\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			throw new ErrorException(msg, proto.getLocalName(), proto2.getLocalName(),
+						Thread.currentThread().getStackTrace()[2].getFileName(),
+						Thread.currentThread().getStackTrace()[2].getMethodName(),
+						Thread.currentThread().getStackTrace()[2].getLineNumber());
+		}
+		
+		happens(act_ent.asList());
 	}
 	
 	/**

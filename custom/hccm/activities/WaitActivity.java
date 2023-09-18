@@ -47,6 +47,10 @@ public class WaitActivity extends Queue implements Activity {
             + "1 = first activity list, 2 = second activity list, etc.",
             exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
 	private final SampleInput requestActivityChoice;
+	
+	@Keyword(description = "The (prototype) entities that participate in this activity.",
+	         exampleList = {"ProtoEntity1"})
+	protected final EntityInput<ActiveEntity> participant;
 
 	@Keyword(description = "A list of attribute assignments that are triggered when an entity starts the activity.\n\n" +
 			"The attributes for various entities can be used in an assignment expression:\n" +
@@ -258,7 +262,12 @@ public class WaitActivity extends Queue implements Activity {
 	/**
 	 * ?
 	 */
-	{		
+	{	
+		participant = new EntityInput<>(ActiveEntity.class, "Participant", Constants.HCCM, null);
+		participant.setRequired(true);
+//		participantList.setUnique(false);
+		this.addInput(participant);		
+		
 		startAssignmentList = new AssignmentListInput("StartAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(startAssignmentList);
 
@@ -313,6 +322,21 @@ public class WaitActivity extends Queue implements Activity {
 	@Override
 	public void start(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
+		
+		// Ensure that the participant is the correct type of entity.
+		ActiveEntity ent = ents.get(0);
+		ActiveEntity proto = ent.getEntityType();
+		ActiveEntity proto2 = participant.getValue();
+		if (proto != proto2) {
+			String msg = "The type of the given entity: '%s', does not match the type required: '%s'\n"
+					+ "The error occured in file: '%s', method: '%s', line: '%s'";
+			throw new ErrorException(msg, proto.getLocalName(), proto2.getLocalName(),
+						Thread.currentThread().getStackTrace()[2].getFileName(),
+						Thread.currentThread().getStackTrace()[2].getMethodName(),
+						Thread.currentThread().getStackTrace()[2].getLineNumber());
+		}
+
+		
 		if (printTrace.getValue() == true) {
 			System.out.println("In WaitActivity::start " + ents.get(0).getName() + " added to " + getName());
 		}

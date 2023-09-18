@@ -1,0 +1,272 @@
+
+RecordEdits
+
+Define ActiveEntity { QCustomer  QServer }
+Define ArriveEvent { Arrive  Start }
+Define ControlUnit { QueueLogic }
+Define LeaveEvent { Leave }
+Define ProcessActivity { Service }
+Define WaitActivity { WaitForCustomer  WaitForServer }
+Define ExponentialDistribution { InterarrivalTime  ServiceTime }
+Define FIFOQTrigger { QMechanism }
+Define ColladaModel { Axis  Grid100x100 }
+Define ImageModel { customer-model  server-model }
+Define DisplayEntity { XY-Grid  XYZ-Axis }
+Define EntityLabel { Arrive_Label  InterarrivalTime_Label  Leave_Label  QCustomer_Label  QMechanism_Label  QServer_Label  QueueLogic_Label  ServiceTime_Label  Service_Label  Start_Label  WaitForCustomer_Label  WaitForServer_Label }
+Define OverlayClock { Clock }
+Define OverlayText { Title }
+Define View { View1 }
+
+InterarrivalTime UnitType { TimeUnit }
+ServiceTime UnitType { TimeUnit }
+
+Simulation Description { 'Simulation run control inputs' }
+
+# *** ActiveEntity ***
+
+
+
+# *** ArriveEvent ***
+
+Arrive NextComponent { WaitForServer }
+Arrive InterArrivalTime { 5  min }
+Arrive PrototypeEntity { QCustomer }
+Arrive BaseName { Customer }
+Arrive NextAEJObject { WaitForServer }
+
+Start NextComponent { WaitForCustomer }
+Start PrototypeEntity { QServer }
+Start BaseName { Server }
+Start MaxNumber { 1 }
+Start NextAEJObject { WaitForCustomer }
+
+# *** ControlUnit ***
+
+
+# *** LeaveEvent ***
+
+
+# *** ProcessActivity ***
+
+Service Duration { ServiceTime }
+Service ControlUnit { QueueLogic }
+Service ParticipantList { QCustomer  QServer }
+Service NextAEJList { Leave  WaitForCustomer }
+
+# *** WaitActivity ***
+
+WaitForCustomer StartTriggerList { QMechanism }
+WaitForCustomer StartTriggerChoice { 1 }
+WaitForCustomer RequestActivityList {  }
+WaitForCustomer RequestActivityChoice {  }
+
+WaitForServer StartTriggerList { QMechanism }
+WaitForServer StartTriggerChoice { 1 }
+WaitForServer RequestActivityList { Service }
+WaitForServer RequestActivityChoice { 1 }
+
+# *** ExponentialDistribution ***
+
+InterarrivalTime RandomSeed { 1 }
+InterarrivalTime Mean { 4  min }
+
+ServiceTime RandomSeed { 1 }
+ServiceTime Mean { 4  min }
+
+# *** FIFOQTrigger ***
+
+QMechanism ControlUnit { QueueLogic }
+
+# *** GRAPHICS INPUTS ***
+
+Simulation RealTime { TRUE }
+Simulation SnapToGrid { TRUE }
+Simulation RealTimeFactor { 1024 }
+Simulation ShowLabels { TRUE }
+Simulation ShowEntityFlow { TRUE }
+Simulation ShowModelBuilder { TRUE }
+Simulation ShowObjectSelector { TRUE }
+Simulation ShowInputEditor { TRUE }
+Simulation ShowOutputViewer { TRUE }
+Simulation ShowPropertyViewer { FALSE }
+Simulation ShowLogViewer { TRUE }
+
+QCustomer Position { -1.4  0.4  0.0  m }
+QCustomer Alignment { 0.0  0.0  -0.5 }
+QCustomer Size { 0.500000  0.500000  1.0  m }
+QCustomer Points { { -1.4  0.4  0.0  m } { -0.4  0.4  0.0  m } }
+QCustomer DisplayModel { customer-model }
+
+QServer Position { -1.4  -0.4  0.0  m }
+QServer Alignment { 0.0  0.0  -0.5 }
+QServer Size { 0.500000  0.500000  1.0  m }
+QServer Points { { -1.4  -0.4  0.0  m } { -0.4  -0.4  0.0  m } }
+QServer DisplayModel { server-model }
+
+Arrive Position { 1.5  0.5  0.0  m }
+Arrive Points { { 1.5  0.5  0.0  m } { 2.5  0.5  0.0  m } }
+
+Start Position { 1.5  -0.5  0.0  m }
+Start Points { { 1.5  -0.5  0.0  m } { 2.5  -0.5  0.0  m } }
+
+QueueLogic Position { 3.5  1.5  0.0  m }
+QueueLogic Points { { 3.5  1.5  0.0  m } { 4.5  1.5  0.0  m } }
+
+Leave Position { 4.5  0.5  0.0  m }
+Leave Points { { 4.5  0.5  0.0  m } { 5.5  0.5  0.0  m } }
+
+Service Position { 3.0  0.5  0.0  m }
+Service Points { { 3.0  0.5  0.0  m } { 4.0  0.5  0.0  m } }
+
+WaitForCustomer Position { 2.4  -0.5  0.0  m }
+WaitForCustomer Points { { 2.4  -0.5  0.0  m } { 3.4  -0.5  0.0  m } }
+
+WaitForServer Position { 2.4  0.5  0.0  m }
+WaitForServer Points { { 2.4  0.5  0.0  m } { 3.4  0.5  0.0  m } }
+
+InterarrivalTime Position { 1.5  1.5  0.0  m }
+InterarrivalTime Points { { 1.5  1.5  0.0  m } { 2.5  1.5  0.0  m } }
+
+ServiceTime Position { 2.5  1.5  0.0  m }
+ServiceTime Points { { 2.5  1.5  0.0  m } { 3.5  1.5  0.0  m } }
+
+QMechanism Position { 4.4  1.5  0.0  m }
+QMechanism Points { { 4.4  1.5  0.0  m } { 5.4  1.5  0.0  m } }
+
+# *** ColladaModel ***
+
+Axis ColladaFile { <res>/shapes/axis_text.dae }
+
+Grid100x100 ColladaFile { <res>/shapes/grid100x100.dae }
+
+# *** ImageModel ***
+
+customer-model ImageFile { images/customer.png }
+*** INPUT ERROR *** Entity: customer-model, Keyword: ImageFile - The specified file does not exist.
+File path = images/customer.png
+URI=file:/H:/EngFiles/ENGSCI355/sim/hccm/custom/examples/images/customer.png
+
+
+server-model ImageFile { images/server.png }
+*** INPUT ERROR *** Entity: server-model, Keyword: ImageFile - The specified file does not exist.
+File path = images/server.png
+URI=file:/H:/EngFiles/ENGSCI355/sim/hccm/custom/examples/images/server.png
+
+
+# *** DisplayEntity ***
+
+XY-Grid Description { 'Grid for the X-Y plane (100 m x 100 m)' }
+XY-Grid Size { 100  100  m }
+XY-Grid DisplayModel { Grid100x100 }
+XY-Grid Movable { FALSE }
+
+XYZ-Axis Description { 'Unit vectors' }
+XYZ-Axis Alignment { -0.4393409  -0.4410096  -0.4394292 }
+XYZ-Axis Size { 1.125000  1.1568242  1.1266404  m }
+XYZ-Axis DisplayModel { Axis }
+XYZ-Axis Show { FALSE }
+XYZ-Axis Movable { FALSE }
+
+# *** EntityLabel ***
+
+Arrive_Label Position { 0.0  -0.4  0.0  m }
+Arrive_Label Size { 0.762566  0.3  0.0  m }
+Arrive_Label RelativeEntity { Arrive }
+Arrive_Label Show { FALSE }
+Arrive_Label TargetEntity { Arrive }
+
+InterarrivalTime_Label Position { 0.0  -0.65  0.0  m }
+InterarrivalTime_Label Size { 1.809475  0.3  0.0  m }
+InterarrivalTime_Label RelativeEntity { InterarrivalTime }
+InterarrivalTime_Label Show { FALSE }
+InterarrivalTime_Label TargetEntity { InterarrivalTime }
+
+Leave_Label Position { 0.0  -0.4  0.0  m }
+Leave_Label Size { 0.750598  0.3  0.0  m }
+Leave_Label RelativeEntity { Leave }
+Leave_Label Show { FALSE }
+Leave_Label TargetEntity { Leave }
+
+QCustomer_Label Position { 0.0  -0.4  0.0  m }
+QCustomer_Label Size { 1.301031  0.3  0.0  m }
+QCustomer_Label RelativeEntity { QCustomer }
+QCustomer_Label Show { FALSE }
+QCustomer_Label TargetEntity { QCustomer }
+
+QMechanism_Label Position { 0.0  -0.4  0.0  m }
+QMechanism_Label Size { 1.453324  0.3  0.0  m }
+QMechanism_Label RelativeEntity { QMechanism }
+QMechanism_Label Show { FALSE }
+QMechanism_Label TargetEntity { QMechanism }
+
+QServer_Label Position { 0.0  -0.4  0.0  m }
+QServer_Label Size { 0.988963  0.3  0.0  m }
+QServer_Label RelativeEntity { QServer }
+QServer_Label Show { FALSE }
+QServer_Label TargetEntity { QServer }
+
+QueueLogic_Label Position { 0.0  -0.4  0.0  m }
+QueueLogic_Label Size { 1.340027  0.3  0.0  m }
+QueueLogic_Label RelativeEntity { QueueLogic }
+QueueLogic_Label Show { FALSE }
+QueueLogic_Label TargetEntity { QueueLogic }
+
+ServiceTime_Label Position { 0.0  -0.65  0.0  m }
+ServiceTime_Label Size { 1.405751  0.3  0.0  m }
+ServiceTime_Label RelativeEntity { ServiceTime }
+ServiceTime_Label Show { FALSE }
+ServiceTime_Label TargetEntity { ServiceTime }
+
+Service_Label Position { 0.0  -0.4  0.0  m }
+Service_Label Size { 0.903491  0.3  0.0  m }
+Service_Label RelativeEntity { Service }
+Service_Label Show { FALSE }
+Service_Label TargetEntity { Service }
+
+Start_Label Position { 0.0  -0.4  0.0  m }
+Start_Label Size { 0.660439  0.3  0.0  m }
+Start_Label RelativeEntity { Start }
+Start_Label Show { FALSE }
+Start_Label TargetEntity { Start }
+
+WaitForCustomer_Label Position { 0.0  -0.4  0.0  m }
+WaitForCustomer_Label Size { 1.929953  0.3  0.0  m }
+WaitForCustomer_Label RelativeEntity { WaitForCustomer }
+WaitForCustomer_Label Show { FALSE }
+WaitForCustomer_Label TargetEntity { WaitForCustomer }
+
+WaitForServer_Label Position { 0.0  -0.4  0.0  m }
+WaitForServer_Label Size { 1.617886  0.3  0.0  m }
+WaitForServer_Label RelativeEntity { WaitForServer }
+WaitForServer_Label Show { FALSE }
+WaitForServer_Label TargetEntity { WaitForServer }
+
+# *** OverlayClock ***
+
+Clock Description { 'Simulation date and time (no leap years or leap seconds)' }
+Clock ScreenPosition { 15  15 }
+Clock AlignBottom { TRUE }
+Clock TextHeight { 10 }
+Clock FontColour { gray20 }
+Clock FontStyle { ITALIC }
+Clock StartingYear { 2014 }
+Clock DateFormat { 'yyyy-MMM-dd HH:mm:ss.SSS' }
+
+# *** OverlayText ***
+
+Title Description { 'Title for the simulation model' }
+Title ScreenPosition { 15  15 }
+Title Format { 'Model Title' }
+Title TextHeight { 18 }
+Title FontColour { 150  23  46 }
+Title FontStyle { BOLD }
+
+# *** View ***
+
+View1 Description { 'Default view window' }
+View1 ViewCenter { 2.043747  -0.142352  0.0  m }
+View1 ViewPosition { 2.044141  -1.138807  8.602735  m }
+View1 ShowWindow { TRUE }
+View1 Lock2D { TRUE }
+View1 SkyboxImage { <res>/images/sky_map_2048x1024.jpg }
+Input Error: 2 input errors and 0 warnings found
