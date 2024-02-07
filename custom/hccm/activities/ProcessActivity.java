@@ -25,6 +25,7 @@ import com.jaamsim.input.InputAgent;
 import com.jaamsim.input.ExpParser.Assignment;
 import com.jaamsim.input.InterfaceEntityListInput;
 import com.jaamsim.input.Keyword;
+import com.jaamsim.input.Output;
 //import com.jaamsim.units.DimensionlessUnit;
 import com.jaamsim.units.DimensionlessUnit;
 
@@ -296,9 +297,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	
 	ProcessStart startEvent;
 	ProcessFinish finishEvent;
-
+	ArrayList<ActiveEntity> currentParticipants = new ArrayList<ActiveEntity>();
 	EntityContainer currentContainer;
-
 	/**
 	 * 
 	 */
@@ -389,7 +389,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 							Thread.currentThread().getStackTrace()[2].getLineNumber());
 			}
 		}
-				
+		currentParticipants = (ArrayList<ActiveEntity>) participants;
 		startEvent.happens(participants);
 	}
 	
@@ -438,6 +438,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 */
 	@Override
 	public void finish(List<ActiveEntity> participants) {
+		currentParticipants = (ArrayList<ActiveEntity>) participants;
 		finishEvent.happens(participants);
 //		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
 //		updateGraphics(getSimTime());
@@ -456,14 +457,15 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	public void startAssignments(List<ActiveEntity> ents, double simTime) {		
 		for (ExpParser.Assignment ass : startAssignmentList.getValue()) {
 			try {
-				String expString = ass.toString();
-				expString = expString.replace("this.obj", "this");
-				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(currentContainer, expString);
-				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
-				if (printTrace.getValue() == true) {
-					System.out.println("Start assignment is " + expString);
-				}
-				ExpEvaluator.evaluateExpression(mod, this, simTime);
+//				String expString = ass.toString();
+//				expString = expString.replace("this.obj", "this");
+//				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(currentContainer, expString);
+//				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
+//				if (printTrace.getValue() == true) {
+//					System.out.println("Start assignment is " + expString);
+//				}
+//				ExpEvaluator.evaluateExpression(mod, this, simTime);
+				ExpEvaluator.evaluateExpression(ass, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}
@@ -478,20 +480,21 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	public void finishAssignments(List<ActiveEntity> ents, double simTime) {
 		for (ExpParser.Assignment ass : finishAssignmentList.getValue()) {
 			try {
-				String expString = ass.toString();
-				int index = getEntityList(simTime).indexOf(currentContainer);
-				expString = expString.replace("this.obj", "this.EntityList(" + (index+1) + ")");
-				// expString = expString.replace("this.obj", "[" + currentContainer.getName() + "]");
-				// for (int i=0; i<ents.size(); i++)
-				//   expString = expString.replace("this.obj.EntityList(" + (i+1) + ")",
-				//                                 "[" + ents.get(i).getName() + "]");
-				// System.out.println(this.getEntityList(simTime));
-				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(this, expString);
-				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
-				if (printTrace.getValue() == true) {
-					System.out.println("Finish assignment is " + mod.toString());
-				}
-				ExpEvaluator.evaluateExpression(mod, this, simTime);
+//				String expString = ass.toString();
+//				int index = getEntityList(simTime).indexOf(currentContainer);
+//				expString = expString.replace("this.obj", "this.EntityList(" + (index+1) + ")");
+//				// expString = expString.replace("this.obj", "[" + currentContainer.getName() + "]");
+//				// for (int i=0; i<ents.size(); i++)
+//				//   expString = expString.replace("this.obj.EntityList(" + (i+1) + ")",
+//				//                                 "[" + ents.get(i).getName() + "]");
+//				// System.out.println(this.getEntityList(simTime));
+//				ExpEvaluator.EntityParseContext pc = ExpEvaluator.getParseContext(this, expString);
+//				ExpParser.Assignment mod = ExpParser.parseAssignment(pc, expString);
+//				if (printTrace.getValue() == true) {
+//					System.out.println("Finish assignment is " + mod.toString());
+//				}
+//				ExpEvaluator.evaluateExpression(mod, this, simTime);
+				ExpEvaluator.evaluateExpression(ass, this, simTime);
 			} catch (ExpError err) {
 				throw new ErrorException(this, err);
 			}
@@ -529,5 +532,13 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			entArrs.add(ents);
 		}
 		return entArrs;
+	}
+	
+	@Output(name = "CurrentParticipants",
+			 description = "The entities that are currently starting/finishing the activity.",
+			    unitType = DimensionlessUnit.class,
+			    sequence = 4)
+	public ArrayList<ActiveEntity> getCurrentParticipants(double simTime) {
+		return currentParticipants;
 	}
 }

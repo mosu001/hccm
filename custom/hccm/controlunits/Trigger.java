@@ -22,15 +22,9 @@ import hccm.entities.ActiveEntity;
  * 
  */
 public class Trigger extends DisplayEntity {
-	/**
-	 * ?
-	 */
+
 	@Keyword(description = "Control unit this trigger belongs to.",
 			 exampleList = {"Unit1"})
-	
-	/**
-	 * controlUnitInput constructor?
-	 */
 	private final EntityInput<ControlUnit> controlUnitInput;
 	
 	@Keyword(description = "Control policy that trigger executes.",

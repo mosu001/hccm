@@ -39,15 +39,6 @@ public class WaitActivity extends Queue implements Activity {
 	/**
 	 * 
 	 */
-	@Keyword(description = "Lists of activities that may be requested when waiting starts.",
-	         exampleList = "{ { Activity1 Activity2 } { Activity3 Activity4 } }")
-	protected final EntityListListInput<ProcessActivity> requestActivityList;
-
-	@Keyword(description = "A number that determines the choice of requested activity: "
-            + "1 = first activity list, 2 = second activity list, etc.",
-            exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
-	private final SampleInput requestActivityChoice;
-	
 	@Keyword(description = "The (prototype) entities that participate in this activity.",
 	         exampleList = {"ProtoEntity1"})
 	protected final EntityInput<ActiveEntity> participant;
@@ -130,20 +121,7 @@ public class WaitActivity extends Queue implements Activity {
             
 			WaitActivity act = (WaitActivity)owner;
 			double simTime = getSimTime();			
-            
-			// Choose the requested activity for this entity (if there is one)
-			List<ProcessActivity> reqs = null;
-			int i;
-			if (requestActivityList.getValue().size() >= 1) {
-				i = (int) requestActivityChoice.getValue().getNextSample(simTime);
-				if (i<1 || i>requestActivityList.getValue().size())
-					error("Chosen index i=%s is out of range for RequestActivityList: %s.",
-					      i, requestActivityList.getValue());
-	
-				// Get the requested activity
-				reqs = requestActivityList.getValue().get(i-1);
-			}
-			
+            			
 	        // Choose the trigger for this entity
 			Trigger trg = getTrigger(simTime);
 			ControlUnit tcu = null;
@@ -164,15 +142,7 @@ public class WaitActivity extends Queue implements Activity {
 				ent.initActivityStarts();
 				ent.initActivityStartTimes();
 			}
-			
-			if (reqs != null)
-				for (ProcessActivity req : reqs) {
-					ControlUnit rcu = req.getControlUnit();
-	  			    // Request the activity
-                    //System.out.println("Requested activity = " + req.getName());
-	  			    rcu.requestActivity(req, ent, act, simTime);
-				}
-					
+								
 			if (trg != null) {
 				// Trigger the logic
 				tcu = trg.getControlUnit();
@@ -185,6 +155,10 @@ public class WaitActivity extends Queue implements Activity {
 			// Choose the trigger for this entity
 			boolean trigger = (startTriggerList.getValue().size() > 0);
 			if (trigger) {
+				if (startTriggerChoice.getValue() == null) {
+					String msg = "Trigger list but no trigger choice provided for '%s'";
+					throw new ErrorException(msg, owner.getName());
+				}
 				int i = (int) startTriggerChoice.getValue().getNextSample(simTime);
 				if (i<1 || i>startTriggerList.getValue().size())
 					error("Chosen index i=%s is out of range for TriggerList: %s.",
@@ -259,6 +233,7 @@ public class WaitActivity extends Queue implements Activity {
 	WaitStart startEvent;
 	WaitFinish finishEvent;
 	ArrayList<ActiveEntity> finishEnts;
+	ActiveEntity currentParticipant = null;
 	/**
 	 * ?
 	 */
@@ -279,15 +254,6 @@ public class WaitActivity extends Queue implements Activity {
 		startTriggerChoice.setUnitType(DimensionlessUnit.class);
 		startTriggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(startTriggerChoice);
-
-		requestActivityList = new EntityListListInput<>(ProcessActivity.class, "RequestActivityList", Constants.HCCM,
-				new ArrayList<ArrayList<ProcessActivity>>());
-		this.addInput(requestActivityList);
-		
-		requestActivityChoice = new SampleInput("RequestActivityChoice", Constants.HCCM, null);
-		requestActivityChoice.setUnitType(DimensionlessUnit.class);
-		requestActivityChoice.setValidRange(1, Double.POSITIVE_INFINITY);
-		this.addInput(requestActivityChoice);
 
 		finishAssignmentList = new AssignmentListInput("FinishAssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(finishAssignmentList);
@@ -336,6 +302,7 @@ public class WaitActivity extends Queue implements Activity {
 						Thread.currentThread().getStackTrace()[2].getLineNumber());
 		}
 
+		currentParticipant = ent;
 		
 		if (printTrace.getValue() == true) {
 			System.out.println("In WaitActivity::start " + ents.get(0).getName() + " added to " + getName());
@@ -364,6 +331,7 @@ public class WaitActivity extends Queue implements Activity {
 	public void finish(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
 		finishEnts = new ArrayList<ActiveEntity>(ents);
+		currentParticipant = ents.get(0);
 		finishEvent.happens(ents);
 		removeEntity((DisplayEntity)ents.get(0));
 		if (printTrace.getValue() == true) {
@@ -430,10 +398,18 @@ public class WaitActivity extends Queue implements Activity {
 		return ents;
 	}
 	
+	@Output(name = "CurrentParticipant",
+			 description = "The entity that is currently starting/finishing the activity.",
+			    unitType = DimensionlessUnit.class,
+			    sequence = 1)
+	public ActiveEntity getCurrentParticipant(double simTime) {
+		return currentParticipant;
+	}
+	
 	@Output(name = "FinishingEntities",
 	 description = "The entities that are finishing the activity.",
 	    unitType = DimensionlessUnit.class,
-	    sequence = 4)
+	    sequence = 2)
 	public ArrayList<ActiveEntity> getFinishingEntities(double simTime) {
 		return finishEnts;
 	}
