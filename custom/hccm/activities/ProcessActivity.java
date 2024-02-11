@@ -131,7 +131,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 //			for (@SuppressWarnings("unused") EntityContainer ent : model.getClonesOfIterator(EntityContainer.class))
 //				numCons++;
 			EntityContainer participantEntity = model.createInstance(EntityContainer.class,
-					act.getName() + "_" + (numCons + 1), null, false, true, false, false);
+					null, act.getName() + "_" + (numCons + 1), null, false, true, false, false);
 			participantEntity.setDisplayModelList(null);
 			participantEntity.setShow(true);
 			for (Entity ent : ents) {
@@ -173,7 +173,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			// Choose the trigger for this entity
 			boolean trigger = (startTriggerList.getValue().size() > 0);
 			if (trigger) {
-				int i = (int) startTriggerChoice.getValue().getNextSample(simTime);
+				int i = (int) startTriggerChoice.getNextSample((DisplayEntity)owner, simTime);
 				if (i<1 || i>startTriggerList.getValue().size())
 					error("Chosen index i=%s is out of range for TriggerList: %s.",
 							i, startTriggerList.getValue());
@@ -282,7 +282,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 			// Choose the trigger for this entity
 			boolean trigger = (finishTriggerList.getValue().size() > 0);
 			if (trigger) {
-				int i = (int) finishTriggerChoice.getValue().getNextSample(simTime);
+				int i = (int) finishTriggerChoice.getNextSample((DisplayEntity)owner, simTime);
 				if (i<1 || i>finishTriggerList.getValue().size())
 					error("Chosen index i=%s is out of range for TriggerList: %s.",
 							i, finishTriggerList.getValue());

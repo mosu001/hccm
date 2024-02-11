@@ -131,7 +131,7 @@ public class ArriveEvent extends EntityGenerator implements Event {
 	@Override
 	public Trigger getTrigger(double simTime) {
 		// Choose the trigger for this entity
-		int i = (int) triggerChoice.getValue().getNextSample(simTime);
+		int i = (int) triggerChoice.getNextSample((DisplayEntity)this, simTime);
 		if (i<1 || i>triggerList.getValue().size())
 			error("Chosen index i=%s is out of range for TriggerList: %s.",
 			      i, triggerList.getValue());

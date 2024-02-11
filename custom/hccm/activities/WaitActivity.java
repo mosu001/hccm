@@ -159,7 +159,7 @@ public class WaitActivity extends Queue implements Activity {
 					String msg = "Trigger list but no trigger choice provided for '%s'";
 					throw new ErrorException(msg, owner.getName());
 				}
-				int i = (int) startTriggerChoice.getValue().getNextSample(simTime);
+				int i = (int) startTriggerChoice.getNextSample((DisplayEntity)owner, simTime);
 				if (i<1 || i>startTriggerList.getValue().size())
 					error("Chosen index i=%s is out of range for TriggerList: %s.",
 							i, startTriggerList.getValue());
@@ -215,7 +215,7 @@ public class WaitActivity extends Queue implements Activity {
 			// Choose the trigger for this entity
 			boolean trigger = (finishTriggerList.getValue().size() > 0);
 			if (trigger) {
-				int i = (int) finishTriggerChoice.getValue().getNextSample(simTime);
+				int i = (int) finishTriggerChoice.getNextSample((DisplayEntity)owner, simTime);
 				if (i<1 || i>finishTriggerList.getValue().size())
 					error("Chosen index i=%s is out of range for TriggerList: %s.",
 							i, finishTriggerList.getValue());
