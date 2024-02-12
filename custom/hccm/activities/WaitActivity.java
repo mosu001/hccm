@@ -294,12 +294,26 @@ public class WaitActivity extends Queue implements Activity {
 		ActiveEntity proto = ent.getEntityType();
 		ActiveEntity proto2 = participant.getValue();
 		if (proto != proto2) {
-			String msg = "The type of the given entity: '%s', does not match the type required: '%s'\n"
-					+ "The error occured in file: '%s', method: '%s', line: '%s'";
-			throw new ErrorException(msg, proto.getLocalName(), proto2.getLocalName(),
-						Thread.currentThread().getStackTrace()[2].getFileName(),
-						Thread.currentThread().getStackTrace()[2].getMethodName(),
-						Thread.currentThread().getStackTrace()[2].getLineNumber());
+			int stackLen = Thread.currentThread().getStackTrace().length;
+			int transitionDepth = -1;
+			for (int j=0; j<stackLen; j++) {
+				System.out.println(Thread.currentThread().getStackTrace()[j].getMethodName());
+				if (Thread.currentThread().getStackTrace()[j].getMethodName().equals("transitionTo")) {
+					transitionDepth = j+1;
+				}
+			}
+			
+			if (transitionDepth == -1) {
+				String msg = "For the activity: '%s', the type of the given entity: '%s', does not match the type required: '%s'";
+				throw new ErrorException(msg, this.getName(), proto.getLocalName(), proto2.getLocalName());
+			} else {
+				String msg = "For the activity: '%s', the type of the given entity: '%s', does not match the type required: '%s'\n"
+						+ "The error occured in file: '%s', method: '%s', line: '%s'";
+				throw new ErrorException(msg, this.getName(), proto.getLocalName(), proto2.getLocalName(),
+							Thread.currentThread().getStackTrace()[transitionDepth].getFileName(),
+							Thread.currentThread().getStackTrace()[transitionDepth].getMethodName(),
+							Thread.currentThread().getStackTrace()[transitionDepth].getLineNumber());
+			}
 		}
 
 		currentParticipant = ent;
@@ -311,6 +325,7 @@ public class WaitActivity extends Queue implements Activity {
 //		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
 //      updateGraphics(getSimTime());
 		startEvent.happens(ents);
+		currentParticipant = null;
 	}
 	
 	/**
@@ -333,6 +348,7 @@ public class WaitActivity extends Queue implements Activity {
 		finishEnts = new ArrayList<ActiveEntity>(ents);
 		currentParticipant = ents.get(0);
 		finishEvent.happens(ents);
+		currentParticipant = null;
 		removeEntity((DisplayEntity)ents.get(0));
 		if (printTrace.getValue() == true) {
 			System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
