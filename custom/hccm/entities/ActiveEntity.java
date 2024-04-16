@@ -87,8 +87,8 @@ public class ActiveEntity extends SimEntity implements Entity {
 	 * Helper function that converts a single entity to a list, for use with other functions
 	 * @return a list of ActiveEntity objects
 	 */
-	public List<ActiveEntity> asList() {
-		return Arrays.asList(this);
+	public ArrayList<ActiveEntity> asList() {
+		return new ArrayList<ActiveEntity>(Arrays.asList(this));
 	}
 
 	/**
