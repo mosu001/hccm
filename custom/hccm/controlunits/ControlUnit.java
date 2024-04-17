@@ -3,6 +3,7 @@ package hccm.controlunits;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Comparator;
 
 import com.jaamsim.Graphics.DisplayEntity;
@@ -226,7 +227,9 @@ public class ControlUnit extends DisplayEntity {
 		} catch (ExpError err) {
 			throw new ErrorException(this, err);
 		}
-		ArrayList<ActiveEntity> ents = (ArrayList<ActiveEntity>) act.getEntities();
+		ArrayList<ActiveEntity> ents = (ArrayList<ActiveEntity>) act.getEntities().
+				stream().filter(e -> e.getPrototype().getName().equals(entityName)).
+				collect(Collectors.toList());
 		return ents;
 	}
 	
