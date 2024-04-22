@@ -260,5 +260,12 @@ public class ActiveEntity extends SimEntity implements Entity {
 //        	throw new ErrorException(this, e);
 		}
 	}
-	
+
+	@Override
+	public void earlyInit() {
+		super.earlyInit();
+
+		initActivityStarts();
+		initActivityStartTimes();
+	}
 }
