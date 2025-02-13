@@ -44,9 +44,9 @@ import hccm.events.ActivityEvent;
  */
 public class ProcessActivity extends EntityDelay implements Activity {
 	
-	@Keyword(description = "Control unit this activity belongs to.",
-			 exampleList = {"Unit1"})
-	private final EntityInput<ControlUnit> controlUnitInput;
+	// @Keyword(description = "Control unit this activity belongs to.",
+	// 		 exampleList = {"Unit1"})
+	// private final EntityInput<ControlUnit> controlUnitInput;
 	
 	@Keyword(description = "The (prototype) entities that participate in this activity.",
 	         exampleList = {"ProtoEntity1"})
@@ -303,8 +303,8 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * 
 	 */
 	{
-		controlUnitInput = new EntityInput<ControlUnit>(ControlUnit.class, "ControlUnit", Constants.HCCM, null);
-		this.addInput(controlUnitInput);
+		// controlUnitInput = new EntityInput<ControlUnit>(ControlUnit.class, "ControlUnit", Constants.HCCM, null);
+		// this.addInput(controlUnitInput);
 		
 		participantList = new EntityListInput<>(ActiveEntity.class, "ParticipantList", Constants.HCCM, null);
 		participantList.setRequired(true);
@@ -464,7 +464,7 @@ public class ProcessActivity extends EntityDelay implements Activity {
 	 * Getter method to get the controlUnit of the control activity
 	 * @return controlUnitInput.getValue(), the value? 
 	 */
-	public ControlUnit getControlUnit() { return controlUnitInput.getValue(); }
+	// public ControlUnit getControlUnit() { return controlUnitInput.getValue(); }
 
 	/**
 	 * Overrides parent function for the startAssignments

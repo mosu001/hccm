@@ -38,7 +38,7 @@ public class Trigger extends DisplayEntity {
 		
 		controlPolicy = new StringInput("ControlPolicy", Constants.HCCM, null);
 		//controlPolicy.setUnitType(DimensionlessUnit.class);
-		//controlPolicy.setRequired(true);
+		controlPolicy.setRequired(true);
 		this.addInput(controlPolicy);
 	}
 
