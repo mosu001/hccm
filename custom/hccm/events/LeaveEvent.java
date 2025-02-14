@@ -10,6 +10,7 @@ import com.jaamsim.basicsim.ErrorException;
 import com.jaamsim.input.EntityInput;
 import com.jaamsim.input.EntityListInput;
 import com.jaamsim.input.Keyword;
+import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.Constants;
@@ -43,6 +44,8 @@ public class LeaveEvent extends EntitySink implements Event {
 			 exampleList = {"Unit1"})
 	private final EntityInput<EventLogger> eventLoggerInput;
 
+	private List<ActiveEntity> currentEnts;
+
 	{
 		participant = new EntityInput<>(ActiveEntity.class, "Participant", Constants.HCCM, null);
 		participant.setRequired(true);
@@ -60,6 +63,8 @@ public class LeaveEvent extends EntitySink implements Event {
 		
 		eventLoggerInput = new EntityInput<EventLogger>(EventLogger.class, "EventLogger", Constants.HCCM, null);
 		this.addInput(eventLoggerInput);
+
+		currentEnts = new ArrayList<ActiveEntity>();
 	}
 	
 	/**
@@ -98,7 +103,7 @@ public class LeaveEvent extends EntitySink implements Event {
 	 * @param ents, a list of ActiveEntity objects
 	 */
 	public void happens(List<ActiveEntity> ents) { // What occurs when this event happens
-		
+		currentEnts = ents;
 		double simTime = getSimTime();	
 		EventLogger eventLogger = eventLoggerInput.getValue();
 		
@@ -115,6 +120,7 @@ public class LeaveEvent extends EntitySink implements Event {
 		}
 //		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
 //      updateGraphics(getSimTime());
+		currentEnts = new ArrayList<ActiveEntity>();
 	}
 	
 	@Override
@@ -131,5 +137,14 @@ public class LeaveEvent extends EntitySink implements Event {
 		return trg;
 	}
 
-
+	@Output(name = "CurrentParticipants",
+	 description = "The entities involved in the event at present.",
+	    sequence = 1)
+	public ArrayList<DisplayEntity> getEntityList(double simTime) {
+		ArrayList<DisplayEntity> ret = new ArrayList<>(currentEnts.size());
+		for (ActiveEntity entry : currentEnts) {
+			ret.add(entry);
+		}
+		return ret;
+	}
 }

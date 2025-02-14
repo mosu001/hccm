@@ -233,7 +233,7 @@ public class WaitActivity extends Queue implements Activity {
 	WaitStart startEvent;
 	WaitFinish finishEvent;
 	ArrayList<ActiveEntity> finishEnts;
-	ActiveEntity currentParticipant = null;
+	ArrayList<ActiveEntity> currentParticipant = new ArrayList<ActiveEntity>();;
 	/**
 	 * ?
 	 */
@@ -316,7 +316,7 @@ public class WaitActivity extends Queue implements Activity {
 			}
 		}
 
-		currentParticipant = ent;
+		currentParticipant = ent.asList();
 		
 		if (printTrace.getValue() == true) {
 			System.out.println("In WaitActivity::start " + ents.get(0).getName() + " added to " + getName());
@@ -346,7 +346,7 @@ public class WaitActivity extends Queue implements Activity {
 	public void finish(List<ActiveEntity> ents) {
 		assert(ents.size() == 1);
 		finishEnts = new ArrayList<ActiveEntity>(ents);
-		currentParticipant = ents.get(0);
+		currentParticipant = new ArrayList<ActiveEntity>(ents);
 		finishEvent.happens(ents);
 		currentParticipant = null;
 		removeEntity((DisplayEntity)ents.get(0));
@@ -414,11 +414,11 @@ public class WaitActivity extends Queue implements Activity {
 		return ents;
 	}
 	
-	@Output(name = "CurrentParticipant",
+	@Output(name = "CurrentParticipants",
 			 description = "The entity that is currently starting/finishing the activity.",
 			    unitType = DimensionlessUnit.class,
 			    sequence = 1)
-	public ActiveEntity getCurrentParticipant(double simTime) {
+	public ArrayList<ActiveEntity> getCurrentParticipant(double simTime) {
 		return currentParticipant;
 	}
 	

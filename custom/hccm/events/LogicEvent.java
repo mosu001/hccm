@@ -160,6 +160,7 @@ public class LogicEvent extends DisplayEntity implements Event {
   		    // Trigger the logic
 		    tcu.triggerLogic(trg, ents, simTime);
 		}
+		currentEnts = new ArrayList<ActiveEntity>();
 	}
 
 	@Override
@@ -207,7 +208,7 @@ public class LogicEvent extends DisplayEntity implements Event {
 		return ret;
 	}
 	
-	@Output(name = "EntityList",
+	@Output(name = "CurrentParticipants",
 	 description = "The entities involved in the event at present.",
 	    sequence = 1)
 	public ArrayList<DisplayEntity> getEntityList(double simTime) {

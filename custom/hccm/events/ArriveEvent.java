@@ -16,6 +16,7 @@ import com.jaamsim.input.ExpEvaluator;
 import com.jaamsim.input.ExpParser;
 import com.jaamsim.input.InterfaceEntityInput;
 import com.jaamsim.input.Keyword;
+import com.jaamsim.input.Output;
 import com.jaamsim.units.DimensionlessUnit;
 
 import hccm.Constants;
@@ -57,6 +58,8 @@ public class ArriveEvent extends EntityGenerator implements Event {
          exampleList = {"2", "DiscreteDistribution1", "'indexOfMin([Queue1].QueueLength, [Queue2].QueueLength)'"})
 	private final SampleInput triggerChoice;
 
+	private List<ActiveEntity> currentEnts;
+
 	{
 		assignmentList = new AssignmentListInput("AssignmentList", Constants.HCCM, new ArrayList<ExpParser.Assignment>());
 		this.addInput(assignmentList);
@@ -76,6 +79,8 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		triggerChoice.setUnitType(DimensionlessUnit.class);
 		triggerChoice.setValidRange(1, Double.POSITIVE_INFINITY);
 		this.addInput(triggerChoice);
+
+		currentEnts = new ArrayList<ActiveEntity>();
 	}
 	
 	/**
@@ -111,6 +116,7 @@ public class ArriveEvent extends EntityGenerator implements Event {
 	 * @param ents, a list of ActiveEntity objects
 	 */
 	public void happens(List<ActiveEntity> ents) { // What occurs when this event happens
+		currentEnts = ents;
 		assigns(ents);
 		// Generate a trigger if there is one for this event
 		if (triggerList.getValue().size() > 0) {
@@ -126,6 +132,7 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		Constants.nextComponent(this, nextCmpt, ents);
 //		System.out.println("Updating graphics for " + getName() + " at " + getSimTime());
 //      updateGraphics(getSimTime());
+		currentEnts = new ArrayList<ActiveEntity>();
 	}
 
 	@Override
@@ -140,6 +147,17 @@ public class ArriveEvent extends EntityGenerator implements Event {
 		Trigger trg = triggerList.getValue().get(i-1);
 		
 		return trg;
+	}
+
+	@Output(name = "CurrentParticipants",
+	 description = "The entities involved in the event at present.",
+	    sequence = 1)
+	public ArrayList<DisplayEntity> getEntityList(double simTime) {
+		ArrayList<DisplayEntity> ret = new ArrayList<>(currentEnts.size());
+		for (ActiveEntity entry : currentEnts) {
+			ret.add(entry);
+		}
+		return ret;
 	}
 
 }
