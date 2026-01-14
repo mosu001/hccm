@@ -103,7 +103,7 @@ public class EventLogger extends DisplayEntity {
 			File f = new File(fileName);
 			if (f.exists() && !f.delete())
 				error("Cannot delete the existing log file %s", f);
-			file = new FileEntity(f);
+			file = new FileEntity(simModel, f);
 		}
 
 		// Print the detailed run information to the file
